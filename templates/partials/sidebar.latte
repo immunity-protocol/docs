@@ -1,0 +1,30 @@
+<aside class="docs-sidebar" n:if="isset($sidebar)">
+    <nav class="sidebar-nav">
+        {foreach $sidebar as $group}
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">{$group['title']}</h3>
+            <ul class="sidebar-links">
+                {foreach $group['items'] as $item}
+                <li>
+                    <a href="{$item['url']}"
+                       class="sidebar-link{if ($item['url'] ?? '') === "{$leafBaseUrl}/{$section}/{$slug}"} active{/if}">
+                        {$item['title']}
+                    </a>
+                </li>
+                {/foreach}
+            </ul>
+        </div>
+        {/foreach}
+    </nav>
+    <div class="sidebar-footer">
+        <div class="sidebar-mobile-links">
+            <a n:if="($leafGithubUrl ?? '') !== ''" href="{$leafGithubUrl}" class="sidebar-footer-link" target="_blank" rel="noopener">GitHub</a>
+        </div>
+        <div class="sidebar-copyright">
+            &copy; {date('Y')} {$leafAuthor ?? ''}
+        </div>
+        <div class="sidebar-powered">
+            Powered by <a href="https://leaf.ophelios.com" target="_blank" rel="noopener">Zephyrus Leaf</a>
+        </div>
+    </div>
+</aside>
