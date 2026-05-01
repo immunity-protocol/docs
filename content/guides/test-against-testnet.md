@@ -61,7 +61,7 @@ In a fresh project:
 ```bash
 mkdir my-immunity-test && cd my-immunity-test
 npm init -y
-npm install --legacy-peer-deps @immunity-protocol/sdk ethers
+npm install @immunity-protocol/sdk ethers
 npm install -D tsx typescript
 ```
 

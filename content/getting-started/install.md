@@ -11,10 +11,10 @@ The Immunity SDK ships as `@immunity-protocol/sdk` on npm. It targets **Node 20 
 ## One command
 
 ```bash
-npm install --legacy-peer-deps @immunity-protocol/sdk ethers
+npm install @immunity-protocol/sdk ethers
 ```
 
-The `--legacy-peer-deps` flag is **required**. The 0G Storage SDK that powers evidence uploads pins ethers exactly, so npm refuses the install without the flag.
+If npm complains about a peer-dep conflict on `ethers` (rare, depends on your registry's resolution mode), pass `--legacy-peer-deps`. It is not required by default.
 
 ## Confirm the install
 
