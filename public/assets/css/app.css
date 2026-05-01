@@ -1,26 +1,36 @@
 /* ============================================================
-   Zephyrus Leaf — Light & Dark Theme
-   Electric violet accent. System-preference aware.
+   Immunity Docs theme.
+   Dark default mirrors the immunity-app landing (ink-base family).
+   Light is a soft cream/parchment palette, calm and high-contrast
+   enough to read code blocks comfortably.
    ============================================================ */
 
-/* ── Design Tokens ────────────────────────────────────────── */
+/* Design tokens. Dark theme by default; light variants follow.
+   Tokens used downstream:
+     --bg-deep, --bg-surface, --bg-elevated     section backgrounds
+     --border, --border-accent                  rules and accent borders
+     --text, --text-bright, --text-muted        copy
+     --accent, --accent-light, --accent-glow    interactive surfaces
+     --nav-bg, --overlay-bg, --search-overlay   chrome and modals
+     --code-tab-header                          code-block header strip
+*/
 :root {
-    /* Dark theme (default) */
-    --bg-deep: #08080d;
-    --bg-surface: #11111a;
-    --bg-elevated: #1a1a27;
-    --border: #1e1e2e;
-    --border-accent: rgba(139, 92, 246, 0.3);
-    --text: #d4d4d8;
-    --text-bright: #fafafa;
-    --text-muted: #52525b;
-    --accent: #8b5cf6;
-    --accent-light: #a78bfa;
-    --accent-glow: rgba(139, 92, 246, 0.15);
-    --nav-bg: rgba(8, 8, 13, 0.85);
-    --overlay-bg: rgba(8, 8, 13, 0.6);
-    --search-overlay: rgba(8, 8, 13, 0.7);
-    --code-tab-header: rgba(17, 17, 26, 0.5);
+    /* Dark (default). Mirrors immunity-app ink-* family. */
+    --bg-deep: #0a0a09;
+    --bg-surface: #0e0e0d;
+    --bg-elevated: #1c1c1a;
+    --border: #2a2a26;
+    --border-accent: rgba(201, 165, 96, 0.35);
+    --text: #d6d2c5;
+    --text-bright: #f5f1e8;
+    --text-muted: #7a7568;
+    --accent: #c9a560;
+    --accent-light: #e8d4a0;
+    --accent-glow: rgba(201, 165, 96, 0.18);
+    --nav-bg: rgba(10, 10, 9, 0.85);
+    --overlay-bg: rgba(10, 10, 9, 0.6);
+    --search-overlay: rgba(10, 10, 9, 0.7);
+    --code-tab-header: rgba(28, 28, 26, 0.6);
     --font-body: 'Inter', system-ui, -apple-system, sans-serif;
     --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
     --nav-height: 4rem;
@@ -30,43 +40,43 @@
     color-scheme: dark;
 }
 
-/* Light theme */
+/* Light. Cream/parchment, calm but readable for code. */
 [data-theme="light"] {
-    --bg-deep: #ffffff;
-    --bg-surface: #f8f8fa;
-    --bg-elevated: #f0f0f4;
-    --border: #e4e4e8;
-    --border-accent: rgba(139, 92, 246, 0.25);
-    --text: #3f3f46;
-    --text-bright: #18181b;
-    --text-muted: #a1a1aa;
-    --accent: #7c3aed;
-    --accent-light: #6d28d9;
-    --accent-glow: rgba(139, 92, 246, 0.08);
-    --nav-bg: rgba(255, 255, 255, 0.85);
-    --overlay-bg: rgba(255, 255, 255, 0.6);
-    --search-overlay: rgba(255, 255, 255, 0.7);
-    --code-tab-header: rgba(248, 248, 250, 0.5);
+    --bg-deep: #efe9d8;
+    --bg-surface: #f5f1e8;
+    --bg-elevated: #e9e2cd;
+    --border: #d4cbb3;
+    --border-accent: rgba(139, 111, 51, 0.30);
+    --text: #4a4233;
+    --text-bright: #2a241a;
+    --text-muted: #8a826f;
+    --accent: #8b6f33;
+    --accent-light: #b8964a;
+    --accent-glow: rgba(139, 111, 51, 0.10);
+    --nav-bg: rgba(245, 241, 232, 0.85);
+    --overlay-bg: rgba(245, 241, 232, 0.6);
+    --search-overlay: rgba(245, 241, 232, 0.7);
+    --code-tab-header: rgba(233, 226, 205, 0.6);
     color-scheme: light;
 }
 
 @media (prefers-color-scheme: light) {
     :root:not([data-theme="dark"]) {
-        --bg-deep: #ffffff;
-        --bg-surface: #f8f8fa;
-        --bg-elevated: #f0f0f4;
-        --border: #e4e4e8;
-        --border-accent: rgba(139, 92, 246, 0.25);
-        --text: #3f3f46;
-        --text-bright: #18181b;
-        --text-muted: #a1a1aa;
-        --accent: #7c3aed;
-        --accent-light: #6d28d9;
-        --accent-glow: rgba(139, 92, 246, 0.08);
-        --nav-bg: rgba(255, 255, 255, 0.85);
-        --overlay-bg: rgba(255, 255, 255, 0.6);
-        --search-overlay: rgba(255, 255, 255, 0.7);
-        --code-tab-header: rgba(248, 248, 250, 0.5);
+        --bg-deep: #efe9d8;
+        --bg-surface: #f5f1e8;
+        --bg-elevated: #e9e2cd;
+        --border: #d4cbb3;
+        --border-accent: rgba(139, 111, 51, 0.30);
+        --text: #4a4233;
+        --text-bright: #2a241a;
+        --text-muted: #8a826f;
+        --accent: #8b6f33;
+        --accent-light: #b8964a;
+        --accent-glow: rgba(139, 111, 51, 0.10);
+        --nav-bg: rgba(245, 241, 232, 0.85);
+        --overlay-bg: rgba(245, 241, 232, 0.6);
+        --search-overlay: rgba(245, 241, 232, 0.7);
+        --code-tab-header: rgba(233, 226, 205, 0.6);
         color-scheme: light;
     }
 }
