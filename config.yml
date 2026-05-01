@@ -1,0 +1,35 @@
+application:
+  environment: !env APP_ENV, dev
+  debug: !env APP_DEBUG, true
+
+localization:
+  locale: "en"
+  supported_locales:
+    - "en"
+  locale_path: "locale"
+  timezone: "UTC"
+
+render:
+  engine: "latte"
+  directory: "app/Views"
+  cache: "cache/latte"
+  mode: "always"
+
+leaf:
+  name: "Immunity Docs"
+  version: "0.1.0"
+  description: "Decentralized threat intelligence for AI agents. Documentation for the @immunity-protocol/sdk and the on-chain Registry on 0G Chain."
+  github_url: "https://github.com/ophelios-studio/immunity-sdk"
+  content_path: "content"
+  output_path: "dist"
+  base_url: ""
+  production_url: "https://docs.immunity-protocol.com"
+  author: "Ophelios"
+  author_url: "https://immunity-protocol.com"
+  license: "Apache-2.0"
+  sections:
+    getting-started: "Getting Started"
+    concepts: "Concepts"
+    guides: "Guides"
+    reference: "Reference"
+    network: "Network"

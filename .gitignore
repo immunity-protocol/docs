@@ -1,0 +1,13 @@
+# Build output. The user deploys this themselves; not committed.
+dist/
+
+# Latte template cache
+cache/
+
+# Editor + OS
+.DS_Store
+.idea/
+.vscode/
+
+# Node (in case anyone adds tooling later)
+node_modules/
