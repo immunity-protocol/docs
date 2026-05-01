@@ -1,6 +1,3 @@
-# Build output. The user deploys this themselves; not committed.
-dist/
-
 # Latte template cache
 cache/
 
