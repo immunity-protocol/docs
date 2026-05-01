@@ -95,7 +95,7 @@
         "title": "Install",
         "section": "getting-started",
         "url": "\/getting-started\/install",
-        "excerpt": "Install the SDK The Immunity SDK ships as @immunity-protocol\/sdk on npm. It targets Node 20 or newer and depends on ethers v6. #One command npm install --legacy-peer-deps @immunity-protocol\/sdk ethers The --legacy-peer-deps flag is required. The 0G Storage SDK that powers evidence uploads pins ether...",
+        "excerpt": "Install the SDK The Immunity SDK ships as @immunity-protocol\/sdk on npm. It targets Node 20 or newer and depends on ethers v6. #One command npm install @immunity-protocol\/sdk ethers If npm complains about a peer-dep conflict on ethers (rare, depends on your registry's resolution mode), pass --legacy...",
         "headings": [
             "One command",
             "Confirm the install",

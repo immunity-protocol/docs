@@ -292,7 +292,7 @@ tailwind.config = {
             &copy; 2026 Ophelios
         </div>
         <div class="sidebar-powered">
-            Powered by <a href="https://github.com/dadajuice/zephyrus-leaf" target="_blank" rel="noopener">Zephyrus Leaf</a>
+            Powered by <a href="https://leaf.ophelios.com" target="_blank" rel="noopener">Zephyrus Leaf</a>
         </div>
     </div>
 </aside>
@@ -302,9 +302,9 @@ tailwind.config = {
         <h1>Install the SDK</h1>
 <p>The Immunity SDK ships as <code>@immunity-protocol/sdk</code> on npm. It targets <strong>Node 20 or newer</strong> and depends on <strong>ethers v6</strong>.</p>
 <h2 id="one-command"><a href="#one-command" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>One command</h2>
-<pre><code class="language-bash">npm install --legacy-peer-deps @immunity-protocol/sdk ethers
+<pre><code class="language-bash">npm install @immunity-protocol/sdk ethers
 </code></pre>
-<p>The <code>--legacy-peer-deps</code> flag is <strong>required</strong>. The 0G Storage SDK that powers evidence uploads pins ethers exactly, so npm refuses the install without the flag.</p>
+<p>If npm complains about a peer-dep conflict on <code>ethers</code> (rare, depends on your registry's resolution mode), pass <code>--legacy-peer-deps</code>. It is not required by default.</p>
 <h2 id="confirm-the-install"><a href="#confirm-the-install" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Confirm the install</h2>
 <pre><code class="language-bash">node -e &quot;import('@immunity-protocol/sdk').then(m =&gt; console.log(Object.keys(m)))&quot;
 </code></pre>
