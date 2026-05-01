@@ -1,15 +1,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="leaf-base-url" content="{$leafBaseUrl}">
-<meta n:if="($pageDescription ?? '') !== ''" name="description" content="{$pageDescription}">
+<meta name="description" content="{$pageDescription ?? $leafDescription ?? ''}">
 <meta name="robots" content="index, follow">
+<link n:if="($leafProductionUrl ?? '') !== ''" rel="canonical" href="{$leafProductionUrl}{$requestPath ?? '/'}">
 <meta property="og:type" content="article">
 <meta property="og:title" content="{$title ?? ''} · {$leafName ?? ''}">
 <meta n:if="($pageDescription ?? '') !== ''" property="og:description" content="{$pageDescription}">
 <meta property="og:site_name" content="{$leafName ?? ''}">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="{$leafProductionUrl ?? ''}/assets/og/og-default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="{$leafName ?? 'Immunity Docs'}">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{$title ?? ''} · {$leafName ?? ''}">
 <meta n:if="($pageDescription ?? '') !== ''" name="twitter:description" content="{$pageDescription}">
+<meta name="twitter:image" content="{$leafProductionUrl ?? ''}/assets/og/og-default.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
