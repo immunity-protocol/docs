@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="leaf-base-url" content="">
+<meta name="description" content="Wire an onEscalate handler so SUSPICIOUS verdicts pause for a human (or a higher-level agent) before auto-blocking.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://docs.immunity-protocol.com/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Operator in the loop · Immunity Docs">
+<meta property="og:description" content="Wire an onEscalate handler so SUSPICIOUS verdicts pause for a human (or a higher-level agent) before auto-blocking.">
+<meta property="og:site_name" content="Immunity Docs">
+<meta property="og:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Immunity Docs">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Operator in the loop · Immunity Docs">
+<meta name="twitter:description" content="Wire an onEscalate handler so SUSPICIOUS verdicts pause for a human (or a higher-level agent) before auto-blocking.">
+<meta name="twitter:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+    theme: {
+        extend: {
+            colors: {
+                deep: 'var(--bg-deep)',
+                surface: 'var(--bg-surface)',
+                elevated: 'var(--bg-elevated)',
+                border: 'var(--border)',
+                'border-accent': 'var(--border-accent)',
+                body: 'var(--text)',
+                bright: 'var(--text-bright)',
+                muted: 'var(--text-muted)',
+                accent: 'var(--accent)',
+                'accent-light': 'var(--accent-light)',
+                'accent-glow': 'var(--accent-glow)',
+            },
+            fontFamily: {
+                body: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+            },
+        },
+    },
+}
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="stylesheet" href="/assets/css/app.css">
+<script src="/assets/js/theme.js"></script>
+    <title>Operator in the loop · Immunity Docs</title>
+</head>
+<body class="bg-deep text-body antialiased font-body">
+<header class="site-nav">
+    <div class="nav-container">
+        <div class="nav-left">
+            <button class="nav-toggle" onclick="toggleNav()" type="button" aria-label="Toggle menu">
+                <svg class="nav-toggle-open" width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg>
+                <svg class="nav-toggle-close" width="20" height="20" viewBox="0 0 20 20" fill="currentColor" style="display:none"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+            </button>
+            <a href="/" class="nav-logo nav-logo-text">
+                <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 6 L24 6 L16 16 L24 26 L8 26 L16 16 Z" fill="currentColor" opacity="0.9"></path>
+                </svg>
+                <span>Immunity Docs</span>
+            </a>
+        </div>
+        <nav class="nav-links">
+            <button class="search-trigger" onclick="openSearch()" type="button">
+                <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path></svg>
+                <span>Search</span>
+                <kbd>Ctrl+K</kbd>
+            </button>
+            <a href="https://github.com/ophelios-studio/immunity-sdk" class="nav-link" target="_blank" rel="noopener">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+                GitHub
+            </a>
+            <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle theme">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            </button>
+            <span class="version-badge">0.1.0</span>
+        </nav>
+    </div>
+</header>
+
+    <div class="docs-layout">
+        <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+<aside class="docs-sidebar">
+    <nav class="sidebar-nav">
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Getting Started</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/getting-started/install"
+                       class="sidebar-link">
+                        Install
+                    </a>
+                </li>
+                <li>
+                    <a href="/getting-started/quickstart"
+                       class="sidebar-link">
+                        Quickstart
+                    </a>
+                </li>
+                <li>
+                    <a href="/getting-started/concepts-in-two-minutes"
+                       class="sidebar-link">
+                        Concepts in two minutes
+                    </a>
+                </li>
+                <li>
+                    <a href="/getting-started/skill-for-ai-assistants"
+                       class="sidebar-link">
+                        Skill for AI assistants
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Concepts</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/concepts/antibodies"
+                       class="sidebar-link">
+                        Antibodies
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/three-tier-lookup"
+                       class="sidebar-link">
+                        Three-tier lookup
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/tee-verification"
+                       class="sidebar-link">
+                        TEE verification
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/settlement-and-tokenomics"
+                       class="sidebar-link">
+                        Settlement and tokenomics
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/cross-chain-mirror"
+                       class="sidebar-link">
+                        Cross-chain mirror
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Guides</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/guides/gate-a-transaction"
+                       class="sidebar-link">
+                        Gate a transaction
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/publish-an-antibody"
+                       class="sidebar-link">
+                        Publish an antibody
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/operator-in-the-loop"
+                       class="sidebar-link active">
+                        Operator in the loop
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/uniswap-v4-hook"
+                       class="sidebar-link">
+                        Uniswap v4 hook
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/test-against-testnet"
+                       class="sidebar-link">
+                        Test against testnet
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/the-public-feed"
+                       class="sidebar-link">
+                        The public feed
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Reference</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/reference/immunity-class"
+                       class="sidebar-link">
+                        Immunity class
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/immunityconfig"
+                       class="sidebar-link">
+                        ImmunityConfig
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/checkresult"
+                       class="sidebar-link">
+                        CheckResult
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/antibody"
+                       class="sidebar-link">
+                        Antibody
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/errors"
+                       class="sidebar-link">
+                        Errors
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/network-presets"
+                       class="sidebar-link">
+                        Network presets
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/helpers"
+                       class="sidebar-link">
+                        Helpers
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Network</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/network/registry-on-0g"
+                       class="sidebar-link">
+                        Registry on 0G
+                    </a>
+                </li>
+                <li>
+                    <a href="/network/the-public-feed"
+                       class="sidebar-link">
+                        The public feed
+                    </a>
+                </li>
+                <li>
+                    <a href="/network/economics"
+                       class="sidebar-link">
+                        Economics
+                    </a>
+                </li>
+                <li>
+                    <a href="/network/attack-types-we-catch"
+                       class="sidebar-link">
+                        Attack types we catch
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="sidebar-mobile-links">
+            <a href="https://github.com/ophelios-studio/immunity-sdk" class="sidebar-footer-link" target="_blank" rel="noopener">GitHub</a>
+        </div>
+        <div class="sidebar-copyright">
+            &copy; 2026 Ophelios
+        </div>
+        <div class="sidebar-powered">
+            Powered by <a href="https://github.com/dadajuice/zephyrus-leaf" target="_blank" rel="noopener">Zephyrus Leaf</a>
+        </div>
+    </div>
+</aside>
+        <main class="docs-main">
+<article class="docs-content">
+    <div class="prose">
+        <h1>Operator in the loop</h1>
+<p>Some threats are obvious (a known drainer, a sanctioned address) and the SDK should block instantly. Some are ambiguous (a counterparty with light bad-faith signals, a SEMANTIC marker with mid-range confidence). For ambiguous cases, you want a human or a higher-level policy agent to make the call.</p>
+<p>The <code>onEscalate</code> handler is the hook that turns a SUSPICIOUS verdict into a synchronous &quot;ask the operator&quot; callback.</p>
+<h2 id="when-it-fires"><a href="#when-it-fires" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>When it fires</h2>
+<p>Two conditions must be true:</p>
+<ol>
+<li>A check has matched antibodies, OR the TEE returned a verdict.</li>
+<li>The maximum confidence falls in the <strong>escalate band</strong> (default: <code>60 &lt;= confidence &lt; 85</code>).</li>
+</ol>
+<p>In that window, the SDK invokes your <code>onEscalate</code> handler instead of auto-deciding. Outside the window, decisions are deterministic: confidence <code>&gt;= 85</code> blocks, confidence <code>&lt; 60</code> allows.</p>
+<p>Both thresholds are configurable via <code>confidenceThresholds</code>.</p>
+<h2 id="the-handler-signature"><a href="#the-handler-signature" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>The handler signature</h2>
+<pre><code class="language-ts">onEscalate?: (ctx: {
+  reason: string;                                       // human-readable reason
+  confidence: number;                                   // 0..100
+  matched: { keccakId: string; immId: string }[];       // antibody refs
+}) =&gt; Promise&lt;boolean&gt;;                                  // true = allow, false = block
+</code></pre>
+<p>Return <code>true</code> to allow the action through. Return <code>false</code> to block. Throwing is treated as block.</p>
+<h2 id="common-handler-patterns"><a href="#common-handler-patterns" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Common handler patterns</h2>
+<h3 id="slack-ping-with-two-buttons"><a href="#slack-ping-with-two-buttons" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Slack ping with two buttons</h3>
+<pre><code class="language-ts">const immunity = new Immunity({
+  wallet,
+  axlUrl,
+  onEscalate: async ({ reason, confidence, matched }) =&gt; {
+    const ts = await postSlackMessage({
+      channel: &quot;#agent-escalations&quot;,
+      blocks: [
+        { type: &quot;section&quot;, text: { type: &quot;mrkdwn&quot;, text: `*Escalation* (${confidence}% confident)` } },
+        { type: &quot;section&quot;, text: { type: &quot;mrkdwn&quot;, text: reason } },
+        { type: &quot;section&quot;, text: { type: &quot;mrkdwn&quot;, text: `Matched: ${matched.map(m =&gt; m.immId).join(&quot;, &quot;)}` } },
+        {
+          type: &quot;actions&quot;,
+          elements: [
+            { type: &quot;button&quot;, action_id: &quot;allow&quot;, text: { type: &quot;plain_text&quot;, text: &quot;Allow&quot; } },
+            { type: &quot;button&quot;, action_id: &quot;block&quot;, text: { type: &quot;plain_text&quot;, text: &quot;Block&quot; }, style: &quot;danger&quot; },
+          ],
+        },
+      ],
+    });
+    return waitForButtonClick(ts);  // resolves true on Allow, false on Block
+  },
+  escalationTimeout: 300,            // 5 minutes
+  onTimeout: &quot;deny&quot;,                 // default-deny if no one clicks
+});
+</code></pre>
+<h3 id="higher-level-policy-agent"><a href="#higher-level-policy-agent" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Higher-level policy agent</h3>
+<pre><code class="language-ts">onEscalate: async ({ reason, confidence, matched }) =&gt; {
+  const verdict = await policyAgent.classify({
+    reason,
+    confidence,
+    matched,
+    contextWindow: getRecentContext(),
+  });
+  return verdict === &quot;allow&quot;;
+},
+</code></pre>
+<p>The policy agent can be another LLM, a rules engine, or an organization-specific SOC tool. The handler is just a function that returns a boolean.</p>
+<h3 id="auto-deny-with-a-notification"><a href="#auto-deny-with-a-notification" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Auto-deny with a notification</h3>
+<pre><code class="language-ts">onEscalate: async ({ reason, confidence, matched }) =&gt; {
+  await pageOnCall({ severity: &quot;info&quot;, reason, matched });
+  return false;     // block, but tell someone
+},
+</code></pre>
+<p>Useful for low-risk-tolerance agents that should never proceed on a SUSPICIOUS verdict but you still want telemetry.</p>
+<h2 id="timeout-behavior"><a href="#timeout-behavior" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Timeout behavior</h2>
+<p><code>escalationTimeout</code> (default 300 seconds) caps how long the SDK waits for your handler. On timeout, <code>onTimeout</code> decides:</p>
+<ul>
+<li><code>&quot;deny&quot;</code> (default), block the action. Safe default.</li>
+<li><code>&quot;allow&quot;</code>, allow the action. Only sensible when the agent is high-traffic and dropping ambiguous calls is worse than letting them through.</li>
+</ul>
+<p>The handler itself is not killed on timeout; it keeps running in the background. The SDK just stops waiting for it.</p>
+<h2 id="errors"><a href="#errors" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Errors</h2>
+<table>
+<thead>
+<tr>
+<th>Error</th>
+<th>Code</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>EscalationError</code></td>
+<td><code>ERR_ESCALATION_TIMEOUT</code></td>
+<td>handler did not resolve within <code>escalationTimeout</code></td>
+</tr>
+<tr>
+<td><code>EscalationError</code></td>
+<td><code>ERR_ESCALATION_DENIED</code></td>
+<td>handler returned false</td>
+</tr>
+<tr>
+<td><code>EscalationError</code></td>
+<td><code>ERR_ESCALATION_NO_HANDLER</code></td>
+<td>escalate verdict but no handler configured</td>
+</tr>
+</tbody>
+</table>
+<p><code>ERR_ESCALATION_NO_HANDLER</code> is a config bug. If you set <code>confidenceThresholds.escalate</code>, you must also set <code>onEscalate</code>.</p>
+<h2 id="what-you-do-have-access-to"><a href="#what-you-do-have-access-to" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>What you DO have access to</h2>
+<p>Inside the handler, the second arg of <code>check()</code> (the <code>CheckContext</code>) is <strong>not</strong> passed through. Reason: the operator should make a decision based on the SDK's distilled signal (<code>reason</code>, <code>confidence</code>, <code>matched</code>), not the raw conversation. If you need richer context, capture it in your handler's closure when you call <code>check()</code>.</p>
+<p>Pattern:</p>
+<pre><code class="language-ts">async function safeSend(tx, ctx) {
+  // Capture the context up here.
+  const captured = { tx, ctx, agentId: process.env.AGENT_ID };
+  // The SDK's onEscalate will close over `captured`.
+  const result = await immunity.check(tx, ctx);
+  // ...
+}
+
+// Configure the SDK once, share captured via a queue keyed by check id.
+</code></pre>
+<h2 id="see-also"><a href="#see-also" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>See also</h2>
+<ul>
+<li><strong><a href="/reference/immunityconfig/">Reference: ImmunityConfig</a></strong>, all config fields.</li>
+<li><strong><a href="/reference/errors/">Reference: Errors</a></strong>, the full taxonomy.</li>
+<li><strong><a href="/concepts/tee-verification/">Concepts: TEE verification</a></strong>, where SUSPICIOUS verdicts come from.</li>
+</ul>
+
+    </div>
+
+    <nav class="docs-pagination">
+        <a href="/guides/publish-an-antibody" class="pagination-link pagination-prev">
+            <span class="pagination-label">&larr; Previous</span>
+            <span class="pagination-title">Publish an antibody</span>
+        </a>
+
+        <a href="/guides/uniswap-v4-hook" class="pagination-link pagination-next">
+            <span class="pagination-label">Next &rarr;</span>
+            <span class="pagination-title">Uniswap v4 hook</span>
+        </a>
+    </nav>
+</article>
+        </main>
+<aside class="docs-toc">
+    <div class="toc-wrapper">
+        <h4 class="toc-title">On this page</h4>
+        <ul class="toc-links">
+            <li class="toc-item">
+                <a href="#when-it-fires" class="toc-link">When it fires</a>
+            </li>
+            <li class="toc-item">
+                <a href="#the-handler-signature" class="toc-link">The handler signature</a>
+            </li>
+            <li class="toc-item">
+                <a href="#common-handler-patterns" class="toc-link">Common handler patterns</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#slack-ping-with-two-buttons" class="toc-link">Slack ping with two buttons</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#higher-level-policy-agent" class="toc-link">Higher-level policy agent</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#auto-deny-with-a-notification" class="toc-link">Auto-deny with a notification</a>
+            </li>
+            <li class="toc-item">
+                <a href="#timeout-behavior" class="toc-link">Timeout behavior</a>
+            </li>
+            <li class="toc-item">
+                <a href="#errors" class="toc-link">Errors</a>
+            </li>
+            <li class="toc-item">
+                <a href="#what-you-do-have-access-to" class="toc-link">What you DO have access to</a>
+            </li>
+            <li class="toc-item">
+                <a href="#see-also" class="toc-link">See also</a>
+            </li>
+        </ul>
+    </div>
+</aside>
+    </div>
+
+<div class="search-overlay" id="search-overlay">
+    <div class="search-dialog" role="dialog" aria-label="Search documentation">
+        <div class="search-input-wrapper">
+            <svg class="search-icon" width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+            </svg>
+            <input type="text" class="search-input" id="search-input" placeholder="Search documentation..." autocomplete="off" autofocus>
+            <kbd style="font-size: 0.625rem; padding: 0.125rem 0.375rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 0.25rem; color: var(--text-muted); font-family: var(--font-mono); cursor: pointer;" onclick="closeSearch()">Esc</kbd>
+        </div>
+        <div class="search-results" id="search-results">
+            <div class="search-empty">Type to search the documentation...</div>
+        </div>
+        <div class="search-footer">
+            <span>Navigate with <kbd>&uarr;</kbd> <kbd>&darr;</kbd> keys</span>
+            <span>Press <kbd>Enter</kbd> to select</span>
+        </div>
+    </div>
+</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup-templating.min.js"></script>
+    <script src="/assets/js/copy-code.js"></script>
+    <script src="/assets/js/sidebar.js"></script>
+    <script src="/assets/js/search.js"></script>
+</body>
+</html>

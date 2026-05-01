@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="leaf-base-url" content="">
+<meta name="description" content="Every field on the object returned by immunity.check(). What populates each field at each tier.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://docs.immunity-protocol.com/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CheckResult · Immunity Docs">
+<meta property="og:description" content="Every field on the object returned by immunity.check(). What populates each field at each tier.">
+<meta property="og:site_name" content="Immunity Docs">
+<meta property="og:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Immunity Docs">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="CheckResult · Immunity Docs">
+<meta name="twitter:description" content="Every field on the object returned by immunity.check(). What populates each field at each tier.">
+<meta name="twitter:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+    theme: {
+        extend: {
+            colors: {
+                deep: 'var(--bg-deep)',
+                surface: 'var(--bg-surface)',
+                elevated: 'var(--bg-elevated)',
+                border: 'var(--border)',
+                'border-accent': 'var(--border-accent)',
+                body: 'var(--text)',
+                bright: 'var(--text-bright)',
+                muted: 'var(--text-muted)',
+                accent: 'var(--accent)',
+                'accent-light': 'var(--accent-light)',
+                'accent-glow': 'var(--accent-glow)',
+            },
+            fontFamily: {
+                body: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+            },
+        },
+    },
+}
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="stylesheet" href="/assets/css/app.css">
+<script src="/assets/js/theme.js"></script>
+    <title>CheckResult · Immunity Docs</title>
+</head>
+<body class="bg-deep text-body antialiased font-body">
+<header class="site-nav">
+    <div class="nav-container">
+        <div class="nav-left">
+            <button class="nav-toggle" onclick="toggleNav()" type="button" aria-label="Toggle menu">
+                <svg class="nav-toggle-open" width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg>
+                <svg class="nav-toggle-close" width="20" height="20" viewBox="0 0 20 20" fill="currentColor" style="display:none"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+            </button>
+            <a href="/" class="nav-logo nav-logo-text">
+                <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 6 L24 6 L16 16 L24 26 L8 26 L16 16 Z" fill="currentColor" opacity="0.9"></path>
+                </svg>
+                <span>Immunity Docs</span>
+            </a>
+        </div>
+        <nav class="nav-links">
+            <button class="search-trigger" onclick="openSearch()" type="button">
+                <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path></svg>
+                <span>Search</span>
+                <kbd>Ctrl+K</kbd>
+            </button>
+            <a href="https://github.com/ophelios-studio/immunity-sdk" class="nav-link" target="_blank" rel="noopener">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+                GitHub
+            </a>
+            <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle theme">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            </button>
+            <span class="version-badge">0.1.0</span>
+        </nav>
+    </div>
+</header>
+
+    <div class="docs-layout">
+        <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+<aside class="docs-sidebar">
+    <nav class="sidebar-nav">
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Getting Started</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/getting-started/install"
+                       class="sidebar-link">
+                        Install
+                    </a>
+                </li>
+                <li>
+                    <a href="/getting-started/quickstart"
+                       class="sidebar-link">
+                        Quickstart
+                    </a>
+                </li>
+                <li>
+                    <a href="/getting-started/concepts-in-two-minutes"
+                       class="sidebar-link">
+                        Concepts in two minutes
+                    </a>
+                </li>
+                <li>
+                    <a href="/getting-started/skill-for-ai-assistants"
+                       class="sidebar-link">
+                        Skill for AI assistants
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Concepts</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/concepts/antibodies"
+                       class="sidebar-link">
+                        Antibodies
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/three-tier-lookup"
+                       class="sidebar-link">
+                        Three-tier lookup
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/tee-verification"
+                       class="sidebar-link">
+                        TEE verification
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/settlement-and-tokenomics"
+                       class="sidebar-link">
+                        Settlement and tokenomics
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/cross-chain-mirror"
+                       class="sidebar-link">
+                        Cross-chain mirror
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Guides</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/guides/gate-a-transaction"
+                       class="sidebar-link">
+                        Gate a transaction
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/publish-an-antibody"
+                       class="sidebar-link">
+                        Publish an antibody
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/operator-in-the-loop"
+                       class="sidebar-link">
+                        Operator in the loop
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/uniswap-v4-hook"
+                       class="sidebar-link">
+                        Uniswap v4 hook
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/test-against-testnet"
+                       class="sidebar-link">
+                        Test against testnet
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/the-public-feed"
+                       class="sidebar-link">
+                        The public feed
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Reference</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/reference/immunity-class"
+                       class="sidebar-link">
+                        Immunity class
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/immunityconfig"
+                       class="sidebar-link">
+                        ImmunityConfig
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/checkresult"
+                       class="sidebar-link active">
+                        CheckResult
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/antibody"
+                       class="sidebar-link">
+                        Antibody
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/errors"
+                       class="sidebar-link">
+                        Errors
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/network-presets"
+                       class="sidebar-link">
+                        Network presets
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/helpers"
+                       class="sidebar-link">
+                        Helpers
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Network</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/network/registry-on-0g"
+                       class="sidebar-link">
+                        Registry on 0G
+                    </a>
+                </li>
+                <li>
+                    <a href="/network/the-public-feed"
+                       class="sidebar-link">
+                        The public feed
+                    </a>
+                </li>
+                <li>
+                    <a href="/network/economics"
+                       class="sidebar-link">
+                        Economics
+                    </a>
+                </li>
+                <li>
+                    <a href="/network/attack-types-we-catch"
+                       class="sidebar-link">
+                        Attack types we catch
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="sidebar-mobile-links">
+            <a href="https://github.com/ophelios-studio/immunity-sdk" class="sidebar-footer-link" target="_blank" rel="noopener">GitHub</a>
+        </div>
+        <div class="sidebar-copyright">
+            &copy; 2026 Ophelios
+        </div>
+        <div class="sidebar-powered">
+            Powered by <a href="https://github.com/dadajuice/zephyrus-leaf" target="_blank" rel="noopener">Zephyrus Leaf</a>
+        </div>
+    </div>
+</aside>
+        <main class="docs-main">
+<article class="docs-content">
+    <div class="prose">
+        <h1><code>CheckResult</code></h1>
+<p>What <code>immunity.check()</code> returns. The shape:</p>
+<pre><code class="language-ts">interface CheckResult {
+  allowed: boolean;
+  decision: &quot;allow&quot; | &quot;block&quot; | &quot;escalate&quot;;
+  source: &quot;cache&quot; | &quot;registry&quot; | &quot;tee&quot; | &quot;policy&quot;;
+  confidence: number;
+  antibodies: Antibody[];
+  reason: string;
+  checkId: Hex32 | null;
+  novel: boolean;
+  txFacts: TxFacts;
+}
+</code></pre>
+<h2 id="fields"><a href="#fields" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Fields</h2>
+<h3 id="allowed"><a href="#allowed" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>allowed</code></h3>
+<p>Type: <code>boolean</code>.</p>
+<p>The only field your control flow needs. <code>true</code>, the agent should proceed. <code>false</code>, the agent should not.</p>
+<p>Branches like <code>if (!result.allowed) return;</code> are the canonical pattern.</p>
+<h3 id="decision"><a href="#decision" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>decision</code></h3>
+<p>Type: <code>&quot;allow&quot; | &quot;block&quot; | &quot;escalate&quot;</code>.</p>
+<p>The semantic decision. Mapped from the verdict-driven control flow:</p>
+<ul>
+<li><code>&quot;allow&quot;</code>, no matched antibody met the block threshold, and (in <code>verify</code> mode) the TEE returned an allow verdict.</li>
+<li><code>&quot;block&quot;</code>, at least one matched antibody hit the block threshold, OR the TEE returned a block verdict.</li>
+<li><code>&quot;escalate&quot;</code>, a SUSPICIOUS verdict landed in the escalate band, the <code>onEscalate</code> handler was invoked, and either returned <code>false</code> or timed out with <code>onTimeout: &quot;deny&quot;</code>.</li>
+</ul>
+<p><code>allowed === (decision === &quot;allow&quot;)</code> is invariant.</p>
+<h3 id="source"><a href="#source" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>source</code></h3>
+<p>Type: <code>&quot;cache&quot; | &quot;registry&quot; | &quot;tee&quot; | &quot;policy&quot;</code>.</p>
+<p>Which tier resolved the check. See <a href="/concepts/three-tier-lookup/">Three-tier lookup</a> for the full semantics.</p>
+<table>
+<thead>
+<tr>
+<th><code>source</code></th>
+<th>Tier</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;cache&quot;</code></td>
+<td>Tier 1</td>
+<td>matched in local in-memory cache</td>
+</tr>
+<tr>
+<td><code>&quot;registry&quot;</code></td>
+<td>Tier 2</td>
+<td>cache miss + on-chain matcher hit</td>
+</tr>
+<tr>
+<td><code>&quot;tee&quot;</code></td>
+<td>Tier 3</td>
+<td>cache + chain miss, TEE inference fired</td>
+</tr>
+<tr>
+<td><code>&quot;policy&quot;</code></td>
+<td>none</td>
+<td>no tier matched, <code>trust-cache</code> or <code>deny-novel</code> decided</td>
+</tr>
+</tbody>
+</table>
+<h3 id="confidence"><a href="#confidence" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>confidence</code></h3>
+<p>Type: <code>number</code>, range 0..100.</p>
+<p>Highest confidence among matched antibodies, or the TEE-returned confidence if Tier 3 fired. Drives the <code>decision</code> mapping via <code>confidenceThresholds</code>.</p>
+<p>For <code>source: &quot;policy&quot;</code> results, <code>confidence</code> is 0.</p>
+<h3 id="antibodies"><a href="#antibodies" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>antibodies</code></h3>
+<p>Type: <code>Antibody[]</code>.</p>
+<p>Matched antibodies. Multiple matches are possible (e.g., one ADDRESS + one CALL_PATTERN both fire on the same tx). Empty for <code>decision: &quot;allow&quot;</code>.</p>
+<p>The first element is the <strong>primary</strong> match (highest severity, then highest confidence as tiebreak). Most agents only need <code>result.antibodies[0]</code>.</p>
+<p>See <a href="/reference/antibody/">Antibody</a> for the per-antibody shape.</p>
+<h3 id="reason"><a href="#reason" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>reason</code></h3>
+<p>Type: <code>string</code>.</p>
+<p>Human-readable summary. Formats vary by source:</p>
+<ul>
+<li><code>&quot;cache&quot;</code> / <code>&quot;registry&quot;</code>, joined description from the matched antibodies.</li>
+<li><code>&quot;tee&quot;</code>, the TEE-returned reasoning string (kept under 200 chars).</li>
+<li><code>&quot;policy&quot;</code>, a static string explaining the policy choice.</li>
+</ul>
+<p><strong>Do not branch on this field.</strong> Branch on <code>allowed</code>, <code>decision</code>, or <code>source</code>. <code>reason</code> is for logs and operator UI.</p>
+<h3 id="checkid"><a href="#checkid" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>checkId</code></h3>
+<p>Type: <code>Hex32 | null</code>.</p>
+<p>The on-chain settlement transaction hash. The Registry's <code>CheckSettled</code> event log carries the canonical record.</p>
+<p><code>null</code> when:</p>
+<ul>
+<li><code>source: &quot;policy&quot;</code> shortcircuit (the SDK skipped settlement entirely).</li>
+<li>TEE inference failed and the SDK degraded to policy.</li>
+<li><code>deny-novel</code> blocks where no candidate matcher was constructible.</li>
+</ul>
+<p><code>null</code> is <strong>not</strong> a bug. It signals &quot;we did not need the chain to make this decision.&quot;</p>
+<h3 id="novel"><a href="#novel" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>novel</code></h3>
+<p>Type: <code>boolean</code>.</p>
+<p><code>true</code> only when:</p>
+<ul>
+<li><code>decision: &quot;allow&quot;</code>, AND</li>
+<li><code>source: &quot;policy&quot;</code>, AND</li>
+<li><code>novelThreatPolicy: &quot;trust-cache&quot;</code> decided.</li>
+</ul>
+<p>In other words, &quot;the network has not seen this before, but we let it through anyway because the configured policy says so.&quot; Useful for downstream agents that want to flag novel-but-allowed actions for batch review.</p>
+<h3 id="txfacts"><a href="#txfacts" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>txFacts</code></h3>
+<p>Type: <code>TxFacts</code>.</p>
+<p>The SDK's extracted view of the proposed tx that got submitted to the chain via <code>Registry.check()</code> for indexing:</p>
+<pre><code class="language-ts">interface TxFacts {
+  tokenAddress: Hex32;     // 0x0...0 if no token detected
+  tokenAmount: bigint;     // 0 if no amount
+  originChainId: bigint;   // 0 if not derivable
+}
+</code></pre>
+<p>All-zero is a legitimate state (e.g., a non-EVM action with <code>tx: null</code>). The indexer uses <code>txFacts</code> for the value-protected math; missing facts mean the indexer cannot price the action.</p>
+<h2 id="example-uses"><a href="#example-uses" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Example uses</h2>
+<h3 id="audit-logging"><a href="#audit-logging" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Audit logging</h3>
+<pre><code class="language-ts">log.info({
+  decision: result.decision,
+  source: result.source,
+  confidence: result.confidence,
+  immId: result.antibodies[0]?.immId,
+  checkId: result.checkId,
+  novel: result.novel,
+}, &quot;immunity.check&quot;);
+</code></pre>
+<h3 id="operator-notification"><a href="#operator-notification" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Operator notification</h3>
+<pre><code class="language-ts">if (!result.allowed) {
+  notifySlack({
+    title: `Blocked: ${result.antibodies[0]?.immId ?? &quot;unknown&quot;}`,
+    color: &quot;danger&quot;,
+    fields: [
+      { title: &quot;Decision&quot;, value: result.decision },
+      { title: &quot;Source&quot;, value: result.source },
+      { title: &quot;Reason&quot;, value: result.reason },
+    ],
+  });
+}
+</code></pre>
+<h3 id="treating-novel-specially"><a href="#treating-novel-specially" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Treating &quot;novel&quot; specially</h3>
+<pre><code class="language-ts">if (result.allowed &amp;&amp; result.novel) {
+  await batchReviewQueue.enqueue({ tx, txFacts: result.txFacts });
+}
+</code></pre>
+<h2 id="see-also"><a href="#see-also" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>See also</h2>
+<ul>
+<li><strong><a href="/reference/immunity-class/">Immunity class</a></strong>, the methods that produce this result.</li>
+<li><strong><a href="/reference/antibody/">Antibody</a></strong>, the shape of items in <code>result.antibodies</code>.</li>
+<li><strong><a href="/concepts/three-tier-lookup/">Three-tier lookup</a></strong>, the <code>source</code> field demystified.</li>
+</ul>
+
+    </div>
+
+    <nav class="docs-pagination">
+        <a href="/reference/immunityconfig" class="pagination-link pagination-prev">
+            <span class="pagination-label">&larr; Previous</span>
+            <span class="pagination-title">ImmunityConfig</span>
+        </a>
+
+        <a href="/reference/antibody" class="pagination-link pagination-next">
+            <span class="pagination-label">Next &rarr;</span>
+            <span class="pagination-title">Antibody</span>
+        </a>
+    </nav>
+</article>
+        </main>
+<aside class="docs-toc">
+    <div class="toc-wrapper">
+        <h4 class="toc-title">On this page</h4>
+        <ul class="toc-links">
+            <li class="toc-item">
+                <a href="#fields" class="toc-link">Fields</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#allowed" class="toc-link">allowed</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#decision" class="toc-link">decision</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#source" class="toc-link">source</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#confidence" class="toc-link">confidence</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#antibodies" class="toc-link">antibodies</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#reason" class="toc-link">reason</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#checkid" class="toc-link">checkId</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#novel" class="toc-link">novel</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#txfacts" class="toc-link">txFacts</a>
+            </li>
+            <li class="toc-item">
+                <a href="#example-uses" class="toc-link">Example uses</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#audit-logging" class="toc-link">Audit logging</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#operator-notification" class="toc-link">Operator notification</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#treating-novel-specially" class="toc-link">Treating "novel" specially</a>
+            </li>
+            <li class="toc-item">
+                <a href="#see-also" class="toc-link">See also</a>
+            </li>
+        </ul>
+    </div>
+</aside>
+    </div>
+
+<div class="search-overlay" id="search-overlay">
+    <div class="search-dialog" role="dialog" aria-label="Search documentation">
+        <div class="search-input-wrapper">
+            <svg class="search-icon" width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+            </svg>
+            <input type="text" class="search-input" id="search-input" placeholder="Search documentation..." autocomplete="off" autofocus>
+            <kbd style="font-size: 0.625rem; padding: 0.125rem 0.375rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 0.25rem; color: var(--text-muted); font-family: var(--font-mono); cursor: pointer;" onclick="closeSearch()">Esc</kbd>
+        </div>
+        <div class="search-results" id="search-results">
+            <div class="search-empty">Type to search the documentation...</div>
+        </div>
+        <div class="search-footer">
+            <span>Navigate with <kbd>&uarr;</kbd> <kbd>&darr;</kbd> keys</span>
+            <span>Press <kbd>Enter</kbd> to select</span>
+        </div>
+    </div>
+</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup-templating.min.js"></script>
+    <script src="/assets/js/copy-code.js"></script>
+    <script src="/assets/js/sidebar.js"></script>
+    <script src="/assets/js/search.js"></script>
+</body>
+</html>

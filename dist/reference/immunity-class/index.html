@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="leaf-base-url" content="">
+<meta name="description" content="Every public method on the Immunity facade. Construction, lifecycle, the hot path, settlement, and admin.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://docs.immunity-protocol.com/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Immunity class · Immunity Docs">
+<meta property="og:description" content="Every public method on the Immunity facade. Construction, lifecycle, the hot path, settlement, and admin.">
+<meta property="og:site_name" content="Immunity Docs">
+<meta property="og:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Immunity Docs">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Immunity class · Immunity Docs">
+<meta name="twitter:description" content="Every public method on the Immunity facade. Construction, lifecycle, the hot path, settlement, and admin.">
+<meta name="twitter:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+    theme: {
+        extend: {
+            colors: {
+                deep: 'var(--bg-deep)',
+                surface: 'var(--bg-surface)',
+                elevated: 'var(--bg-elevated)',
+                border: 'var(--border)',
+                'border-accent': 'var(--border-accent)',
+                body: 'var(--text)',
+                bright: 'var(--text-bright)',
+                muted: 'var(--text-muted)',
+                accent: 'var(--accent)',
+                'accent-light': 'var(--accent-light)',
+                'accent-glow': 'var(--accent-glow)',
+            },
+            fontFamily: {
+                body: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+            },
+        },
+    },
+}
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="stylesheet" href="/assets/css/app.css">
+<script src="/assets/js/theme.js"></script>
+    <title>Immunity class · Immunity Docs</title>
+</head>
+<body class="bg-deep text-body antialiased font-body">
+<header class="site-nav">
+    <div class="nav-container">
+        <div class="nav-left">
+            <button class="nav-toggle" onclick="toggleNav()" type="button" aria-label="Toggle menu">
+                <svg class="nav-toggle-open" width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg>
+                <svg class="nav-toggle-close" width="20" height="20" viewBox="0 0 20 20" fill="currentColor" style="display:none"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+            </button>
+            <a href="/" class="nav-logo nav-logo-text">
+                <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 6 L24 6 L16 16 L24 26 L8 26 L16 16 Z" fill="currentColor" opacity="0.9"></path>
+                </svg>
+                <span>Immunity Docs</span>
+            </a>
+        </div>
+        <nav class="nav-links">
+            <button class="search-trigger" onclick="openSearch()" type="button">
+                <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path></svg>
+                <span>Search</span>
+                <kbd>Ctrl+K</kbd>
+            </button>
+            <a href="https://github.com/ophelios-studio/immunity-sdk" class="nav-link" target="_blank" rel="noopener">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+                GitHub
+            </a>
+            <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle theme">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            </button>
+            <span class="version-badge">0.1.0</span>
+        </nav>
+    </div>
+</header>
+
+    <div class="docs-layout">
+        <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+<aside class="docs-sidebar">
+    <nav class="sidebar-nav">
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Getting Started</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/getting-started/install"
+                       class="sidebar-link">
+                        Install
+                    </a>
+                </li>
+                <li>
+                    <a href="/getting-started/quickstart"
+                       class="sidebar-link">
+                        Quickstart
+                    </a>
+                </li>
+                <li>
+                    <a href="/getting-started/concepts-in-two-minutes"
+                       class="sidebar-link">
+                        Concepts in two minutes
+                    </a>
+                </li>
+                <li>
+                    <a href="/getting-started/skill-for-ai-assistants"
+                       class="sidebar-link">
+                        Skill for AI assistants
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Concepts</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/concepts/antibodies"
+                       class="sidebar-link">
+                        Antibodies
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/three-tier-lookup"
+                       class="sidebar-link">
+                        Three-tier lookup
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/tee-verification"
+                       class="sidebar-link">
+                        TEE verification
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/settlement-and-tokenomics"
+                       class="sidebar-link">
+                        Settlement and tokenomics
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/cross-chain-mirror"
+                       class="sidebar-link">
+                        Cross-chain mirror
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Guides</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/guides/gate-a-transaction"
+                       class="sidebar-link">
+                        Gate a transaction
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/publish-an-antibody"
+                       class="sidebar-link">
+                        Publish an antibody
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/operator-in-the-loop"
+                       class="sidebar-link">
+                        Operator in the loop
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/uniswap-v4-hook"
+                       class="sidebar-link">
+                        Uniswap v4 hook
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/test-against-testnet"
+                       class="sidebar-link">
+                        Test against testnet
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/the-public-feed"
+                       class="sidebar-link">
+                        The public feed
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Reference</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/reference/immunity-class"
+                       class="sidebar-link active">
+                        Immunity class
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/immunityconfig"
+                       class="sidebar-link">
+                        ImmunityConfig
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/checkresult"
+                       class="sidebar-link">
+                        CheckResult
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/antibody"
+                       class="sidebar-link">
+                        Antibody
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/errors"
+                       class="sidebar-link">
+                        Errors
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/network-presets"
+                       class="sidebar-link">
+                        Network presets
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/helpers"
+                       class="sidebar-link">
+                        Helpers
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Network</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/network/registry-on-0g"
+                       class="sidebar-link">
+                        Registry on 0G
+                    </a>
+                </li>
+                <li>
+                    <a href="/network/the-public-feed"
+                       class="sidebar-link">
+                        The public feed
+                    </a>
+                </li>
+                <li>
+                    <a href="/network/economics"
+                       class="sidebar-link">
+                        Economics
+                    </a>
+                </li>
+                <li>
+                    <a href="/network/attack-types-we-catch"
+                       class="sidebar-link">
+                        Attack types we catch
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="sidebar-mobile-links">
+            <a href="https://github.com/ophelios-studio/immunity-sdk" class="sidebar-footer-link" target="_blank" rel="noopener">GitHub</a>
+        </div>
+        <div class="sidebar-copyright">
+            &copy; 2026 Ophelios
+        </div>
+        <div class="sidebar-powered">
+            Powered by <a href="https://github.com/dadajuice/zephyrus-leaf" target="_blank" rel="noopener">Zephyrus Leaf</a>
+        </div>
+    </div>
+</aside>
+        <main class="docs-main">
+<article class="docs-content">
+    <div class="prose">
+        <h1><code>Immunity</code> class</h1>
+<p>The facade. One instance per agent. Construction is non-mutating; lifecycle starts on <code>start()</code>. All public methods are async unless noted.</p>
+<h2 id="new-immunityconfig"><a href="#new-immunityconfig" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>new Immunity(config)</code></h2>
+<pre><code class="language-ts">import { Immunity } from &quot;@immunity-protocol/sdk&quot;;
+
+const immunity = new Immunity({
+  wallet,
+  network: &quot;testnet&quot;,
+  axlUrl: &quot;http://localhost:9002&quot;,
+  novelThreatPolicy: &quot;verify&quot;,
+});
+</code></pre>
+<p>Throws <code>MissingConfigError</code> if <code>wallet</code> or <code>axlUrl</code> is missing. No network calls during construction. See <a href="/reference/immunityconfig/"><code>ImmunityConfig</code></a> for every option.</p>
+<h2 id="lifecycle"><a href="#lifecycle" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Lifecycle</h2>
+<h3 id="start-promisevoid"><a href="#start-promisevoid" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>start(): Promise&lt;void&gt;</code></h3>
+<p>Connects the signer to a provider, instantiates the Registry and USDC clients, attaches the five matchers, opens the AXL gossip subscription. Idempotent: a second call is a no-op.</p>
+<p>Throws on:</p>
+<ul>
+<li>Missing wallet provider (must be ethers v6 <code>Signer</code>).</li>
+<li>AXL daemon unreachable at <code>axlUrl</code>.</li>
+<li>Registry contract not found at the configured network address.</li>
+</ul>
+<h3 id="stop-promisevoid"><a href="#stop-promisevoid" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>stop(): Promise&lt;void&gt;</code></h3>
+<p>Closes the gossip subscription, drains AXL polling. Idempotent. Always call on shutdown to avoid leaking file handles.</p>
+<h2 id="the-hot-path"><a href="#the-hot-path" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>The hot path</h2>
+<h3 id="checktx-context-options-promisecheckresult"><a href="#checktx-context-options-promisecheckresult" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>check(tx, context, options?): Promise&lt;CheckResult&gt;</code></h3>
+<p>The method 99% of agent code calls.</p>
+<pre><code class="language-ts">const result = await immunity.check(tx, ctx);
+</code></pre>
+<p>Arguments:</p>
+<ul>
+<li><code>tx: ProposedTx | null</code>, EVM action <code>{ to, value?, data?, chainId? }</code> or <code>null</code> for non-EVM agent actions.</li>
+<li><code>context: CheckContext</code>, conversation, tools, sources, counterparty, metadata. All optional.</li>
+<li><code>options.policy?: NovelThreatPolicy</code>, override the configured <code>novelThreatPolicy</code> for this call.</li>
+</ul>
+<p>Returns a <a href="/reference/checkresult/"><code>CheckResult</code></a>. Walks the <a href="/concepts/three-tier-lookup/">three tiers</a> in order; first hit wins.</p>
+<p>Errors:</p>
+<ul>
+<li><code>NotStartedError</code> if called before <code>start()</code>.</li>
+<li><code>InsufficientBalanceError</code> if prepaid balance is below the 0.002 USDC fee.</li>
+<li><code>EscalationError</code> family if a SUSPICIOUS verdict timed out or was denied by the operator.</li>
+<li><code>BlockError</code> is <strong>not</strong> thrown for ordinary blocks; check <code>result.allowed</code> instead. <code>BlockError</code> is reserved for hard policy violations (e.g., <code>deny-novel</code> block where the SDK refuses to even round-trip).</li>
+</ul>
+<h2 id="publishing"><a href="#publishing" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Publishing</h2>
+<h3 id="publishinput-promisepublishresult"><a href="#publishinput-promisepublishresult" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>publish(input): Promise&lt;PublishResult&gt;</code></h3>
+<pre><code class="language-ts">const result = await immunity.publish({
+  seed: { abType: &quot;ADDRESS&quot;, chainId: 16602, target: &quot;0xBAD...&quot; },
+  verdict: &quot;MALICIOUS&quot;,
+  confidence: 95,
+  severity: 90,
+});
+</code></pre>
+<p>Locks 1 USDC of stake for 72 hours. Returns:</p>
+<pre><code class="language-ts">{
+  keccakId: Hex32;
+  immSeq: number;
+  immId: string;
+  txHash: Hex32;
+  stakeAmount: bigint;
+}
+</code></pre>
+<p>Errors: <code>DuplicateAntibodyError</code> if the matcher already exists, <code>InsufficientBalanceError</code> if the prepaid balance is below stake + gas.</p>
+<p>See <a href="/guides/publish-an-antibody/">Publish an antibody</a> for the full pattern.</p>
+<h3 id="getantibodyidorseq-promiseantibody"><a href="#getantibodyidorseq-promiseantibody" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>getAntibody(idOrSeq): Promise&lt;Antibody&gt;</code></h3>
+<p>Read an antibody by <code>keccakId</code> or <code>immSeq</code>. The SDK routes the right contract call:</p>
+<ul>
+<li><code>Hex32</code> resolves via <code>getAntibody(keccakId)</code>.</li>
+<li><code>number</code> resolves via <code>getAntibodyByImmSeq(seq)</code>.</li>
+</ul>
+<p>Throws <code>AntibodyNotFoundError</code> if the id does not exist.</p>
+<h2 id="money"><a href="#money" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Money</h2>
+<h3 id="balance-promisebigint"><a href="#balance-promisebigint" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>balance(): Promise&lt;bigint&gt;</code></h3>
+<p>Current prepaid USDC balance held by the Registry on your behalf. 6-decimal base units (multiply by <code>10^-6</code> for human USDC).</p>
+<h3 id="depositamount-approvemode-promisehex32"><a href="#depositamount-approvemode-promisehex32" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>deposit(amount, approveMode?): Promise&lt;Hex32&gt;</code></h3>
+<p>Top up the prepaid balance. Auto-approves the allowance:</p>
+<ul>
+<li><code>&quot;exact&quot;</code> (default), approves exactly <code>amount</code>. Fewer approvals to fund subsequent deposits.</li>
+<li><code>&quot;max&quot;</code>, approves <code>MaxUint256</code>. One-time setup; subsequent deposits skip approval.</li>
+</ul>
+<pre><code class="language-ts">await immunity.deposit(parseUsdc(&quot;1.5&quot;));
+</code></pre>
+<h3 id="withdrawamount-promisehex32"><a href="#withdrawamount-promisehex32" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>withdraw(amount): Promise&lt;Hex32&gt;</code></h3>
+<p>Pull USDC out of the Registry back to the wallet. Subject to stake-lock if <code>amount</code> overlaps locked stake.</p>
+<p>Throws <code>StakeLockedError</code> if the requested amount overlaps locked stake.</p>
+<h3 id="minttestusdcamount-promisehex32"><a href="#minttestusdcamount-promisehex32" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>mintTestUsdc(amount): Promise&lt;Hex32&gt;</code></h3>
+<p><strong>Testnet only.</strong> Calls MockUSDC's public <code>mint(to, amount)</code>. Throws on real-USDC contracts.</p>
+<pre><code class="language-ts">await immunity.mintTestUsdc(parseUsdc(&quot;1&quot;));
+</code></pre>
+<h2 id="stats-and-admin"><a href="#stats-and-admin" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Stats and admin</h2>
+<h3 id="publisherstats-promisepublisherstats"><a href="#publisherstats-promisepublisherstats" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>publisherStats(): Promise&lt;PublisherStats&gt;</code></h3>
+<pre><code class="language-ts">const stats = await immunity.publisherStats();
+// { totalStaked, totalEarned, publishedCount, slashedCount }
+</code></pre>
+<p>All amounts are in USDC base units (6 decimals).</p>
+<h3 id="dropfromcachekeccakid-boolean"><a href="#dropfromcachekeccakid-boolean" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>dropFromCache(keccakId): boolean</code></h3>
+<p>Local-only operation. Removes an antibody from the in-memory cache without touching the chain. Useful for muting a known-bad antibody locally when the on-chain <code>slash()</code> is not reachable. Returns <code>true</code> if the entry was present.</p>
+<h3 id="sweep-promisesweepresult"><a href="#sweep-promisesweepresult" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>sweep(): Promise&lt;SweepResult&gt;</code></h3>
+<p>Standalone call to opportunistically release any expired stakes you own. The same sweep runs implicitly inside <code>check()</code>, so most users never need this. The reward is paid in USDC and is small (<code>SWEEP_BOUNTY</code> per release, ~$0.0001).</p>
+<h2 id="see-also"><a href="#see-also" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>See also</h2>
+<ul>
+<li><strong><a href="/reference/immunityconfig/">ImmunityConfig</a></strong>, every constructor option.</li>
+<li><strong><a href="/reference/checkresult/">CheckResult</a></strong>, the shape of <code>check()</code>'s return.</li>
+<li><strong><a href="/reference/errors/">Errors</a></strong>, full taxonomy with stable codes.</li>
+</ul>
+
+    </div>
+
+    <nav class="docs-pagination">
+        <a href="/guides/the-public-feed" class="pagination-link pagination-prev">
+            <span class="pagination-label">&larr; Previous</span>
+            <span class="pagination-title">The public feed</span>
+        </a>
+
+        <a href="/reference/immunityconfig" class="pagination-link pagination-next">
+            <span class="pagination-label">Next &rarr;</span>
+            <span class="pagination-title">ImmunityConfig</span>
+        </a>
+    </nav>
+</article>
+        </main>
+<aside class="docs-toc">
+    <div class="toc-wrapper">
+        <h4 class="toc-title">On this page</h4>
+        <ul class="toc-links">
+            <li class="toc-item">
+                <a href="#new-immunityconfig" class="toc-link">new Immunity(config)</a>
+            </li>
+            <li class="toc-item">
+                <a href="#lifecycle" class="toc-link">Lifecycle</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#start-promisevoid" class="toc-link">start(): Promise&lt;void&gt;</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#stop-promisevoid" class="toc-link">stop(): Promise&lt;void&gt;</a>
+            </li>
+            <li class="toc-item">
+                <a href="#the-hot-path" class="toc-link">The hot path</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#checktx-context-options-promisecheckresult" class="toc-link">check(tx, context, options?): Promise&lt;CheckResult&gt;</a>
+            </li>
+            <li class="toc-item">
+                <a href="#publishing" class="toc-link">Publishing</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#publishinput-promisepublishresult" class="toc-link">publish(input): Promise&lt;PublishResult&gt;</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#getantibodyidorseq-promiseantibody" class="toc-link">getAntibody(idOrSeq): Promise&lt;Antibody&gt;</a>
+            </li>
+            <li class="toc-item">
+                <a href="#money" class="toc-link">Money</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#balance-promisebigint" class="toc-link">balance(): Promise&lt;bigint&gt;</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#depositamount-approvemode-promisehex32" class="toc-link">deposit(amount, approveMode?): Promise&lt;Hex32&gt;</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#withdrawamount-promisehex32" class="toc-link">withdraw(amount): Promise&lt;Hex32&gt;</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#minttestusdcamount-promisehex32" class="toc-link">mintTestUsdc(amount): Promise&lt;Hex32&gt;</a>
+            </li>
+            <li class="toc-item">
+                <a href="#stats-and-admin" class="toc-link">Stats and admin</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#publisherstats-promisepublisherstats" class="toc-link">publisherStats(): Promise&lt;PublisherStats&gt;</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#dropfromcachekeccakid-boolean" class="toc-link">dropFromCache(keccakId): boolean</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#sweep-promisesweepresult" class="toc-link">sweep(): Promise&lt;SweepResult&gt;</a>
+            </li>
+            <li class="toc-item">
+                <a href="#see-also" class="toc-link">See also</a>
+            </li>
+        </ul>
+    </div>
+</aside>
+    </div>
+
+<div class="search-overlay" id="search-overlay">
+    <div class="search-dialog" role="dialog" aria-label="Search documentation">
+        <div class="search-input-wrapper">
+            <svg class="search-icon" width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+            </svg>
+            <input type="text" class="search-input" id="search-input" placeholder="Search documentation..." autocomplete="off" autofocus>
+            <kbd style="font-size: 0.625rem; padding: 0.125rem 0.375rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 0.25rem; color: var(--text-muted); font-family: var(--font-mono); cursor: pointer;" onclick="closeSearch()">Esc</kbd>
+        </div>
+        <div class="search-results" id="search-results">
+            <div class="search-empty">Type to search the documentation...</div>
+        </div>
+        <div class="search-footer">
+            <span>Navigate with <kbd>&uarr;</kbd> <kbd>&darr;</kbd> keys</span>
+            <span>Press <kbd>Enter</kbd> to select</span>
+        </div>
+    </div>
+</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup-templating.min.js"></script>
+    <script src="/assets/js/copy-code.js"></script>
+    <script src="/assets/js/sidebar.js"></script>
+    <script src="/assets/js/search.js"></script>
+</body>
+</html>

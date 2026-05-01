@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="leaf-base-url" content="">
+<meta name="description" content="Read antibodies from RSS, JSON, or webhooks. No SDK install needed for read-only consumers.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://docs.immunity-protocol.com/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="The public feed · Immunity Docs">
+<meta property="og:description" content="Read antibodies from RSS, JSON, or webhooks. No SDK install needed for read-only consumers.">
+<meta property="og:site_name" content="Immunity Docs">
+<meta property="og:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Immunity Docs">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The public feed · Immunity Docs">
+<meta name="twitter:description" content="Read antibodies from RSS, JSON, or webhooks. No SDK install needed for read-only consumers.">
+<meta name="twitter:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+    theme: {
+        extend: {
+            colors: {
+                deep: 'var(--bg-deep)',
+                surface: 'var(--bg-surface)',
+                elevated: 'var(--bg-elevated)',
+                border: 'var(--border)',
+                'border-accent': 'var(--border-accent)',
+                body: 'var(--text)',
+                bright: 'var(--text-bright)',
+                muted: 'var(--text-muted)',
+                accent: 'var(--accent)',
+                'accent-light': 'var(--accent-light)',
+                'accent-glow': 'var(--accent-glow)',
+            },
+            fontFamily: {
+                body: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+            },
+        },
+    },
+}
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="stylesheet" href="/assets/css/app.css">
+<script src="/assets/js/theme.js"></script>
+    <title>The public feed · Immunity Docs</title>
+</head>
+<body class="bg-deep text-body antialiased font-body">
+<header class="site-nav">
+    <div class="nav-container">
+        <div class="nav-left">
+            <button class="nav-toggle" onclick="toggleNav()" type="button" aria-label="Toggle menu">
+                <svg class="nav-toggle-open" width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg>
+                <svg class="nav-toggle-close" width="20" height="20" viewBox="0 0 20 20" fill="currentColor" style="display:none"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+            </button>
+            <a href="/" class="nav-logo nav-logo-text">
+                <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 6 L24 6 L16 16 L24 26 L8 26 L16 16 Z" fill="currentColor" opacity="0.9"></path>
+                </svg>
+                <span>Immunity Docs</span>
+            </a>
+        </div>
+        <nav class="nav-links">
+            <button class="search-trigger" onclick="openSearch()" type="button">
+                <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path></svg>
+                <span>Search</span>
+                <kbd>Ctrl+K</kbd>
+            </button>
+            <a href="https://github.com/ophelios-studio/immunity-sdk" class="nav-link" target="_blank" rel="noopener">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+                GitHub
+            </a>
+            <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle theme">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            </button>
+            <span class="version-badge">0.1.0</span>
+        </nav>
+    </div>
+</header>
+
+    <div class="docs-layout">
+        <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+<aside class="docs-sidebar">
+    <nav class="sidebar-nav">
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Getting Started</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/getting-started/install"
+                       class="sidebar-link">
+                        Install
+                    </a>
+                </li>
+                <li>
+                    <a href="/getting-started/quickstart"
+                       class="sidebar-link">
+                        Quickstart
+                    </a>
+                </li>
+                <li>
+                    <a href="/getting-started/concepts-in-two-minutes"
+                       class="sidebar-link">
+                        Concepts in two minutes
+                    </a>
+                </li>
+                <li>
+                    <a href="/getting-started/skill-for-ai-assistants"
+                       class="sidebar-link">
+                        Skill for AI assistants
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Concepts</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/concepts/antibodies"
+                       class="sidebar-link">
+                        Antibodies
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/three-tier-lookup"
+                       class="sidebar-link">
+                        Three-tier lookup
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/tee-verification"
+                       class="sidebar-link">
+                        TEE verification
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/settlement-and-tokenomics"
+                       class="sidebar-link">
+                        Settlement and tokenomics
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/cross-chain-mirror"
+                       class="sidebar-link">
+                        Cross-chain mirror
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Guides</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/guides/gate-a-transaction"
+                       class="sidebar-link">
+                        Gate a transaction
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/publish-an-antibody"
+                       class="sidebar-link">
+                        Publish an antibody
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/operator-in-the-loop"
+                       class="sidebar-link">
+                        Operator in the loop
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/uniswap-v4-hook"
+                       class="sidebar-link">
+                        Uniswap v4 hook
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/test-against-testnet"
+                       class="sidebar-link">
+                        Test against testnet
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/the-public-feed"
+                       class="sidebar-link active">
+                        The public feed
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Reference</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/reference/immunity-class"
+                       class="sidebar-link">
+                        Immunity class
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/immunityconfig"
+                       class="sidebar-link">
+                        ImmunityConfig
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/checkresult"
+                       class="sidebar-link">
+                        CheckResult
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/antibody"
+                       class="sidebar-link">
+                        Antibody
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/errors"
+                       class="sidebar-link">
+                        Errors
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/network-presets"
+                       class="sidebar-link">
+                        Network presets
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/helpers"
+                       class="sidebar-link">
+                        Helpers
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Network</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/network/registry-on-0g"
+                       class="sidebar-link">
+                        Registry on 0G
+                    </a>
+                </li>
+                <li>
+                    <a href="/network/the-public-feed"
+                       class="sidebar-link">
+                        The public feed
+                    </a>
+                </li>
+                <li>
+                    <a href="/network/economics"
+                       class="sidebar-link">
+                        Economics
+                    </a>
+                </li>
+                <li>
+                    <a href="/network/attack-types-we-catch"
+                       class="sidebar-link">
+                        Attack types we catch
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="sidebar-mobile-links">
+            <a href="https://github.com/ophelios-studio/immunity-sdk" class="sidebar-footer-link" target="_blank" rel="noopener">GitHub</a>
+        </div>
+        <div class="sidebar-copyright">
+            &copy; 2026 Ophelios
+        </div>
+        <div class="sidebar-powered">
+            Powered by <a href="https://github.com/dadajuice/zephyrus-leaf" target="_blank" rel="noopener">Zephyrus Leaf</a>
+        </div>
+    </div>
+</aside>
+        <main class="docs-main">
+<article class="docs-content">
+    <div class="prose">
+        <h1>The public feed</h1>
+<p>Every antibody published to the on-chain Registry shows up in three public feeds within seconds:</p>
+<ul>
+<li><strong>RSS</strong>, <a href="https://immunity-protocol.com/feed/antibodies.rss"><code>https://immunity-protocol.com/feed/antibodies.rss</code></a></li>
+<li><strong>JSON Feed</strong>, <a href="https://immunity-protocol.com/feed/antibodies.json"><code>https://immunity-protocol.com/feed/antibodies.json</code></a></li>
+<li><strong>Webhooks</strong>, register at the docs site (see below).</li>
+</ul>
+<p>Read-only consumers (wallet UIs, security researchers, monitoring agents, dashboards) do <strong>not</strong> need the SDK installed. RSS and JSON are static endpoints served from a CDN; webhooks are a small HTTP <code>POST</code> from our indexer to your URL.</p>
+<h2 id="when-to-use-each"><a href="#when-to-use-each" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>When to use each</h2>
+<table>
+<thead>
+<tr>
+<th>Use case</th>
+<th>Best feed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Wallet UI showing recent flags to users</td>
+<td>RSS or JSON Feed (cache 60s)</td>
+</tr>
+<tr>
+<td>Security research dashboard</td>
+<td>JSON Feed (machine-friendly schema)</td>
+</tr>
+<tr>
+<td>Real-time alerting / Slack bot</td>
+<td>Webhook (sub-second delivery)</td>
+</tr>
+<tr>
+<td>Static SEO-friendly index</td>
+<td>RSS (Google Reader-compatible)</td>
+</tr>
+<tr>
+<td>Cross-protocol indexer (Dune, Etherscan)</td>
+<td>Webhook + JSON for backfill</td>
+</tr>
+</tbody>
+</table>
+<p>If your consumer is <strong>not</strong> an agent that calls <code>check()</code>, do not install the SDK. The feed is enough.</p>
+<h2 id="rss"><a href="#rss" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>RSS</h2>
+<p>Standard RSS 2.0. Each <code>&lt;item&gt;</code> is one antibody:</p>
+<pre><code class="language-xml">&lt;item&gt;
+  &lt;title&gt;IMM-2026-0042: Tornado Cash sanctioned router&lt;/title&gt;
+  &lt;link&gt;https://immunity-protocol.com/antibody/IMM-2026-0042&lt;/link&gt;
+  &lt;guid isPermaLink=&quot;false&quot;&gt;0x...keccakId&lt;/guid&gt;
+  &lt;pubDate&gt;Wed, 30 Apr 2026 14:00:00 GMT&lt;/pubDate&gt;
+  &lt;category&gt;ADDRESS&lt;/category&gt;
+  &lt;category&gt;MALICIOUS&lt;/category&gt;
+  &lt;description&gt;OFAC SDN list. Mixer router used by Lazarus laundering.&lt;/description&gt;
+&lt;/item&gt;
+</code></pre>
+<p>Latency: 60 seconds at most (the indexer's batch interval).</p>
+<h2 id="json-feed"><a href="#json-feed" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>JSON Feed</h2>
+<p>JSON Feed 1.1 spec. One item per antibody, machine-friendly schema:</p>
+<pre><code class="language-json">{
+  &quot;version&quot;: &quot;https://jsonfeed.org/version/1.1&quot;,
+  &quot;title&quot;: &quot;Immunity Protocol antibodies&quot;,
+  &quot;home_page_url&quot;: &quot;https://immunity-protocol.com/antibodies&quot;,
+  &quot;feed_url&quot;: &quot;https://immunity-protocol.com/feed/antibodies.json&quot;,
+  &quot;items&quot;: [
+    {
+      &quot;id&quot;: &quot;0x...keccakId&quot;,
+      &quot;url&quot;: &quot;https://immunity-protocol.com/antibody/IMM-2026-0042&quot;,
+      &quot;title&quot;: &quot;IMM-2026-0042: Tornado Cash sanctioned router&quot;,
+      &quot;date_published&quot;: &quot;2026-04-30T14:00:00Z&quot;,
+      &quot;tags&quot;: [&quot;ADDRESS&quot;, &quot;MALICIOUS&quot;],
+      &quot;_immunity&quot;: {
+        &quot;immId&quot;: &quot;IMM-2026-0042&quot;,
+        &quot;immSeq&quot;: 42,
+        &quot;keccakId&quot;: &quot;0x...&quot;,
+        &quot;abType&quot;: &quot;ADDRESS&quot;,
+        &quot;verdict&quot;: &quot;MALICIOUS&quot;,
+        &quot;confidence&quot;: 95,
+        &quot;severity&quot;: 90,
+        &quot;status&quot;: &quot;ACTIVE&quot;,
+        &quot;publisher&quot;: &quot;0x...&quot;,
+        &quot;createdAt&quot;: 1714478400,
+        &quot;primaryMatcher&quot;: { &quot;kind&quot;: &quot;address&quot;, &quot;chainId&quot;: 16602, &quot;target&quot;: &quot;0x...&quot; }
+      }
+    }
+  ]
+}
+</code></pre>
+<p>The <code>_immunity</code> namespace carries protocol-specific data not standard to JSON Feed. Stable across feed versions.</p>
+<h2 id="webhooks"><a href="#webhooks" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Webhooks</h2>
+<p>Register at <a href="https://docs.immunity-protocol.com/feeds/webhooks"><code>https://docs.immunity-protocol.com/feeds/webhooks</code></a>. The indexer POSTs to your URL within ~2 seconds of an on-chain mint:</p>
+<pre><code class="language-http">POST /your-webhook-path HTTP/1.1
+Host: your-server.example.com
+Content-Type: application/json
+X-Immunity-Signature: sha256=...
+X-Immunity-Event: antibody.minted
+
+{
+  &quot;event&quot;: &quot;antibody.minted&quot;,
+  &quot;data&quot;: {
+    &quot;immId&quot;: &quot;IMM-2026-0042&quot;,
+    &quot;keccakId&quot;: &quot;0x...&quot;,
+    &quot;abType&quot;: &quot;ADDRESS&quot;,
+    &quot;verdict&quot;: &quot;MALICIOUS&quot;,
+    &quot;publisher&quot;: &quot;0x...&quot;,
+    &quot;createdAt&quot;: 1714478400,
+    &quot;primaryMatcher&quot;: { ... }
+  }
+}
+</code></pre>
+<p>The <code>X-Immunity-Signature</code> header is <code>HMAC-SHA256(payload, your_secret)</code>. Verify it before processing.</p>
+<p>Events you can subscribe to:</p>
+<ul>
+<li><code>antibody.minted</code>, new antibody on chain.</li>
+<li><code>antibody.matched</code>, an existing antibody matched a check (with the matched <code>checkId</code> and <code>valueProtectedUsd</code>).</li>
+<li><code>antibody.challenged</code>, a challenge was filed.</li>
+<li><code>antibody.slashed</code>, a challenge succeeded; antibody slashed.</li>
+<li><code>antibody.expired</code>, antibody expired (v2 only; today no antibodies expire).</li>
+</ul>
+<h2 id="filtering"><a href="#filtering" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Filtering</h2>
+<p>Both RSS and JSON Feed support query-string filters:</p>
+<ul>
+<li><code>?type=ADDRESS,SEMANTIC</code>, only certain types.</li>
+<li><code>?verdict=MALICIOUS</code>, only MALICIOUS verdicts (skip SUSPICIOUS).</li>
+<li><code>?status=ACTIVE</code>, only currently-active antibodies (default).</li>
+<li><code>?chainId=16602</code>, only antibodies for a specific chain (ADDRESS antibodies carry their chain).</li>
+</ul>
+<p>Combine freely:</p>
+<pre><code>https://immunity-protocol.com/feed/antibodies.json?type=ADDRESS&amp;verdict=MALICIOUS&amp;chainId=1
+</code></pre>
+<h2 id="rate-limits-and-caching"><a href="#rate-limits-and-caching" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Rate limits and caching</h2>
+<ul>
+<li><strong>RSS / JSON Feed</strong>, served from a CDN with a 60s cache. Hitting them every second is fine; CDN absorbs the load.</li>
+<li><strong>Webhooks</strong>, no rate limit on delivery, but if your endpoint returns 5xx the indexer retries with exponential backoff for ~24 hours then drops.</li>
+</ul>
+<h2 id="provenance-and-trust"><a href="#provenance-and-trust" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Provenance and trust</h2>
+<p>The feed is a <strong>derivative view</strong>. The on-chain Registry is the canonical source. Anything in the feed is verifiable by reading the Registry directly:</p>
+<pre><code class="language-ts">const antibody = await registry.getAntibody(keccakId);
+</code></pre>
+<p>If the feed and the Registry ever disagree, trust the Registry. The feed indexer is best-effort and can lag during chain reorgs (rare on 0G but not impossible).</p>
+<h2 id="see-also"><a href="#see-also" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>See also</h2>
+<ul>
+<li><strong><a href="/concepts/antibodies/">Concepts: Antibodies</a></strong>, the lifecycle of what you're consuming.</li>
+<li><strong><a href="/network/registry-on-0g/">Network: Registry on 0G</a></strong>, how to verify feed data against the on-chain truth.</li>
+</ul>
+
+    </div>
+
+    <nav class="docs-pagination">
+        <a href="/guides/test-against-testnet" class="pagination-link pagination-prev">
+            <span class="pagination-label">&larr; Previous</span>
+            <span class="pagination-title">Test against testnet</span>
+        </a>
+
+        <a href="/reference/immunity-class" class="pagination-link pagination-next">
+            <span class="pagination-label">Next &rarr;</span>
+            <span class="pagination-title">Immunity class</span>
+        </a>
+    </nav>
+</article>
+        </main>
+<aside class="docs-toc">
+    <div class="toc-wrapper">
+        <h4 class="toc-title">On this page</h4>
+        <ul class="toc-links">
+            <li class="toc-item">
+                <a href="#when-to-use-each" class="toc-link">When to use each</a>
+            </li>
+            <li class="toc-item">
+                <a href="#rss" class="toc-link">RSS</a>
+            </li>
+            <li class="toc-item">
+                <a href="#json-feed" class="toc-link">JSON Feed</a>
+            </li>
+            <li class="toc-item">
+                <a href="#webhooks" class="toc-link">Webhooks</a>
+            </li>
+            <li class="toc-item">
+                <a href="#filtering" class="toc-link">Filtering</a>
+            </li>
+            <li class="toc-item">
+                <a href="#rate-limits-and-caching" class="toc-link">Rate limits and caching</a>
+            </li>
+            <li class="toc-item">
+                <a href="#provenance-and-trust" class="toc-link">Provenance and trust</a>
+            </li>
+            <li class="toc-item">
+                <a href="#see-also" class="toc-link">See also</a>
+            </li>
+        </ul>
+    </div>
+</aside>
+    </div>
+
+<div class="search-overlay" id="search-overlay">
+    <div class="search-dialog" role="dialog" aria-label="Search documentation">
+        <div class="search-input-wrapper">
+            <svg class="search-icon" width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+            </svg>
+            <input type="text" class="search-input" id="search-input" placeholder="Search documentation..." autocomplete="off" autofocus>
+            <kbd style="font-size: 0.625rem; padding: 0.125rem 0.375rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 0.25rem; color: var(--text-muted); font-family: var(--font-mono); cursor: pointer;" onclick="closeSearch()">Esc</kbd>
+        </div>
+        <div class="search-results" id="search-results">
+            <div class="search-empty">Type to search the documentation...</div>
+        </div>
+        <div class="search-footer">
+            <span>Navigate with <kbd>&uarr;</kbd> <kbd>&darr;</kbd> keys</span>
+            <span>Press <kbd>Enter</kbd> to select</span>
+        </div>
+    </div>
+</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup-templating.min.js"></script>
+    <script src="/assets/js/copy-code.js"></script>
+    <script src="/assets/js/sidebar.js"></script>
+    <script src="/assets/js/search.js"></script>
+</body>
+</html>

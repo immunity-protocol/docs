@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="leaf-base-url" content="">
+<meta name="description" content="Every field on the on-chain Antibody envelope. The contract-aligned shape plus the off-chain seed for cache reconstruction.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://docs.immunity-protocol.com/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Antibody · Immunity Docs">
+<meta property="og:description" content="Every field on the on-chain Antibody envelope. The contract-aligned shape plus the off-chain seed for cache reconstruction.">
+<meta property="og:site_name" content="Immunity Docs">
+<meta property="og:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Immunity Docs">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Antibody · Immunity Docs">
+<meta name="twitter:description" content="Every field on the on-chain Antibody envelope. The contract-aligned shape plus the off-chain seed for cache reconstruction.">
+<meta name="twitter:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+    theme: {
+        extend: {
+            colors: {
+                deep: 'var(--bg-deep)',
+                surface: 'var(--bg-surface)',
+                elevated: 'var(--bg-elevated)',
+                border: 'var(--border)',
+                'border-accent': 'var(--border-accent)',
+                body: 'var(--text)',
+                bright: 'var(--text-bright)',
+                muted: 'var(--text-muted)',
+                accent: 'var(--accent)',
+                'accent-light': 'var(--accent-light)',
+                'accent-glow': 'var(--accent-glow)',
+            },
+            fontFamily: {
+                body: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+            },
+        },
+    },
+}
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="stylesheet" href="/assets/css/app.css">
+<script src="/assets/js/theme.js"></script>
+    <title>Antibody · Immunity Docs</title>
+</head>
+<body class="bg-deep text-body antialiased font-body">
+<header class="site-nav">
+    <div class="nav-container">
+        <div class="nav-left">
+            <button class="nav-toggle" onclick="toggleNav()" type="button" aria-label="Toggle menu">
+                <svg class="nav-toggle-open" width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg>
+                <svg class="nav-toggle-close" width="20" height="20" viewBox="0 0 20 20" fill="currentColor" style="display:none"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+            </button>
+            <a href="/" class="nav-logo nav-logo-text">
+                <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 6 L24 6 L16 16 L24 26 L8 26 L16 16 Z" fill="currentColor" opacity="0.9"></path>
+                </svg>
+                <span>Immunity Docs</span>
+            </a>
+        </div>
+        <nav class="nav-links">
+            <button class="search-trigger" onclick="openSearch()" type="button">
+                <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path></svg>
+                <span>Search</span>
+                <kbd>Ctrl+K</kbd>
+            </button>
+            <a href="https://github.com/ophelios-studio/immunity-sdk" class="nav-link" target="_blank" rel="noopener">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+                GitHub
+            </a>
+            <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle theme">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            </button>
+            <span class="version-badge">0.1.0</span>
+        </nav>
+    </div>
+</header>
+
+    <div class="docs-layout">
+        <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+<aside class="docs-sidebar">
+    <nav class="sidebar-nav">
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Getting Started</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/getting-started/install"
+                       class="sidebar-link">
+                        Install
+                    </a>
+                </li>
+                <li>
+                    <a href="/getting-started/quickstart"
+                       class="sidebar-link">
+                        Quickstart
+                    </a>
+                </li>
+                <li>
+                    <a href="/getting-started/concepts-in-two-minutes"
+                       class="sidebar-link">
+                        Concepts in two minutes
+                    </a>
+                </li>
+                <li>
+                    <a href="/getting-started/skill-for-ai-assistants"
+                       class="sidebar-link">
+                        Skill for AI assistants
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Concepts</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/concepts/antibodies"
+                       class="sidebar-link">
+                        Antibodies
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/three-tier-lookup"
+                       class="sidebar-link">
+                        Three-tier lookup
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/tee-verification"
+                       class="sidebar-link">
+                        TEE verification
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/settlement-and-tokenomics"
+                       class="sidebar-link">
+                        Settlement and tokenomics
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/cross-chain-mirror"
+                       class="sidebar-link">
+                        Cross-chain mirror
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Guides</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/guides/gate-a-transaction"
+                       class="sidebar-link">
+                        Gate a transaction
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/publish-an-antibody"
+                       class="sidebar-link">
+                        Publish an antibody
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/operator-in-the-loop"
+                       class="sidebar-link">
+                        Operator in the loop
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/uniswap-v4-hook"
+                       class="sidebar-link">
+                        Uniswap v4 hook
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/test-against-testnet"
+                       class="sidebar-link">
+                        Test against testnet
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/the-public-feed"
+                       class="sidebar-link">
+                        The public feed
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Reference</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/reference/immunity-class"
+                       class="sidebar-link">
+                        Immunity class
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/immunityconfig"
+                       class="sidebar-link">
+                        ImmunityConfig
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/checkresult"
+                       class="sidebar-link">
+                        CheckResult
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/antibody"
+                       class="sidebar-link active">
+                        Antibody
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/errors"
+                       class="sidebar-link">
+                        Errors
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/network-presets"
+                       class="sidebar-link">
+                        Network presets
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/helpers"
+                       class="sidebar-link">
+                        Helpers
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Network</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/network/registry-on-0g"
+                       class="sidebar-link">
+                        Registry on 0G
+                    </a>
+                </li>
+                <li>
+                    <a href="/network/the-public-feed"
+                       class="sidebar-link">
+                        The public feed
+                    </a>
+                </li>
+                <li>
+                    <a href="/network/economics"
+                       class="sidebar-link">
+                        Economics
+                    </a>
+                </li>
+                <li>
+                    <a href="/network/attack-types-we-catch"
+                       class="sidebar-link">
+                        Attack types we catch
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="sidebar-mobile-links">
+            <a href="https://github.com/ophelios-studio/immunity-sdk" class="sidebar-footer-link" target="_blank" rel="noopener">GitHub</a>
+        </div>
+        <div class="sidebar-copyright">
+            &copy; 2026 Ophelios
+        </div>
+        <div class="sidebar-powered">
+            Powered by <a href="https://github.com/dadajuice/zephyrus-leaf" target="_blank" rel="noopener">Zephyrus Leaf</a>
+        </div>
+    </div>
+</aside>
+        <main class="docs-main">
+<article class="docs-content">
+    <div class="prose">
+        <h1><code>Antibody</code></h1>
+<p>The contract-aligned envelope for a published threat. One per <code>keccakId</code>. Read via <code>getAntibody(idOrSeq)</code>. Returned in <code>CheckResult.antibodies</code> on a match.</p>
+<h2 id="full-shape"><a href="#full-shape" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Full shape</h2>
+<pre><code class="language-ts">interface Antibody {
+  keccakId:           Hex32;
+  immSeq:             number;
+  immId:              string;
+  abType:             AntibodyType;
+  flavor:             number;
+  verdict:            Verdict;
+  status:             Status;
+  confidence:         number;
+  severity:           number;
+  primaryMatcherHash: Hex32;
+  evidenceCid:        Hex32;
+  contextHash:        Hex32;
+  embeddingHash:      Hex32;
+  attestation:        Hex32;
+  publisher:          Address;
+  reviewer:           Address;
+  stakeAmount:        bigint;
+  stakeLockUntil:     bigint;
+  expiresAt:          bigint;
+  createdAt:          bigint;
+  isSeeded:           boolean;
+  seed?:              AntibodySeed;
+}
+</code></pre>
+<h2 id="identity"><a href="#identity" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Identity</h2>
+<h3 id="keccakid"><a href="#keccakid" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>keccakId</code></h3>
+<p>Type: <code>Hex32</code>. The on-chain primary key. Computed off-chain by:</p>
+<pre><code>keccakId = keccak256(abi.encode(abType, flavor, primaryMatcherHash, publisher))
+</code></pre>
+<p>Used as the contract's mapping key for the antibody storage slot. Stable for life.</p>
+<h3 id="immseq"><a href="#immseq" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>immSeq</code></h3>
+<p>Type: <code>number</code>. Sequential <code>uint64</code> assigned at publish time, monotonic across the whole Registry.</p>
+<h3 id="immid"><a href="#immid" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>immId</code></h3>
+<p>Type: <code>string</code>. Format <code>IMM-YYYY-NNNN</code> (year + four-digit pad). Derived from <code>immSeq</code> and <code>createdAt</code>. The human-readable form. Used in URLs (<code>/antibody/IMM-2026-0042</code>), in logs, in the public feed.</p>
+<h2 id="classification"><a href="#classification" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Classification</h2>
+<h3 id="abtype"><a href="#abtype" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>abType</code></h3>
+<p>Type: <code>AntibodyType</code> enum. One of:</p>
+<ul>
+<li><code>&quot;ADDRESS&quot;</code>, specific wallets and contracts.</li>
+<li><code>&quot;CALL_PATTERN&quot;</code>, function shapes (selector + args).</li>
+<li><code>&quot;BYTECODE&quot;</code>, runtime hash matching.</li>
+<li><code>&quot;GRAPH&quot;</code>, multi-hop taint topology.</li>
+<li><code>&quot;SEMANTIC&quot;</code>, manipulation patterns and prompt injection.</li>
+</ul>
+<h3 id="flavor"><a href="#flavor" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>flavor</code></h3>
+<p>Type: <code>number</code> (uint8). Type-specific subtype.</p>
+<p>For SEMANTIC, <code>flavor</code> corresponds to a family in the incident catalog (1 = ignore-instructions, 2 = system-tag-spoof, etc.). For other types, currently unused (defaults to 0).</p>
+<h3 id="verdict"><a href="#verdict" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>verdict</code></h3>
+<p>Type: <code>Verdict</code> enum. <code>&quot;MALICIOUS&quot;</code> (always block) or <code>&quot;SUSPICIOUS&quot;</code> (escalate band).</p>
+<h3 id="status"><a href="#status" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>status</code></h3>
+<p>Type: <code>Status</code> enum. Current on-chain state:</p>
+<ul>
+<li><code>&quot;ACTIVE&quot;</code>, eligible to match. Stake locked or earning. Default after <code>publish()</code>.</li>
+<li><code>&quot;CHALLENGED&quot;</code>, a challenge is pending. Match-time lookups skip CHALLENGED antibodies until the challenge resolves.</li>
+<li><code>&quot;SLASHED&quot;</code>, challenge succeeded; antibody disabled, stake forfeited.</li>
+<li><code>&quot;EXPIRED&quot;</code>, v2 only. v1 treats every antibody as permanent.</li>
+</ul>
+<h3 id="confidence"><a href="#confidence" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>confidence</code></h3>
+<p>Type: <code>number</code>, range 0..100. Publisher-asserted confidence in the verdict.</p>
+<h3 id="severity"><a href="#severity" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>severity</code></h3>
+<p>Type: <code>number</code>, range 0..100. Publisher-asserted damage potential. Informational; no protocol behavior depends on it.</p>
+<h2 id="matcher-data"><a href="#matcher-data" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Matcher data</h2>
+<h3 id="primarymatcherhash"><a href="#primarymatcherhash" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>primaryMatcherHash</code></h3>
+<p>Type: <code>Hex32</code>. The keccak256 of the type-specific matcher tuple. Used as the index for fast on-chain lookups (<code>Registry.getAntibodyByMatcherHash</code>). Computed by:</p>
+<ul>
+<li>ADDRESS, <code>keccak256(abi.encode(chainId, target))</code>.</li>
+<li>CALL_PATTERN, <code>keccak256(abi.encode(chainId, target, selector, argsTemplateHash))</code>.</li>
+<li>BYTECODE, <code>keccak256(runtimeBytecode)</code>.</li>
+<li>GRAPH, <code>keccak256(abi.encode(chainId, sortedAddresses))</code>.</li>
+<li>SEMANTIC, <code>keccak256(abi.encode(flavor, marker))</code>.</li>
+</ul>
+<p>The SDK exports per-type helpers: <code>hashAddressMatcher()</code>, <code>hashCallPatternMatcher()</code>, etc. See <a href="/reference/helpers/">Helpers</a>.</p>
+<h3 id="evidencecid"><a href="#evidencecid" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>evidenceCid</code></h3>
+<p>Type: <code>Hex32</code>. 0G Storage pointer to the evidence bundle (the original tx, the marker text, the chain log). Public envelope by default; encryptable for sensitive seeds.</p>
+<p>Resolve via <code>fetchPublicEnvelope(cid)</code> or directly through the 0G Storage indexer.</p>
+<h3 id="contexthash"><a href="#contexthash" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>contextHash</code></h3>
+<p>Type: <code>Hex32</code>. Hash of the context the publisher used when minting. Matches the <code>contextHash</code> the SDK includes in <code>Registry.check()</code> settlement so the indexer can correlate publishes with checks.</p>
+<h3 id="embeddinghash"><a href="#embeddinghash" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>embeddingHash</code></h3>
+<p>Type: <code>Hex32</code>. SEMANTIC-only. Hash of the embedding vector for ANN-based similarity search (deferred to v2). Zero for non-SEMANTIC antibodies.</p>
+<h3 id="attestation"><a href="#attestation" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>attestation</code></h3>
+<p>Type: <code>Hex32</code>. TEE attestation when the antibody was published from a TEE verdict. Zero for human/manual publishes.</p>
+<h2 id="provenance"><a href="#provenance" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Provenance</h2>
+<h3 id="publisher"><a href="#publisher" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>publisher</code></h3>
+<p>Type: <code>Address</code>. The wallet that called <code>publish()</code>. Earns 80% of the protocol fee on each match for the life of the antibody.</p>
+<h3 id="reviewer"><a href="#reviewer" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>reviewer</code></h3>
+<p>Type: <code>Address</code>. Reserved for v2 governance review. Currently always zero.</p>
+<h3 id="stakeamount"><a href="#stakeamount" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>stakeAmount</code></h3>
+<p>Type: <code>bigint</code>. The staked USDC, in 6-decimal base units. Default <code>1_000_000n</code> (1 USDC).</p>
+<h3 id="stakelockuntil"><a href="#stakelockuntil" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>stakeLockUntil</code></h3>
+<p>Type: <code>bigint</code>. Unix timestamp when stake unlocks. <code>createdAt + 72 hours</code> typical.</p>
+<h3 id="expiresat"><a href="#expiresat" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>expiresAt</code></h3>
+<p>Type: <code>bigint</code>. Unix timestamp of expiry. <strong><code>0</code> in v1</strong> (treated as permanent). Reserved for v2.</p>
+<h3 id="createdat"><a href="#createdat" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>createdAt</code></h3>
+<p>Type: <code>bigint</code>. Unix timestamp of the publish tx.</p>
+<h2 id="off-chain-enrichment"><a href="#off-chain-enrichment" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Off-chain enrichment</h2>
+<h3 id="isseeded"><a href="#isseeded" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>isSeeded</code></h3>
+<p>Type: <code>boolean</code>. <code>true</code> if the antibody was published with an off-chain seed payload (gossiped alongside for cache reconstruction). <code>false</code> for chain-only publishes.</p>
+<h3 id="seed"><a href="#seed" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>seed</code></h3>
+<p>Type: <code>AntibodySeed</code> (discriminated union by <code>abType</code>). Optional. The matcher reconstruction seed: data subscribers need to rebuild a type-specific lookup locally without re-reading the chain.</p>
+<p>For ADDRESS antibodies: <code>{ abType: &quot;ADDRESS&quot;, chainId, target }</code>.
+For CALL_PATTERN: <code>{ abType: &quot;CALL_PATTERN&quot;, chainId, target, selector, argsTemplate }</code>.
+And so on per type.</p>
+<h2 id="reading-antibodies"><a href="#reading-antibodies" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Reading antibodies</h2>
+<pre><code class="language-ts">const ab = await immunity.getAntibody(&quot;IMM-2026-0042&quot;);
+console.log({
+  immId: ab.immId,
+  type: ab.abType,
+  verdict: ab.verdict,
+  status: ab.status,
+  confidence: ab.confidence,
+  publisher: ab.publisher,
+  stakeUnlock: new Date(Number(ab.stakeLockUntil) * 1000),
+});
+</code></pre>
+<h2 id="see-also"><a href="#see-also" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>See also</h2>
+<ul>
+<li><strong><a href="/concepts/antibodies/">Concepts: Antibodies</a></strong>, the lifecycle picture.</li>
+<li><strong><a href="/reference/helpers/">Helpers</a></strong>, the per-type matcher hash helpers.</li>
+<li><strong><a href="/guides/the-public-feed/">The public feed</a></strong>, antibody data without the SDK.</li>
+</ul>
+
+    </div>
+
+    <nav class="docs-pagination">
+        <a href="/reference/checkresult" class="pagination-link pagination-prev">
+            <span class="pagination-label">&larr; Previous</span>
+            <span class="pagination-title">CheckResult</span>
+        </a>
+
+        <a href="/reference/errors" class="pagination-link pagination-next">
+            <span class="pagination-label">Next &rarr;</span>
+            <span class="pagination-title">Errors</span>
+        </a>
+    </nav>
+</article>
+        </main>
+<aside class="docs-toc">
+    <div class="toc-wrapper">
+        <h4 class="toc-title">On this page</h4>
+        <ul class="toc-links">
+            <li class="toc-item">
+                <a href="#full-shape" class="toc-link">Full shape</a>
+            </li>
+            <li class="toc-item">
+                <a href="#identity" class="toc-link">Identity</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#keccakid" class="toc-link">keccakId</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#immseq" class="toc-link">immSeq</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#immid" class="toc-link">immId</a>
+            </li>
+            <li class="toc-item">
+                <a href="#classification" class="toc-link">Classification</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#abtype" class="toc-link">abType</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#flavor" class="toc-link">flavor</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#verdict" class="toc-link">verdict</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#status" class="toc-link">status</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#confidence" class="toc-link">confidence</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#severity" class="toc-link">severity</a>
+            </li>
+            <li class="toc-item">
+                <a href="#matcher-data" class="toc-link">Matcher data</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#primarymatcherhash" class="toc-link">primaryMatcherHash</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#evidencecid" class="toc-link">evidenceCid</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#contexthash" class="toc-link">contextHash</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#embeddinghash" class="toc-link">embeddingHash</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#attestation" class="toc-link">attestation</a>
+            </li>
+            <li class="toc-item">
+                <a href="#provenance" class="toc-link">Provenance</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#publisher" class="toc-link">publisher</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#reviewer" class="toc-link">reviewer</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#stakeamount" class="toc-link">stakeAmount</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#stakelockuntil" class="toc-link">stakeLockUntil</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#expiresat" class="toc-link">expiresAt</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#createdat" class="toc-link">createdAt</a>
+            </li>
+            <li class="toc-item">
+                <a href="#off-chain-enrichment" class="toc-link">Off-chain enrichment</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#isseeded" class="toc-link">isSeeded</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#seed" class="toc-link">seed</a>
+            </li>
+            <li class="toc-item">
+                <a href="#reading-antibodies" class="toc-link">Reading antibodies</a>
+            </li>
+            <li class="toc-item">
+                <a href="#see-also" class="toc-link">See also</a>
+            </li>
+        </ul>
+    </div>
+</aside>
+    </div>
+
+<div class="search-overlay" id="search-overlay">
+    <div class="search-dialog" role="dialog" aria-label="Search documentation">
+        <div class="search-input-wrapper">
+            <svg class="search-icon" width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+            </svg>
+            <input type="text" class="search-input" id="search-input" placeholder="Search documentation..." autocomplete="off" autofocus>
+            <kbd style="font-size: 0.625rem; padding: 0.125rem 0.375rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 0.25rem; color: var(--text-muted); font-family: var(--font-mono); cursor: pointer;" onclick="closeSearch()">Esc</kbd>
+        </div>
+        <div class="search-results" id="search-results">
+            <div class="search-empty">Type to search the documentation...</div>
+        </div>
+        <div class="search-footer">
+            <span>Navigate with <kbd>&uarr;</kbd> <kbd>&darr;</kbd> keys</span>
+            <span>Press <kbd>Enter</kbd> to select</span>
+        </div>
+    </div>
+</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup-templating.min.js"></script>
+    <script src="/assets/js/copy-code.js"></script>
+    <script src="/assets/js/sidebar.js"></script>
+    <script src="/assets/js/search.js"></script>
+</body>
+</html>

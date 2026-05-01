@@ -1,0 +1,514 @@
+[
+    {
+        "title": "Antibodies",
+        "section": "concepts",
+        "url": "\/concepts\/antibodies",
+        "excerpt": "Antibodies An antibody is the network's atomic unit of threat intelligence. One antibody corresponds to one specific thing the network has decided is dangerous. Every published antibody lives on the on-chain Registry on 0G Chain. The Registry is the canonical source of truth; every other layer (cach...",
+        "headings": [
+            "Identity",
+            "On-chain shape",
+            "Lifecycle",
+            "Verdicts",
+            "Confidence and severity",
+            "Why every antibody has a stake",
+            "Off-chain enrichment",
+            "See also"
+        ]
+    },
+    {
+        "title": "Cross-chain mirror",
+        "section": "concepts",
+        "url": "\/concepts\/cross-chain-mirror",
+        "excerpt": "Cross-chain mirror The Registry lives on 0G Chain. That is where antibodies mint, where the publisher economics settle, where the canonical record exists. But the actual use of an ADDRESS antibody often happens on a different chain entirely: a Uniswap v4 pool on Sepolia checks an inbound swap's toke...",
+        "headings": [
+            "What gets mirrored",
+            "How it works",
+            "Supported chains today",
+            "What you can verify",
+            "Trust model",
+            "Why this matters for Uniswap",
+            "See also"
+        ]
+    },
+    {
+        "title": "Settlement and tokenomics",
+        "section": "concepts",
+        "url": "\/concepts\/settlement-and-tokenomics",
+        "excerpt": "Settlement and tokenomics The protocol's economic loop is small enough to fit in your head: Per check, agents pay $0.002 USDC to the on-chain Registry. Per match, the matched antibody's publisher earns 80% of the fee. The treasury keeps 20%. Per non-match (no antibody fired), the treasury keeps 100%...",
+        "headings": [
+            "The flow per check()",
+            "The prepaid balance",
+            "The publisher stake",
+            "The challenge mechanism",
+            "What the treasury actually pays for",
+            "What the protocol does not charge for",
+            "What the SDK does not do (yet)",
+            "See also"
+        ]
+    },
+    {
+        "title": "TEE verification",
+        "section": "concepts",
+        "url": "\/concepts\/tee-verification",
+        "excerpt": "TEE verification TEE verification is the third tier of check(). It only fires when the local cache misses and the on-chain Registry has no record of a matching antibody for the input. That combination defines a &quot;novel&quot; threat: nobody on the network has seen it before. #When it fires Three ...",
+        "headings": [
+            "When it fires",
+            "What gets verified",
+            "What happens after",
+            "What attestation actually guarantees",
+            "What it costs",
+            "Why bother",
+            "See also"
+        ]
+    },
+    {
+        "title": "Three-tier lookup",
+        "section": "concepts",
+        "url": "\/concepts\/three-tier-lookup",
+        "excerpt": "Three-tier lookup Every check() walks three tiers in order. Each tier resolves a different question (do I already know this threat?) at progressively higher cost. The chain is the source of truth; the cache is a performance shortcut on top of it; TEE detection only fires when neither has seen the th...",
+        "headings": [
+            "Why three tiers",
+            "What gets probed at each tier",
+            "Tier 1, local cache",
+            "Tier 2, registry RPC",
+            "Tier 3, TEE detection",
+            "Decision source",
+            "Failure modes",
+            "See also"
+        ]
+    },
+    {
+        "title": "Concepts in two minutes",
+        "section": "getting-started",
+        "url": "\/getting-started\/concepts-in-two-minutes",
+        "excerpt": "Concepts in two minutes Read this once. The rest of the docs assume you know it. #The protocol Immunity is a network of AI agents that share threat intelligence. When one agent detects something bad, it publishes an antibody to an on-chain Registry. Every other agent on the network now knows about i...",
+        "headings": [
+            "The protocol",
+            "The five antibody types",
+            "The three-tier lookup",
+            "Publisher economics",
+            "What it costs",
+            "Where to go next"
+        ]
+    },
+    {
+        "title": "Install",
+        "section": "getting-started",
+        "url": "\/getting-started\/install",
+        "excerpt": "Install the SDK The Immunity SDK ships as @immunity-protocol\/sdk on npm. It targets Node 20 or newer and depends on ethers v6. #One command npm install --legacy-peer-deps @immunity-protocol\/sdk ethers The --legacy-peer-deps flag is required. The 0G Storage SDK that powers evidence uploads pins ether...",
+        "headings": [
+            "One command",
+            "Confirm the install",
+            "What you also need",
+            "Next"
+        ]
+    },
+    {
+        "title": "Quickstart",
+        "section": "getting-started",
+        "url": "\/getting-started\/quickstart",
+        "excerpt": "Quickstart This is the smallest agent that uses Immunity correctly. Copy it, set two env vars, run it, watch the network respond. #The full example import { Immunity, parseUsdc, TESTNET } from &quot;@immunity-protocol\/sdk&quot;; import { JsonRpcProvider, Wallet } from &quot;ethers&quot;; \/\/ 1. Walle...",
+        "headings": [
+            "The full example",
+            "Run it",
+            "What just happened",
+            "Pick the right policy",
+            "Next"
+        ]
+    },
+    {
+        "title": "Skill for AI assistants",
+        "section": "getting-started",
+        "url": "\/getting-started\/skill-for-ai-assistants",
+        "excerpt": "Skill for AI assistants The Immunity SDK ships with a packaged agent skill, a single SKILL.md file an AI coding tool can read to understand the API surface, the empirical gotchas, and the right way to wire check() into your agent. It cuts the round-trips needed to get a correct integration on the fi...",
+        "headings": [
+            "One command (recommended)",
+            "Or download manually",
+            "Claude Code",
+            "Cursor",
+            "Codex",
+            "Cline \/ Gemini CLI \/ others",
+            "What's in the skill",
+            "Why bother",
+            "Source"
+        ]
+    },
+    {
+        "title": "Gate a transaction",
+        "section": "guides",
+        "url": "\/guides\/gate-a-transaction",
+        "excerpt": "Gate a transaction The canonical agent integration. Wrap every action that calls wallet.sendTransaction() with immunity.check(). If check() blocks, do not sign. #The minimal pattern async function safeSend(tx: ProposedTx, ctx: CheckContext) { const result = await immunity.check(tx, ctx); if (!result...",
+        "headings": [
+            "The minimal pattern",
+            "Production-grade version",
+            "What context to pass",
+            "Error taxonomy",
+            "Retry semantics",
+            "Performance",
+            "Audit logs",
+            "See also"
+        ]
+    },
+    {
+        "title": "Operator in the loop",
+        "section": "guides",
+        "url": "\/guides\/operator-in-the-loop",
+        "excerpt": "Operator in the loop Some threats are obvious (a known drainer, a sanctioned address) and the SDK should block instantly. Some are ambiguous (a counterparty with light bad-faith signals, a SEMANTIC marker with mid-range confidence). For ambiguous cases, you want a human or a higher-level policy agen...",
+        "headings": [
+            "When it fires",
+            "The handler signature",
+            "Common handler patterns",
+            "Slack ping with two buttons",
+            "Higher-level policy agent",
+            "Auto-deny with a notification",
+            "Timeout behavior",
+            "Errors",
+            "What you DO have access to",
+            "See also"
+        ]
+    },
+    {
+        "title": "Publish an antibody",
+        "section": "guides",
+        "url": "\/guides\/publish-an-antibody",
+        "excerpt": "Publish an antibody The agent role you adopt when you spot a threat the network does not yet know about. publish() mints a new antibody on the on-chain Registry, locks 1 USDC of stake for 72 hours, and starts you earning 80% of the protocol fee on every match across the network. #When to publish You...",
+        "headings": [
+            "When to publish",
+            "The minimal call",
+            "Required prepaid balance",
+            "Per-type seed shapes",
+            "ADDRESS",
+            "CALL_PATTERN",
+            "BYTECODE",
+            "GRAPH",
+            "SEMANTIC",
+            "Verdict, confidence, severity",
+            "Stake and rewards",
+            "Errors to handle",
+            "See also"
+        ]
+    },
+    {
+        "title": "Test against testnet",
+        "section": "guides",
+        "url": "\/guides\/test-against-testnet",
+        "excerpt": "Test against testnet The fastest way to verify your integration is to run it against 0G Galileo testnet. This guide is the canonical setup. Bookmark it; the steps are quick once you've done them once. #Prerequisites Node 20+ installed. Docker for the AXL daemon mesh. A wallet for testnet OG. Generat...",
+        "headings": [
+            "Prerequisites",
+            "Step 1: get testnet OG",
+            "Step 2: bring up the AXL mesh",
+            "Step 3: install the SDK",
+            "Step 4: write the test agent",
+            "Step 5: run",
+            "Step 6: explore",
+            "Common stumbles",
+            "Next"
+        ]
+    },
+    {
+        "title": "The public feed",
+        "section": "guides",
+        "url": "\/guides\/the-public-feed",
+        "excerpt": "The public feed Every antibody published to the on-chain Registry shows up in three public feeds within seconds: RSS, https:\/\/immunity-protocol.com\/feed\/antibodies.rss JSON Feed, https:\/\/immunity-protocol.com\/feed\/antibodies.json Webhooks, register at the docs site (see below). Read-only consumers (...",
+        "headings": [
+            "When to use each",
+            "RSS",
+            "JSON Feed",
+            "Webhooks",
+            "Filtering",
+            "Rate limits and caching",
+            "Provenance and trust",
+            "See also"
+        ]
+    },
+    {
+        "title": "Uniswap v4 hook",
+        "section": "guides",
+        "url": "\/guides\/uniswap-v4-hook",
+        "excerpt": "Uniswap v4 hook The Immunity hook is a Uniswap v4 BeforeSwap hook that consults the on-chain mirror for the input\/output tokens of an inbound swap. If either token is flagged, the swap reverts with a friendly typed error and the LP is unaffected. No SDK install needed for the swappers; the hook prot...",
+        "headings": [
+            "How the hook works",
+            "Installing the hook on your pool",
+            "A) Deploy a new pool with the hook attached",
+            "B) Existing pool, no hook",
+            "What the hook checks",
+            "Errors a swapper sees",
+            "Gas overhead",
+            "Verifying flagged tokens hit the mirror",
+            "See also"
+        ]
+    },
+    {
+        "title": "Attack types we catch",
+        "section": "network",
+        "url": "\/network\/attack-types-we-catch",
+        "excerpt": "Attack types we catch The demo fleet's incident catalog has 20 attack-class families, each with 7 phrasing variants. Every variant carries a canonical marker substring that the SEMANTIC matcher hashes; matching any variant of a family populates the cache for every other variant. The catalog is open ...",
+        "headings": [
+            "Prompt injection (SEMANTIC, by far the largest category)",
+            "Address-class threats (ADDRESS antibodies)",
+            "MEV and ordering attacks",
+            "Catalog structure",
+            "How to add to this catalog",
+            "Beyond SEMANTIC",
+            "See also"
+        ]
+    },
+    {
+        "title": "Economics",
+        "section": "network",
+        "url": "\/network\/economics",
+        "excerpt": "Economics Numbers in this page are measured from the live demo against 0G Galileo testnet. Mainnet pricing follows the same gas economics; multiply by your live gas price for absolute numbers in fiat. #Per-operation gas (measured) Operation Gas used Source Registry.check() settlement ~49,000 live re...",
+        "headings": [
+            "Per-operation gas (measured)",
+            "Protocol fee",
+            "Treasury",
+            "Publisher rewards",
+            "What you pay total",
+            "What you earn (publisher)",
+            "What gets slashed",
+            "Why the model works",
+            "Where to look",
+            "See also"
+        ]
+    },
+    {
+        "title": "Registry on 0G",
+        "section": "network",
+        "url": "\/network\/registry-on-0g",
+        "excerpt": "Registry on 0G The on-chain Registry is the canonical source of truth for the Immunity network. Every antibody mint, every match settlement, every challenge, lives here. The cache is a derivative; the gossip mesh is a derivative; the public feed is a derivative. The Registry is the truth. This page ...",
+        "headings": [
+            "Live deployment",
+            "Read-only methods anyone can call",
+            "getAntibody(keccakId) -> Antibody",
+            "getAntibodyByImmSeq(immSeq) -> Antibody",
+            "getAntibodyByMatcherHash(primaryMatcherHash) -> Antibody",
+            "firstMatch(matcherHashes[]) -> (Antibody, uint256)",
+            "treasuryBalance() -> uint256",
+            "prepaidBalance(address) -> uint256",
+            "Write methods (require gas + USDC)",
+            "check(antibodyId, tokenAddress, tokenAmount, originChainId) -> Receipt",
+            "publish(seed, verdict, confidence, severity, evidenceCid, contextHash, embeddingHash, attestation) -> Antibody",
+            "deposit(amount) \/ withdraw(amount)",
+            "challenge(keccakId, evidenceCid)",
+            "Verifying any claim against the Registry",
+            "\"This antibody is real\"",
+            "\"This is the first publisher for this matcher\"",
+            "\"This SDK provider is who they say they are\"",
+            "Why this matters",
+            "See also"
+        ]
+    },
+    {
+        "title": "The public feed",
+        "section": "network",
+        "url": "\/network\/the-public-feed",
+        "excerpt": "The public feed The public feed is the network's broadcast layer to the rest of the world. Every published antibody, every challenge, every match shows up in feeds within seconds. The feeds are derivative views of the on-chain Registry; the Registry is the source of truth. For the developer-facing h...",
+        "headings": [
+            "What gets indexed",
+            "Guarantees",
+            "What the feed guarantees",
+            "What the feed does NOT guarantee",
+            "Trust model",
+            "Hosting your own indexer",
+            "Future enhancements",
+            "See also"
+        ]
+    },
+    {
+        "title": "Antibody",
+        "section": "reference",
+        "url": "\/reference\/antibody",
+        "excerpt": "Antibody The contract-aligned envelope for a published threat. One per keccakId. Read via getAntibody(idOrSeq). Returned in CheckResult.antibodies on a match. #Full shape interface Antibody { keccakId: Hex32; immSeq: number; immId: string; abType: AntibodyType; flavor: number; verdict: Verdict; stat...",
+        "headings": [
+            "Full shape",
+            "Identity",
+            "keccakId",
+            "immSeq",
+            "immId",
+            "Classification",
+            "abType",
+            "flavor",
+            "verdict",
+            "status",
+            "confidence",
+            "severity",
+            "Matcher data",
+            "primaryMatcherHash",
+            "evidenceCid",
+            "contextHash",
+            "embeddingHash",
+            "attestation",
+            "Provenance",
+            "publisher",
+            "reviewer",
+            "stakeAmount",
+            "stakeLockUntil",
+            "expiresAt",
+            "createdAt",
+            "Off-chain enrichment",
+            "isSeeded",
+            "seed",
+            "Reading antibodies",
+            "See also"
+        ]
+    },
+    {
+        "title": "CheckResult",
+        "section": "reference",
+        "url": "\/reference\/checkresult",
+        "excerpt": "CheckResult What immunity.check() returns. The shape: interface CheckResult { allowed: boolean; decision: &quot;allow&quot; | &quot;block&quot; | &quot;escalate&quot;; source: &quot;cache&quot; | &quot;registry&quot; | &quot;tee&quot; | &quot;policy&quot;; confidence: number; antibodies: Antibody[];...",
+        "headings": [
+            "Fields",
+            "allowed",
+            "decision",
+            "source",
+            "confidence",
+            "antibodies",
+            "reason",
+            "checkId",
+            "novel",
+            "txFacts",
+            "Example uses",
+            "Audit logging",
+            "Operator notification",
+            "Treating \"novel\" specially",
+            "See also"
+        ]
+    },
+    {
+        "title": "Errors",
+        "section": "reference",
+        "url": "\/reference\/errors",
+        "excerpt": "Errors All SDK errors extend ImmunityError. Branch on the stable code string, not the message text. Messages may change between versions; codes do not. import { ImmunityError } from &quot;@immunity-protocol\/sdk&quot;; try { await immunity.check(tx, ctx); } catch (err) { if (err instanceof ImmunityEr...",
+        "headings": [
+            "Full table",
+            "Class details",
+            "ImmunityError",
+            "MissingConfigError",
+            "NotStartedError",
+            "BlockError",
+            "EscalationError family",
+            "InsufficientBalanceError",
+            "NetworkError",
+            "AntibodyNotFoundError",
+            "DuplicateAntibodyError",
+            "StakeLockedError",
+            "TeeAttestationError",
+            "TeeResponseError",
+            "Best-practice retry table",
+            "See also"
+        ]
+    },
+    {
+        "title": "Helpers",
+        "section": "reference",
+        "url": "\/reference\/helpers",
+        "excerpt": "Helpers The SDK re-exports a small set of utility functions that match the on-chain canonicalization byte-for-byte. Use them when you need to compute matcher hashes off chain (e.g., for a relayer, a mirror contract, or a testing harness). #Hash helpers All match the on-chain Solidity computation exa...",
+        "headings": [
+            "Hash helpers",
+            "computeKeccakId(abType, flavor, primaryMatcherHash, publisher)",
+            "hashAddressMatcher(chainId, target)",
+            "hashCallPatternMatcher(chainId, target, selector, argsTemplate)",
+            "hashBytecodeMatcher(runtimeBytecode)",
+            "hashGraphMatcher(chainId, taintedAddresses)",
+            "hashSemanticMatcher(flavor, marker)",
+            "computeTaintSetId(addresses)",
+            "USDC helpers",
+            "parseUsdc(amount)",
+            "formatUsdc(amount)",
+            "USDC_DECIMALS",
+            "Address helpers",
+            "normalizeAddress(addr)",
+            "isAddress(value)",
+            "chainAddressKey(chainId, address)",
+            "Storage helpers",
+            "createStorageClient(indexerUrl)",
+            "uploadPublicEnvelope(client, payload)",
+            "fetchPublicEnvelope(client, cid)",
+            "uploadEncryptedContext(client, payload, recipientPubkey)",
+            "Tx fact extraction",
+            "extractFacts(tx)",
+            "TEE prompt builders",
+            "See also"
+        ]
+    },
+    {
+        "title": "Immunity class",
+        "section": "reference",
+        "url": "\/reference\/immunity-class",
+        "excerpt": "Immunity class The facade. One instance per agent. Construction is non-mutating; lifecycle starts on start(). All public methods are async unless noted. #new Immunity(config) import { Immunity } from &quot;@immunity-protocol\/sdk&quot;; const immunity = new Immunity({ wallet, network: &quot;testnet&q...",
+        "headings": [
+            "new Immunity(config)",
+            "Lifecycle",
+            "start(): Promise<void>",
+            "stop(): Promise<void>",
+            "The hot path",
+            "check(tx, context, options?): Promise<CheckResult>",
+            "Publishing",
+            "publish(input): Promise<PublishResult>",
+            "getAntibody(idOrSeq): Promise<Antibody>",
+            "Money",
+            "balance(): Promise<bigint>",
+            "deposit(amount, approveMode?): Promise<Hex32>",
+            "withdraw(amount): Promise<Hex32>",
+            "mintTestUsdc(amount): Promise<Hex32>",
+            "Stats and admin",
+            "publisherStats(): Promise<PublisherStats>",
+            "dropFromCache(keccakId): boolean",
+            "sweep(): Promise<SweepResult>",
+            "See also"
+        ]
+    },
+    {
+        "title": "ImmunityConfig",
+        "section": "reference",
+        "url": "\/reference\/immunityconfig",
+        "excerpt": "ImmunityConfig The argument to new Immunity(config). All fields except wallet and axlUrl are optional with sensible defaults. #Required #wallet Type: Signer | string ethers v6 Signer instance, or a 0x-prefixed private-key string. The SDK normalizes both. Used to sign every on-chain settlement and pu...",
+        "headings": [
+            "Required",
+            "wallet",
+            "axlUrl",
+            "Network",
+            "network",
+            "axlIdentityPath",
+            "Decision policy",
+            "novelThreatPolicy",
+            "confidenceThresholds",
+            "onEscalate",
+            "escalationTimeout",
+            "onTimeout",
+            "Custom verifier",
+            "teeVerifier",
+            "Cache and gossip",
+            "denyKeccakIds",
+            "semanticAutoMint",
+            "bootstrapCacheOnStart",
+            "Funding thresholds",
+            "minLedgerOg",
+            "minProviderOg",
+            "Full example",
+            "See also"
+        ]
+    },
+    {
+        "title": "Network presets",
+        "section": "reference",
+        "url": "\/reference\/network-presets",
+        "excerpt": "Network presets The SDK ships one network preset (TESTNET) and accepts a custom NetworkConfig for everything else. #TESTNET import { TESTNET } from &quot;@immunity-protocol\/sdk&quot;; console.log(TESTNET); \/\/ { \/\/ name: &quot;testnet&quot;, \/\/ chainId: 16602, \/\/ rpcUrl: &quot;https:\/\/evmrpc-testnet....",
+        "headings": [
+            "TESTNET",
+            "NetworkConfig",
+            "Field reference",
+            "name",
+            "chainId",
+            "rpcUrl",
+            "registryAddress",
+            "usdcAddress",
+            "blockExplorerUrl",
+            "computeProvider",
+            "storageIndexerUrl",
+            "Switching networks",
+            "See also"
+        ]
+    }
+]

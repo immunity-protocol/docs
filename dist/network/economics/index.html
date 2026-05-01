@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="leaf-base-url" content="">
+<meta name="description" content="Real measured numbers from the live demo. Gas, protocol fee, treasury split, publisher rewards. What it actually costs.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://docs.immunity-protocol.com/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Economics · Immunity Docs">
+<meta property="og:description" content="Real measured numbers from the live demo. Gas, protocol fee, treasury split, publisher rewards. What it actually costs.">
+<meta property="og:site_name" content="Immunity Docs">
+<meta property="og:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Immunity Docs">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Economics · Immunity Docs">
+<meta name="twitter:description" content="Real measured numbers from the live demo. Gas, protocol fee, treasury split, publisher rewards. What it actually costs.">
+<meta name="twitter:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+    theme: {
+        extend: {
+            colors: {
+                deep: 'var(--bg-deep)',
+                surface: 'var(--bg-surface)',
+                elevated: 'var(--bg-elevated)',
+                border: 'var(--border)',
+                'border-accent': 'var(--border-accent)',
+                body: 'var(--text)',
+                bright: 'var(--text-bright)',
+                muted: 'var(--text-muted)',
+                accent: 'var(--accent)',
+                'accent-light': 'var(--accent-light)',
+                'accent-glow': 'var(--accent-glow)',
+            },
+            fontFamily: {
+                body: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+            },
+        },
+    },
+}
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="stylesheet" href="/assets/css/app.css">
+<script src="/assets/js/theme.js"></script>
+    <title>Economics · Immunity Docs</title>
+</head>
+<body class="bg-deep text-body antialiased font-body">
+<header class="site-nav">
+    <div class="nav-container">
+        <div class="nav-left">
+            <button class="nav-toggle" onclick="toggleNav()" type="button" aria-label="Toggle menu">
+                <svg class="nav-toggle-open" width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg>
+                <svg class="nav-toggle-close" width="20" height="20" viewBox="0 0 20 20" fill="currentColor" style="display:none"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+            </button>
+            <a href="/" class="nav-logo nav-logo-text">
+                <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 6 L24 6 L16 16 L24 26 L8 26 L16 16 Z" fill="currentColor" opacity="0.9"></path>
+                </svg>
+                <span>Immunity Docs</span>
+            </a>
+        </div>
+        <nav class="nav-links">
+            <button class="search-trigger" onclick="openSearch()" type="button">
+                <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path></svg>
+                <span>Search</span>
+                <kbd>Ctrl+K</kbd>
+            </button>
+            <a href="https://github.com/ophelios-studio/immunity-sdk" class="nav-link" target="_blank" rel="noopener">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+                GitHub
+            </a>
+            <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle theme">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            </button>
+            <span class="version-badge">0.1.0</span>
+        </nav>
+    </div>
+</header>
+
+    <div class="docs-layout">
+        <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+<aside class="docs-sidebar">
+    <nav class="sidebar-nav">
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Getting Started</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/getting-started/install"
+                       class="sidebar-link">
+                        Install
+                    </a>
+                </li>
+                <li>
+                    <a href="/getting-started/quickstart"
+                       class="sidebar-link">
+                        Quickstart
+                    </a>
+                </li>
+                <li>
+                    <a href="/getting-started/concepts-in-two-minutes"
+                       class="sidebar-link">
+                        Concepts in two minutes
+                    </a>
+                </li>
+                <li>
+                    <a href="/getting-started/skill-for-ai-assistants"
+                       class="sidebar-link">
+                        Skill for AI assistants
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Concepts</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/concepts/antibodies"
+                       class="sidebar-link">
+                        Antibodies
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/three-tier-lookup"
+                       class="sidebar-link">
+                        Three-tier lookup
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/tee-verification"
+                       class="sidebar-link">
+                        TEE verification
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/settlement-and-tokenomics"
+                       class="sidebar-link">
+                        Settlement and tokenomics
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/cross-chain-mirror"
+                       class="sidebar-link">
+                        Cross-chain mirror
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Guides</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/guides/gate-a-transaction"
+                       class="sidebar-link">
+                        Gate a transaction
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/publish-an-antibody"
+                       class="sidebar-link">
+                        Publish an antibody
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/operator-in-the-loop"
+                       class="sidebar-link">
+                        Operator in the loop
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/uniswap-v4-hook"
+                       class="sidebar-link">
+                        Uniswap v4 hook
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/test-against-testnet"
+                       class="sidebar-link">
+                        Test against testnet
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/the-public-feed"
+                       class="sidebar-link">
+                        The public feed
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Reference</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/reference/immunity-class"
+                       class="sidebar-link">
+                        Immunity class
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/immunityconfig"
+                       class="sidebar-link">
+                        ImmunityConfig
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/checkresult"
+                       class="sidebar-link">
+                        CheckResult
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/antibody"
+                       class="sidebar-link">
+                        Antibody
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/errors"
+                       class="sidebar-link">
+                        Errors
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/network-presets"
+                       class="sidebar-link">
+                        Network presets
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/helpers"
+                       class="sidebar-link">
+                        Helpers
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Network</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/network/registry-on-0g"
+                       class="sidebar-link">
+                        Registry on 0G
+                    </a>
+                </li>
+                <li>
+                    <a href="/network/the-public-feed"
+                       class="sidebar-link">
+                        The public feed
+                    </a>
+                </li>
+                <li>
+                    <a href="/network/economics"
+                       class="sidebar-link active">
+                        Economics
+                    </a>
+                </li>
+                <li>
+                    <a href="/network/attack-types-we-catch"
+                       class="sidebar-link">
+                        Attack types we catch
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="sidebar-mobile-links">
+            <a href="https://github.com/ophelios-studio/immunity-sdk" class="sidebar-footer-link" target="_blank" rel="noopener">GitHub</a>
+        </div>
+        <div class="sidebar-copyright">
+            &copy; 2026 Ophelios
+        </div>
+        <div class="sidebar-powered">
+            Powered by <a href="https://github.com/dadajuice/zephyrus-leaf" target="_blank" rel="noopener">Zephyrus Leaf</a>
+        </div>
+    </div>
+</aside>
+        <main class="docs-main">
+<article class="docs-content">
+    <div class="prose">
+        <h1>Economics</h1>
+<p>Numbers in this page are measured from the live demo against 0G Galileo testnet. Mainnet pricing follows the same gas economics; multiply by your live gas price for absolute numbers in fiat.</p>
+<h2 id="per-operation-gas-measured"><a href="#per-operation-gas-measured" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Per-operation gas (measured)</h2>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Gas used</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Registry.check()</code> settlement</td>
+<td>~49,000</td>
+<td>live receipts, 4 ADDRESS check txs</td>
+</tr>
+<tr>
+<td>Publish ADDRESS antibody</td>
+<td>~248,000</td>
+<td>live receipts, 2 publisher txs</td>
+</tr>
+<tr>
+<td>Publish SEMANTIC antibody</td>
+<td>~282,000</td>
+<td>live receipts, includes seed-blob upload</td>
+</tr>
+<tr>
+<td>Withdraw stake (post-72h)</td>
+<td>~62,000</td>
+<td>live receipts</td>
+</tr>
+<tr>
+<td>Deposit USDC (with allowance)</td>
+<td>~74,000</td>
+<td>live receipts</td>
+</tr>
+<tr>
+<td>Deposit USDC (first-time approve)</td>
+<td>~120,000</td>
+<td>first deposit only</td>
+</tr>
+</tbody>
+</table>
+<p>At 4 gwei (typical Galileo testnet) and 0G ~$0.54 (current spot):</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Cost in USDC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Registry.check()</code> settlement</td>
+<td>~$0.0001</td>
+</tr>
+<tr>
+<td>Publish ADDRESS antibody</td>
+<td>~$0.0005</td>
+</tr>
+<tr>
+<td>Publish SEMANTIC antibody</td>
+<td>~$0.0006</td>
+</tr>
+<tr>
+<td>Withdraw stake</td>
+<td>~$0.00013</td>
+</tr>
+<tr>
+<td>Deposit USDC</td>
+<td>~$0.00016</td>
+</tr>
+</tbody>
+</table>
+<h2 id="protocol-fee"><a href="#protocol-fee" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Protocol fee</h2>
+<p><strong>0.002 USDC</strong> flat per settled <code>check()</code>. Goes through the Registry, not directly to the publisher.</p>
+<p>The fee economics:</p>
+<pre><code>Per check, 0.002 USDC debited from agent prepaid balance:
+  match found    -&gt; 80% to publisher (0.0016), 20% to treasury (0.0004)
+  no match found -&gt; 100% to treasury (0.002)
+</code></pre>
+<h2 id="treasury"><a href="#treasury" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Treasury</h2>
+<p>Accumulated from non-match checks (100% of the fee) and the treasury share of matched checks (20%).</p>
+<p>Treasury balance is publicly readable:</p>
+<pre><code class="language-ts">const balance = await registry.treasuryBalance();
+console.log(formatUsdc(balance));
+</code></pre>
+<p>The treasury pays for:</p>
+<ul>
+<li><strong>0G Compute charges</strong>, every TEE inference paid in OG to the inference provider.</li>
+<li><strong>Indexer hosting</strong>, Postgres + Fly machines + Moralis API key for token pricing.</li>
+<li><strong>Public feed delivery</strong>, RSS / JSON / webhook infra.</li>
+<li><strong>Audit costs</strong>, contract audits and key rotations.</li>
+<li><strong>Bounties and grants</strong> for high-value antibody publications.</li>
+</ul>
+<h2 id="publisher-rewards"><a href="#publisher-rewards" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Publisher rewards</h2>
+<p>A publisher who consistently mints accurate antibodies turns the 1 USDC stake into a perpetuity:</p>
+<ul>
+<li>1 USDC stake locked 72h.</li>
+<li>Each match earns 0.0016 USDC (80% of the 0.002 fee).</li>
+<li>Stake unlocks for withdrawal after 72h, or on first match (whichever comes later in the implementation).</li>
+</ul>
+<p>Break-even math: a publisher recovers the 1 USDC stake after <strong>625 matches</strong> (1 USDC / 0.0016 USDC per match). After that every match is pure profit.</p>
+<p>The live demo has 14 publishers as of writing. Top publisher (<code>0x4789dd...bc28</code>) has 43 published antibodies, 386 successful blocks, and earns approximately $0.62 in cumulative rewards. Modest in absolute terms; meaningful in unit economics terms (the 14 publishers' combined stake is 14 USDC; their combined return on the stake exceeds the stake itself).</p>
+<h2 id="what-you-pay-total"><a href="#what-you-pay-total" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>What you pay total</h2>
+<p>Worst-case per agent action that triggers a novel-threat round-trip and an auto-publish:</p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Cost in USDC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cache hit</td>
+<td>$0</td>
+</tr>
+<tr>
+<td>Protocol fee (per settled check)</td>
+<td>$0.002</td>
+</tr>
+<tr>
+<td>Settlement gas</td>
+<td>~$0.0001</td>
+</tr>
+<tr>
+<td>TEE compute (novel only)</td>
+<td>+$0.00015</td>
+</tr>
+<tr>
+<td>Publish gas (auto-mint only)</td>
+<td>~$0.0005</td>
+</tr>
+<tr>
+<td>1 USDC stake locked 72h (refundable)</td>
+<td>refundable</td>
+</tr>
+<tr>
+<td><strong>Total worst case</strong></td>
+<td><strong>~$0.00285</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Cache-hit checks (99% of agent traffic) cost the <strong>$0.002 fee</strong> plus settlement gas, total ~$0.0021.</p>
+<h2 id="what-you-earn-publisher"><a href="#what-you-earn-publisher" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>What you earn (publisher)</h2>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Per match</th>
+<th>Cumulative</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Match rewards (80% of the protocol fee)</td>
+<td>$0.0016</td>
+<td>unbounded as long as antibody stays ACTIVE</td>
+</tr>
+<tr>
+<td>Sweep bounty (releasing expired stakes)</td>
+<td>~$0.0001</td>
+<td>small, opportunistic</td>
+</tr>
+</tbody>
+</table>
+<p>Both rewards land in your prepaid USDC balance. Withdraw via <code>immunity.withdraw(amount)</code>.</p>
+<h2 id="what-gets-slashed"><a href="#what-gets-slashed" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>What gets slashed</h2>
+<p>A publisher's 1 USDC stake is slashed if a challenge against the antibody succeeds. Today challenges are governance-driven: a challenger files an on-chain claim, the protocol team adjudicates, the loser forfeits stake.</p>
+<p>Slash destinations:</p>
+<ul>
+<li>v1: 100% to the treasury.</li>
+<li>v2: split between treasury and the successful challenger (planned 50/50).</li>
+</ul>
+<h2 id="why-the-model-works"><a href="#why-the-model-works" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Why the model works</h2>
+<p>The economics are calibrated to make spam unprofitable and accuracy compounding:</p>
+<ul>
+<li><strong>Spam publish costs 1 USDC every time.</strong> A spam publisher mints 1 USDC of stake, gets challenged, loses the stake. There is no path to recovery without earning matches.</li>
+<li><strong>Accuracy compounds.</strong> A real, well-targeted antibody (Tornado Cash, a Lazarus wallet, a known drainer kit) gets matched dozens of times per day across the network. Cumulative match rewards exceed the stake within a week.</li>
+<li><strong>Treasury accumulates by default.</strong> Every check (matched or not) pays into the treasury directly or via the 20% split. The treasury funds the network's off-chain costs (TEE compute, indexer infra) so the protocol does not need external grants to operate.</li>
+</ul>
+<h2 id="where-to-look"><a href="#where-to-look" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Where to look</h2>
+<ul>
+<li>Live treasury balance, <a href="https://chainscan-galileo.0g.ai">chainscan-galileo.0g.ai</a> for the Registry contract.</li>
+<li>Live publisher leaderboard, <a href="https://immunity-protocol.com/publishers">immunity-protocol.com/publishers</a>.</li>
+<li>Live block count and value-protected, <a href="https://immunity-protocol.com/dashboard">immunity-protocol.com/dashboard</a>.</li>
+</ul>
+<h2 id="see-also"><a href="#see-also" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>See also</h2>
+<ul>
+<li><strong><a href="/concepts/settlement-and-tokenomics/">Settlement and tokenomics</a></strong>, the conceptual picture.</li>
+<li><strong><a href="/network/registry-on-0g/">Network: Registry on 0G</a></strong>, how to read these numbers yourself.</li>
+</ul>
+
+    </div>
+
+    <nav class="docs-pagination">
+        <a href="/network/the-public-feed" class="pagination-link pagination-prev">
+            <span class="pagination-label">&larr; Previous</span>
+            <span class="pagination-title">The public feed</span>
+        </a>
+
+        <a href="/network/attack-types-we-catch" class="pagination-link pagination-next">
+            <span class="pagination-label">Next &rarr;</span>
+            <span class="pagination-title">Attack types we catch</span>
+        </a>
+    </nav>
+</article>
+        </main>
+<aside class="docs-toc">
+    <div class="toc-wrapper">
+        <h4 class="toc-title">On this page</h4>
+        <ul class="toc-links">
+            <li class="toc-item">
+                <a href="#per-operation-gas-measured" class="toc-link">Per-operation gas (measured)</a>
+            </li>
+            <li class="toc-item">
+                <a href="#protocol-fee" class="toc-link">Protocol fee</a>
+            </li>
+            <li class="toc-item">
+                <a href="#treasury" class="toc-link">Treasury</a>
+            </li>
+            <li class="toc-item">
+                <a href="#publisher-rewards" class="toc-link">Publisher rewards</a>
+            </li>
+            <li class="toc-item">
+                <a href="#what-you-pay-total" class="toc-link">What you pay total</a>
+            </li>
+            <li class="toc-item">
+                <a href="#what-you-earn-publisher" class="toc-link">What you earn (publisher)</a>
+            </li>
+            <li class="toc-item">
+                <a href="#what-gets-slashed" class="toc-link">What gets slashed</a>
+            </li>
+            <li class="toc-item">
+                <a href="#why-the-model-works" class="toc-link">Why the model works</a>
+            </li>
+            <li class="toc-item">
+                <a href="#where-to-look" class="toc-link">Where to look</a>
+            </li>
+            <li class="toc-item">
+                <a href="#see-also" class="toc-link">See also</a>
+            </li>
+        </ul>
+    </div>
+</aside>
+    </div>
+
+<div class="search-overlay" id="search-overlay">
+    <div class="search-dialog" role="dialog" aria-label="Search documentation">
+        <div class="search-input-wrapper">
+            <svg class="search-icon" width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+            </svg>
+            <input type="text" class="search-input" id="search-input" placeholder="Search documentation..." autocomplete="off" autofocus>
+            <kbd style="font-size: 0.625rem; padding: 0.125rem 0.375rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 0.25rem; color: var(--text-muted); font-family: var(--font-mono); cursor: pointer;" onclick="closeSearch()">Esc</kbd>
+        </div>
+        <div class="search-results" id="search-results">
+            <div class="search-empty">Type to search the documentation...</div>
+        </div>
+        <div class="search-footer">
+            <span>Navigate with <kbd>&uarr;</kbd> <kbd>&darr;</kbd> keys</span>
+            <span>Press <kbd>Enter</kbd> to select</span>
+        </div>
+    </div>
+</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup-templating.min.js"></script>
+    <script src="/assets/js/copy-code.js"></script>
+    <script src="/assets/js/sidebar.js"></script>
+    <script src="/assets/js/search.js"></script>
+</body>
+</html>

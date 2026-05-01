@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="leaf-base-url" content="">
+<meta name="description" content="Install the Immunity hook on a Uniswap v4 pool. Every swap on the pool is checked against the cross-chain mirror; flagged tokens revert at the BeforeSwap stage.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://docs.immunity-protocol.com/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Uniswap v4 hook · Immunity Docs">
+<meta property="og:description" content="Install the Immunity hook on a Uniswap v4 pool. Every swap on the pool is checked against the cross-chain mirror; flagged tokens revert at the BeforeSwap stage.">
+<meta property="og:site_name" content="Immunity Docs">
+<meta property="og:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Immunity Docs">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Uniswap v4 hook · Immunity Docs">
+<meta name="twitter:description" content="Install the Immunity hook on a Uniswap v4 pool. Every swap on the pool is checked against the cross-chain mirror; flagged tokens revert at the BeforeSwap stage.">
+<meta name="twitter:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+    theme: {
+        extend: {
+            colors: {
+                deep: 'var(--bg-deep)',
+                surface: 'var(--bg-surface)',
+                elevated: 'var(--bg-elevated)',
+                border: 'var(--border)',
+                'border-accent': 'var(--border-accent)',
+                body: 'var(--text)',
+                bright: 'var(--text-bright)',
+                muted: 'var(--text-muted)',
+                accent: 'var(--accent)',
+                'accent-light': 'var(--accent-light)',
+                'accent-glow': 'var(--accent-glow)',
+            },
+            fontFamily: {
+                body: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+            },
+        },
+    },
+}
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="stylesheet" href="/assets/css/app.css">
+<script src="/assets/js/theme.js"></script>
+    <title>Uniswap v4 hook · Immunity Docs</title>
+</head>
+<body class="bg-deep text-body antialiased font-body">
+<header class="site-nav">
+    <div class="nav-container">
+        <div class="nav-left">
+            <button class="nav-toggle" onclick="toggleNav()" type="button" aria-label="Toggle menu">
+                <svg class="nav-toggle-open" width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg>
+                <svg class="nav-toggle-close" width="20" height="20" viewBox="0 0 20 20" fill="currentColor" style="display:none"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+            </button>
+            <a href="/" class="nav-logo nav-logo-text">
+                <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 6 L24 6 L16 16 L24 26 L8 26 L16 16 Z" fill="currentColor" opacity="0.9"></path>
+                </svg>
+                <span>Immunity Docs</span>
+            </a>
+        </div>
+        <nav class="nav-links">
+            <button class="search-trigger" onclick="openSearch()" type="button">
+                <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path></svg>
+                <span>Search</span>
+                <kbd>Ctrl+K</kbd>
+            </button>
+            <a href="https://github.com/ophelios-studio/immunity-sdk" class="nav-link" target="_blank" rel="noopener">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+                GitHub
+            </a>
+            <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle theme">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            </button>
+            <span class="version-badge">0.1.0</span>
+        </nav>
+    </div>
+</header>
+
+    <div class="docs-layout">
+        <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+<aside class="docs-sidebar">
+    <nav class="sidebar-nav">
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Getting Started</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/getting-started/install"
+                       class="sidebar-link">
+                        Install
+                    </a>
+                </li>
+                <li>
+                    <a href="/getting-started/quickstart"
+                       class="sidebar-link">
+                        Quickstart
+                    </a>
+                </li>
+                <li>
+                    <a href="/getting-started/concepts-in-two-minutes"
+                       class="sidebar-link">
+                        Concepts in two minutes
+                    </a>
+                </li>
+                <li>
+                    <a href="/getting-started/skill-for-ai-assistants"
+                       class="sidebar-link">
+                        Skill for AI assistants
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Concepts</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/concepts/antibodies"
+                       class="sidebar-link">
+                        Antibodies
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/three-tier-lookup"
+                       class="sidebar-link">
+                        Three-tier lookup
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/tee-verification"
+                       class="sidebar-link">
+                        TEE verification
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/settlement-and-tokenomics"
+                       class="sidebar-link">
+                        Settlement and tokenomics
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/cross-chain-mirror"
+                       class="sidebar-link">
+                        Cross-chain mirror
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Guides</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/guides/gate-a-transaction"
+                       class="sidebar-link">
+                        Gate a transaction
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/publish-an-antibody"
+                       class="sidebar-link">
+                        Publish an antibody
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/operator-in-the-loop"
+                       class="sidebar-link">
+                        Operator in the loop
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/uniswap-v4-hook"
+                       class="sidebar-link active">
+                        Uniswap v4 hook
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/test-against-testnet"
+                       class="sidebar-link">
+                        Test against testnet
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/the-public-feed"
+                       class="sidebar-link">
+                        The public feed
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Reference</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/reference/immunity-class"
+                       class="sidebar-link">
+                        Immunity class
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/immunityconfig"
+                       class="sidebar-link">
+                        ImmunityConfig
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/checkresult"
+                       class="sidebar-link">
+                        CheckResult
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/antibody"
+                       class="sidebar-link">
+                        Antibody
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/errors"
+                       class="sidebar-link">
+                        Errors
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/network-presets"
+                       class="sidebar-link">
+                        Network presets
+                    </a>
+                </li>
+                <li>
+                    <a href="/reference/helpers"
+                       class="sidebar-link">
+                        Helpers
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-group">
+            <h3 class="sidebar-group-title">Network</h3>
+            <ul class="sidebar-links">
+                <li>
+                    <a href="/network/registry-on-0g"
+                       class="sidebar-link">
+                        Registry on 0G
+                    </a>
+                </li>
+                <li>
+                    <a href="/network/the-public-feed"
+                       class="sidebar-link">
+                        The public feed
+                    </a>
+                </li>
+                <li>
+                    <a href="/network/economics"
+                       class="sidebar-link">
+                        Economics
+                    </a>
+                </li>
+                <li>
+                    <a href="/network/attack-types-we-catch"
+                       class="sidebar-link">
+                        Attack types we catch
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="sidebar-mobile-links">
+            <a href="https://github.com/ophelios-studio/immunity-sdk" class="sidebar-footer-link" target="_blank" rel="noopener">GitHub</a>
+        </div>
+        <div class="sidebar-copyright">
+            &copy; 2026 Ophelios
+        </div>
+        <div class="sidebar-powered">
+            Powered by <a href="https://github.com/dadajuice/zephyrus-leaf" target="_blank" rel="noopener">Zephyrus Leaf</a>
+        </div>
+    </div>
+</aside>
+        <main class="docs-main">
+<article class="docs-content">
+    <div class="prose">
+        <h1>Uniswap v4 hook</h1>
+<p>The Immunity hook is a Uniswap v4 BeforeSwap hook that consults the on-chain mirror for the input/output tokens of an inbound swap. If either token is flagged, the swap reverts with a friendly typed error and the LP is unaffected. No SDK install needed for the swappers; the hook protects the pool itself.</p>
+<p>This is the <strong>collective LP defense</strong> path. You do not need every swapper on your pool to know about Immunity; the hook is the policy.</p>
+<h2 id="how-the-hook-works"><a href="#how-the-hook-works" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>How the hook works</h2>
+<pre><code>swapper sends swap            Uniswap v4 PoolManager           Immunity hook              Mirror
+                                                                 (BeforeSwap)
+       │                              │                              │                     │
+       │  swap(...)                   │                              │                     │
+       ├─────────────────────────────&gt;│                              │                     │
+       │                              │  beforeSwap(poolKey,         │                     │
+       │                              │             swapParams)      │                     │
+       │                              ├─────────────────────────────&gt;│                     │
+       │                              │                              │  isMirrored(token)  │
+       │                              │                              ├────────────────────&gt;│
+       │                              │                              │  bool               │
+       │                              │                              │&lt;────────────────────┤
+       │                              │                              │                     │
+       │                              │  revert TokenBlocked or      │                     │
+       │                              │  return BeforeSwapDelta()    │                     │
+       │                              │&lt;─────────────────────────────┤                     │
+       │  TX REVERTED                 │                              │                     │
+       │&lt;─────────────────────────────┤                              │                     │
+</code></pre>
+<p>Hook contract reads the <code>MirrorRegistry</code> cheap (one SLOAD per token). The pool reverts atomically; LP balances do not move. The error message includes the antibody's <code>keccakId</code> so the swapper can look up why.</p>
+<h2 id="installing-the-hook-on-your-pool"><a href="#installing-the-hook-on-your-pool" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Installing the hook on your pool</h2>
+<p>Two paths.</p>
+<h3 id="a-deploy-a-new-pool-with-the-hook-attached"><a href="#a-deploy-a-new-pool-with-the-hook-attached" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>A) Deploy a new pool with the hook attached</h3>
+<p>When initializing a v4 pool, set <code>hooks</code> to the deployed <code>ImmunityHook</code> contract. The pool will route every <code>BeforeSwap</code> through the hook automatically.</p>
+<pre><code class="language-solidity">// In your deployment script.
+PoolKey memory key = PoolKey({
+    currency0: token0,
+    currency1: token1,
+    fee: 3000,
+    tickSpacing: 60,
+    hooks: IHooks(immunityHook)
+});
+
+poolManager.initialize(key, sqrtPriceX96, ZERO_BYTES);
+</code></pre>
+<p>The hook addresses for live deployments:</p>
+<table>
+<thead>
+<tr>
+<th>Network</th>
+<th>ImmunityHook</th>
+<th>MirrorRegistry</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sepolia (demo)</td>
+<td><code>0xd3335f3d69e97c314350eda63fb5ba0163dd0080</code></td>
+<td><code>0x...</code> (see SDK constants)</td>
+</tr>
+<tr>
+<td>Ethereum mainnet</td>
+<td>Roadmap</td>
+<td>Roadmap</td>
+</tr>
+<tr>
+<td>Base</td>
+<td>Roadmap</td>
+<td>Roadmap</td>
+</tr>
+</tbody>
+</table>
+<h3 id="b-existing-pool-no-hook"><a href="#b-existing-pool-no-hook" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>B) Existing pool, no hook</h3>
+<p>You cannot retrofit a hook onto an already-deployed v4 pool. Hook attachment is part of pool initialization. To migrate an existing pool, you deploy a sibling pool with the hook attached, migrate liquidity, and deprecate the unprotected pool.</p>
+<p>The Immunity demo at <a href="https://immunity-protocol.com/dex">immunity-protocol.com/dex</a> shows two side-by-side pools: protected (with hook) and unprotected (without). Try the same swap against both and you can see the hook intervene live.</p>
+<h2 id="what-the-hook-checks"><a href="#what-the-hook-checks" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>What the hook checks</h2>
+<p>Today the hook consults the <strong>MirrorRegistry</strong> for ADDRESS antibodies whose <code>target</code> matches either swap token. ADDRESS is the only antibody type that mirrors cross-chain (see <a href="/concepts/cross-chain-mirror/">Cross-chain mirror</a> for why).</p>
+<p>Future hook features (roadmap):</p>
+<ul>
+<li>Sender-address checks (block swaps from sanctioned wallets).</li>
+<li>Tx-origin checks (block swaps from drainer-controlled bots).</li>
+<li>Calldata-pattern checks (block swaps targeting honeypot tokens via specific approve patterns).</li>
+</ul>
+<p>For now, address-of-token is the only check.</p>
+<h2 id="errors-a-swapper-sees"><a href="#errors-a-swapper-sees" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Errors a swapper sees</h2>
+<p>When the hook reverts, the swapper's wallet shows the error name and arguments. The Immunity hook emits:</p>
+<ul>
+<li><strong><code>TokenBlocked(address token, bytes32 keccakId)</code></strong>, the swap input or output token is on the registry.</li>
+<li><strong><code>SenderBlocked(address sender, bytes32 keccakId)</code></strong>, future. Sender address is on the registry.</li>
+<li><strong><code>OriginBlocked(address origin, bytes32 keccakId)</code></strong>, future. Tx origin is on the registry.</li>
+</ul>
+<p>The friendly Immunity SDK frontends decode these errors automatically. Direct integrations should walk Uniswap's <code>CustomRevert.WrappedError</code> envelope to find the inner selector. See the SDK source <code>dex.js</code> for a reference implementation of the unwrap.</p>
+<h2 id="gas-overhead"><a href="#gas-overhead" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Gas overhead</h2>
+<p>The hook adds approximately <strong>30k gas</strong> per swap. One SLOAD per token consulted (~2 SLOADs for a swap), plus the hook contract call overhead. On a chain where the swap is already 150-200k gas, this is a 15-20% overhead.</p>
+<p>Worth the cost for any pool that's seen a single $100k drain. Decide based on your LP's risk tolerance.</p>
+<h2 id="verifying-flagged-tokens-hit-the-mirror"><a href="#verifying-flagged-tokens-hit-the-mirror" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Verifying flagged tokens hit the mirror</h2>
+<p>The mirror is observation-only and the relayer is permissionless. To verify an ADDRESS antibody on 0G has propagated to Sepolia:</p>
+<pre><code class="language-ts">import { Contract, JsonRpcProvider } from &quot;ethers&quot;;
+
+const provider = new JsonRpcProvider(&quot;https://ethereum-sepolia-rpc.publicnode.com&quot;);
+const mirror = new Contract(MIRROR_ADDRESS, [
+  &quot;function isMirrored(bytes32) view returns (bool)&quot;,
+], provider);
+
+const isLive = await mirror.isMirrored(antibody.keccakId);
+console.log(`${antibody.immId} is mirrored on Sepolia: ${isLive}`);
+</code></pre>
+<p>Latency between 0G publish and Sepolia mirror is typically under one Sepolia block.</p>
+<h2 id="see-also"><a href="#see-also" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>See also</h2>
+<ul>
+<li><strong><a href="/concepts/cross-chain-mirror/">Cross-chain mirror</a></strong>, how the source-of-truth gets to the target chain.</li>
+<li>The live demo: <a href="https://immunity-protocol.com/dex">immunity-protocol.com/dex</a>.</li>
+<li>The Uniswap v4 hook source in <code>immunity-contracts-mirror</code>.</li>
+</ul>
+
+    </div>
+
+    <nav class="docs-pagination">
+        <a href="/guides/operator-in-the-loop" class="pagination-link pagination-prev">
+            <span class="pagination-label">&larr; Previous</span>
+            <span class="pagination-title">Operator in the loop</span>
+        </a>
+
+        <a href="/guides/test-against-testnet" class="pagination-link pagination-next">
+            <span class="pagination-label">Next &rarr;</span>
+            <span class="pagination-title">Test against testnet</span>
+        </a>
+    </nav>
+</article>
+        </main>
+<aside class="docs-toc">
+    <div class="toc-wrapper">
+        <h4 class="toc-title">On this page</h4>
+        <ul class="toc-links">
+            <li class="toc-item">
+                <a href="#how-the-hook-works" class="toc-link">How the hook works</a>
+            </li>
+            <li class="toc-item">
+                <a href="#installing-the-hook-on-your-pool" class="toc-link">Installing the hook on your pool</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#a-deploy-a-new-pool-with-the-hook-attached" class="toc-link">A) Deploy a new pool with the hook attached</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#b-existing-pool-no-hook" class="toc-link">B) Existing pool, no hook</a>
+            </li>
+            <li class="toc-item">
+                <a href="#what-the-hook-checks" class="toc-link">What the hook checks</a>
+            </li>
+            <li class="toc-item">
+                <a href="#errors-a-swapper-sees" class="toc-link">Errors a swapper sees</a>
+            </li>
+            <li class="toc-item">
+                <a href="#gas-overhead" class="toc-link">Gas overhead</a>
+            </li>
+            <li class="toc-item">
+                <a href="#verifying-flagged-tokens-hit-the-mirror" class="toc-link">Verifying flagged tokens hit the mirror</a>
+            </li>
+            <li class="toc-item">
+                <a href="#see-also" class="toc-link">See also</a>
+            </li>
+        </ul>
+    </div>
+</aside>
+    </div>
+
+<div class="search-overlay" id="search-overlay">
+    <div class="search-dialog" role="dialog" aria-label="Search documentation">
+        <div class="search-input-wrapper">
+            <svg class="search-icon" width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+            </svg>
+            <input type="text" class="search-input" id="search-input" placeholder="Search documentation..." autocomplete="off" autofocus>
+            <kbd style="font-size: 0.625rem; padding: 0.125rem 0.375rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 0.25rem; color: var(--text-muted); font-family: var(--font-mono); cursor: pointer;" onclick="closeSearch()">Esc</kbd>
+        </div>
+        <div class="search-results" id="search-results">
+            <div class="search-empty">Type to search the documentation...</div>
+        </div>
+        <div class="search-footer">
+            <span>Navigate with <kbd>&uarr;</kbd> <kbd>&darr;</kbd> keys</span>
+            <span>Press <kbd>Enter</kbd> to select</span>
+        </div>
+    </div>
+</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup-templating.min.js"></script>
+    <script src="/assets/js/copy-code.js"></script>
+    <script src="/assets/js/sidebar.js"></script>
+    <script src="/assets/js/search.js"></script>
+</body>
+</html>
