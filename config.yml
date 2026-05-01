@@ -19,7 +19,7 @@ leaf:
   name: "Immunity Docs"
   version: "0.1.0"
   description: "Decentralized threat intelligence for AI agents. Documentation for the @immunity-protocol/sdk and the on-chain Registry on 0G Chain."
-  github_url: "https://github.com/ophelios-studio/immunity-sdk"
+  github_url: "https://github.com/immunity-protocol"
   content_path: "content"
   output_path: "dist"
   base_url: ""

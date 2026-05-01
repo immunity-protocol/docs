@@ -8,7 +8,7 @@ description: "The 20 incident families the demo fleet detects, grouped by antibo
 
 The demo fleet's incident catalog has **20 attack-class families**, each with **7 phrasing variants**. Every variant carries a canonical marker substring that the SEMANTIC matcher hashes; matching any variant of a family populates the cache for every other variant.
 
-The catalog is open source at [immunity-demo/agents/src/data/incidents.ts](https://github.com/ophelios-studio/immunity-demo/blob/main/agents/src/data/incidents.ts). This page is the human-readable index.
+The catalog is open source at [immunity-demo/agents/src/data/incidents.ts](https://github.com/immunity-protocol/immunity-demo/blob/main/agents/src/data/incidents.ts). This page is the human-readable index.
 
 ## Prompt injection (SEMANTIC, by far the largest category)
 
@@ -74,7 +74,7 @@ The `marker` is the substring the SEMANTIC matcher hashes for `flavor=N`. The `v
 
 ## How to add to this catalog
 
-Open a PR against [github.com/ophelios-studio/immunity-demo](https://github.com/ophelios-studio/immunity-demo). Add a new family entry with:
+Open a PR against [github.com/immunity-protocol/immunity-demo](https://github.com/immunity-protocol/immunity-demo). Add a new family entry with:
 
 - Family `id` (next available integer).
 - A canonical `marker` substring (lowercase, trimmed).
@@ -97,4 +97,4 @@ These are catalogued at the contract-deployment and block-explorer level, not in
 
 - **[Concepts: Antibodies](/concepts/antibodies/)**, the lifecycle.
 - **[Network: economics](/network/economics/)**, how publishers profit from catching these.
-- The live catalog source, [immunity-demo](https://github.com/ophelios-studio/immunity-demo/blob/main/agents/src/data/incidents.ts).
+- The live catalog source, [immunity-demo](https://github.com/immunity-protocol/immunity-demo/blob/main/agents/src/data/incidents.ts).

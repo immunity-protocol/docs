@@ -8,12 +8,12 @@ description: "Drop the Immunity SKILL.md into your IDE so Claude / Cursor / Code
 
 The Immunity SDK ships with a packaged **agent skill**, a single `SKILL.md` file an AI coding tool can read to understand the API surface, the empirical gotchas, and the right way to wire `check()` into your agent. It cuts the round-trips needed to get a correct integration on the first try.
 
-The skill is part of [`ophelios-studio/skills`](https://github.com/ophelios-studio/skills), a public repository of empirical skills for any tool implementing the [agentskills.io](https://agentskills.io) spec.
+The skill is part of [`immunity-protocol/skills`](https://github.com/immunity-protocol/skills), a public repository of empirical skills for any tool implementing the [agentskills.io](https://agentskills.io) spec.
 
 ## One command (recommended)
 
 ```bash
-npx skills add ophelios-studio/skills --skill immunity
+npx skills add immunity-protocol/skills --skill immunity
 ```
 
 The CLI installs to `~/.agents/skills/immunity/` and symlinks into your agent's skill directory automatically. Works for Claude Code, Cursor, Codex, Cline, Gemini CLI, and any tool that scans the standard skill paths.
@@ -26,7 +26,7 @@ Pick whichever tool you use:
 
 ```bash
 mkdir -p ~/.claude/skills/immunity
-curl -fsSL https://raw.githubusercontent.com/ophelios-studio/skills/main/skills/immunity/SKILL.md \
+curl -fsSL https://raw.githubusercontent.com/immunity-protocol/skills/main/skills/immunity/SKILL.md \
   > ~/.claude/skills/immunity/SKILL.md
 ```
 
@@ -36,7 +36,7 @@ Restart Claude Code and the skill activates whenever it detects an Immunity cont
 
 ```bash
 mkdir -p .cursor/rules
-curl -fsSL https://raw.githubusercontent.com/ophelios-studio/skills/main/skills/immunity/SKILL.md \
+curl -fsSL https://raw.githubusercontent.com/immunity-protocol/skills/main/skills/immunity/SKILL.md \
   > .cursor/rules/immunity.mdc
 ```
 
@@ -65,4 +65,4 @@ Without the skill, your assistant guesses based on outdated training data, misna
 
 ## Source
 
-The skill lives at [github.com/ophelios-studio/skills/blob/main/skills/immunity/SKILL.md](https://github.com/ophelios-studio/skills/blob/main/skills/immunity/SKILL.md). It is updated alongside SDK releases. Pin to a tag in your install if you need stability across SDK upgrades.
+The skill lives at [github.com/immunity-protocol/skills/blob/main/skills/immunity/SKILL.md](https://github.com/immunity-protocol/skills/blob/main/skills/immunity/SKILL.md). It is updated alongside SDK releases. Pin to a tag in your install if you need stability across SDK upgrades.

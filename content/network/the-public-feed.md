@@ -57,7 +57,7 @@ If they do not match, trust the Registry. The feed is a convenience layer.
 
 ## Hosting your own indexer
 
-The indexer source is open at [github.com/ophelios-studio/immunity-app](https://github.com/ophelios-studio/immunity-app). Run it yourself if you need:
+The indexer source is open at [github.com/immunity-protocol/immunity-app](https://github.com/immunity-protocol/immunity-app). Run it yourself if you need:
 
 - **Stricter consistency** than 60s for RSS / 2s for webhooks.
 - **Custom event filters** (e.g., only ADDRESS antibodies for a single chain).

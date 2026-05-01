@@ -35,7 +35,7 @@ The result is hex wei. `0x6f05b59d3b20000` is 0.5 ETH-equivalent (that is OG).
 The SDK needs an external Gensyn AXL daemon. The 2-node mesh template lives in the SDK repo:
 
 ```bash
-git clone https://github.com/ophelios-studio/immunity-sdk.git
+git clone https://github.com/immunity-protocol/sdk.git
 cd immunity-sdk/infra/axl-mesh
 
 # Generate ed25519 identity keys (one per node).
