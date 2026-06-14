@@ -1,6 +1,6 @@
 ---
 title: "The public feed"
-order: 6
+order: 8
 description: "Read antibodies from RSS, JSON, or webhooks. No SDK install needed for read-only consumers."
 ---
 
@@ -72,7 +72,7 @@ JSON Feed 1.1 spec. One item per antibody, machine-friendly schema:
         "status": "ACTIVE",
         "publisher": "0x...",
         "createdAt": 1714478400,
-        "primaryMatcher": { "kind": "address", "chainId": 16602, "target": "0x..." }
+        "primaryMatcher": { "kind": "address", "chainId": 84532, "target": "0x..." }
       }
     }
   ]
@@ -122,7 +122,7 @@ Both RSS and JSON Feed support query-string filters:
 - `?type=ADDRESS,SEMANTIC`, only certain types.
 - `?verdict=MALICIOUS`, only MALICIOUS verdicts (skip SUSPICIOUS).
 - `?status=ACTIVE`, only currently-active antibodies (default).
-- `?chainId=16602`, only antibodies for a specific chain (ADDRESS antibodies carry their chain).
+- `?chainId=84532`, only antibodies for a specific chain (ADDRESS antibodies carry their chain).
 
 Combine freely:
 
@@ -137,15 +137,9 @@ https://immunity-protocol.com/feed/antibodies.json?type=ADDRESS&verdict=MALICIOU
 
 ## Provenance and trust
 
-The feed is a **derivative view**. The on-chain Registry is the canonical source. Anything in the feed is verifiable by reading the Registry directly:
-
-```ts
-const antibody = await registry.getAntibody(keccakId);
-```
-
-If the feed and the Registry ever disagree, trust the Registry. The feed indexer is best-effort and can lag during chain reorgs (rare on 0G but not impossible).
+The feed is a **derivative view**. The on-chain Registry on Base is the canonical source. Anything in the feed is verifiable by reading the Registry directly (decode a raw read with the SDK's `decodeAntibody` helper). If the feed and the Registry ever disagree, trust the Registry. The feed indexer is best-effort and can lag during chain reorgs (rare on Base but not impossible).
 
 ## See also
 
 - **[Concepts: Antibodies](/concepts/antibodies/)**, the lifecycle of what you're consuming.
-- **[Network: Registry on 0G](/network/registry-on-0g/)**, how to verify feed data against the on-chain truth.
+- **[Network: Registry on Base](/network/registry-on-base/)**, how to verify feed data against the on-chain truth.

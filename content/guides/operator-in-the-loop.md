@@ -1,7 +1,7 @@
 ---
 title: "Operator in the loop"
-order: 3
-description: "Wire an onEscalate handler so SUSPICIOUS verdicts pause for a human (or a higher-level agent) before auto-blocking."
+order: 4
+description: "Wire an onEscalate handler so SUSPICIOUS verdicts and advisory matches pause for a human (or a higher-level agent) before auto-blocking."
 ---
 
 # Operator in the loop
@@ -12,14 +12,14 @@ The `onEscalate` handler is the hook that turns a SUSPICIOUS verdict into a sync
 
 ## When it fires
 
-Two conditions must be true:
+The handler fires in two situations:
 
-1. A check has matched antibodies, OR the TEE returned a verdict.
-2. The maximum confidence falls in the **escalate band** (default: `60 <= confidence < 85`).
+1. A SUSPICIOUS match or a CRE jury verdict whose confidence falls in the **escalate band** (default: `60 <= confidence < 85`).
+2. An **advisory** match when `unverifiedAntibodyPolicy` is `"escalate"` (an antibody that is not yet hard-block-eligible).
 
-In that window, the SDK invokes your `onEscalate` handler instead of auto-deciding. Outside the window, decisions are deterministic: confidence `>= 85` blocks, confidence `< 60` allows.
+In those cases the SDK invokes your `onEscalate` handler instead of auto-deciding. Otherwise decisions are deterministic: a hard-block or `confidence >= 85` blocks, `confidence < 60` allows.
 
-Both thresholds are configurable via `confidenceThresholds`.
+Thresholds are configurable via `confidenceThresholds`, and advisory handling via `unverifiedAntibodyPolicy`.
 
 ## The handler signature
 
@@ -40,7 +40,7 @@ Return `true` to allow the action through. Return `false` to block. Throwing is 
 ```ts
 const immunity = new Immunity({
   wallet,
-  axlUrl,
+  network: "base-sepolia",
   onEscalate: async ({ reason, confidence, matched }) => {
     const ts = await postSlackMessage({
       channel: "#agent-escalations",
@@ -132,4 +132,4 @@ async function safeSend(tx, ctx) {
 
 - **[Reference: ImmunityConfig](/reference/immunityconfig/)**, all config fields.
 - **[Reference: Errors](/reference/errors/)**, the full taxonomy.
-- **[Concepts: TEE verification](/concepts/tee-verification/)**, where SUSPICIOUS verdicts come from.
+- **[Concepts: Novel-threat verification](/concepts/novel-threat-verification/)**, where SUSPICIOUS verdicts come from.

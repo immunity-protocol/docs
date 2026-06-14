@@ -20,7 +20,7 @@ async function safeSend(tx: ProposedTx, ctx: CheckContext) {
 }
 ```
 
-That's the whole gate. Everything below is hardening for production: error taxonomy, retries, audit logs, observability.
+That is the whole gate. Everything below is hardening for production: error taxonomy, retries, audit logs, observability.
 
 ## Production-grade version
 
@@ -48,7 +48,7 @@ async function safeSend(
   try {
     result = await immunity.check(tx, ctx);
   } catch (err) {
-    // Network/RPC failures, malformed inputs. Fail-closed by default.
+    // RPC failures, malformed inputs. Fail-closed by default.
     logger.error({ err, tx }, "immunity.check threw");
     throw err;
   }
@@ -77,49 +77,47 @@ async function safeSend(
 
 ```ts
 const ctx: CheckContext = {
-  // The recent conversation. Drives the SEMANTIC matchers and the TEE.
+  // The recent conversation. Drives the SEMANTIC matchers and the CRE jury.
   conversation: lastNTurns(history, 10),
 
-  // Any tool calls that produced data feeding into this action.
+  // Tool calls that produced data feeding into this action.
   // Lets the SDK trace prompt-injection attempts back to a tool.
   toolTrace: recentToolCalls(),
 
   // Documents, web pages, scraped content the agent based the action on.
-  sources: cited.map(s => ({ kind: "url", value: s.url, summary: s.snippet })),
+  sources: cited.map(s => ({ url: s.url, extractedText: s.snippet })),
 
   // The counterparty if it has a stable identity.
   counterparty: { id: tx.to, ens: ensCacheLookup(tx.to) },
 
-  // Anything else that might help triage. Free-form.
+  // Anything else that helps triage. Free-form.
   metadata: { workflow: "treasury-rebalance", initiator: agentId },
 };
 ```
 
-The richer the context, the better the SEMANTIC matchers and the TEE can reason. SDK throws nothing on missing context; sparse context just narrows the matchable surface.
+The richer the context, the better the SEMANTIC matchers and the CRE jury can reason. The SDK throws nothing on missing context; sparse context just narrows the matchable surface.
 
 ## Error taxonomy
 
 | Error class | Code | What it means | What to do |
 |---|---|---|---|
 | `ImmunityBlockedError` (custom) | n/a | check returned not-allowed | log and abort, do not retry |
-| `MissingConfigError` | `ERR_MISSING_CONFIG` | construction missing wallet or axlUrl | fix config |
+| `MissingConfigError` | `ERR_MISSING_CONFIG` | construction missing or malformed `wallet` | fix config |
 | `NotStartedError` | `ERR_NOT_STARTED` | called check before start | call `start()` first |
-| `InsufficientBalanceError` | `ERR_INSUFFICIENT_BALANCE` | prepaid USDC balance below the fee | call `deposit()` |
-| `NetworkError` | `ERR_NETWORK` | RPC or AXL unreachable | retry with backoff |
-| `TeeAttestationError` | `ERR_TEE_ATTESTATION` | TEE response failed verification | one retry, then degrade to `trust-cache` |
-| `TeeResponseError` | `ERR_TEE_RESPONSE` | TEE returned a malformed verdict | log and degrade to `trust-cache` |
+| `InsufficientBalanceError` | `ERR_INSUFFICIENT_BALANCE` | prepaid balance below a settled fee | call `deposit()` |
+| `NetworkError` | `ERR_NETWORK` | RPC unreachable | retry with backoff |
+| `TeeAttestationError` | `ERR_TEE_ATTESTATION` | CRE verdict failed attestation | one retry, then degrade to `trust-cache` |
+| `TeeResponseError` | `ERR_TEE_RESPONSE` | CRE returned a malformed verdict | log and degrade to `trust-cache` |
 
-Errors extend `ImmunityError` so a single `instanceof` check covers SDK-internal failures.
+Errors extend `ImmunityError`, so a single `instanceof` check covers SDK-internal failures.
 
 ## Retry semantics
 
-`check()` is **idempotent at the protocol level**. Calling it twice with the same input produces two settlement txs (you pay twice) but does not double-publish on TEE-driven mints (the SDK preflights the matcher hash before publishing).
-
-For transient failures (RPC drops, AXL hiccups, TEE timeouts), retry once after a 1-2 second backoff. For consistent failures, fail closed (block the action).
+For transient failures (RPC drops, CRE timeouts), retry once after a 1-2 second backoff. For consistent failures, fail closed (block the action). The Tier-3 path itself fails closed: a novel input is never silently allowed when verification is unavailable.
 
 ## Performance
 
-Cache hits return synchronously from in-memory matchers in around 1 ms. Registry hits round-trip the chain in ~200 ms. TEE calls take ~3 s. If your agent's action latency budget cannot tolerate ~3 s on novel threats, set `novelThreatPolicy: "deny-novel"` for that code path or call with `options.policy: "deny-novel"`:
+Cache hits return from in-memory matchers in around 1 ms. Registry hits round-trip the chain in ~200 ms. CRE verdicts take seconds. If your latency budget cannot tolerate a CRE round-trip on novel threats, set `novelThreatPolicy: "deny-novel"` for that path, or override per call:
 
 ```ts
 const result = await immunity.check(tx, ctx, { policy: "deny-novel" });
@@ -129,7 +127,7 @@ The override takes precedence over the configured default for that single call.
 
 ## Audit logs
 
-Persist every `check()` result. The fields you care about are deterministic and small:
+Persist every `check()` result. The fields are deterministic and small:
 
 ```ts
 logRow({
@@ -146,7 +144,7 @@ logRow({
 });
 ```
 
-`checkId` is the on-chain settlement tx hash. Cross-reference with the Registry's `CheckSettled` event log for the canonical record.
+`checkId` is the on-chain settlement tx hash (Basescan), or `null` when no chain call was made.
 
 ## See also
 
