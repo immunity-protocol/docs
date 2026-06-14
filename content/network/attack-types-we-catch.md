@@ -12,7 +12,7 @@ The catalog is open source at [immunity-demo/agents/src/data/incidents.ts](https
 
 ## Prompt injection (SEMANTIC, by far the largest category)
 
-These are the patterns AI agents face every day. The demo fleet's wolves run them at random against trader agents.
+These are the patterns AI agents face every day. The reference agents and demo exercise them against sample actions so the catalog stays live.
 
 | Family | Canonical marker | What it tries |
 |---|---|---|
@@ -70,7 +70,7 @@ Each family in `incidents.ts`:
 }
 ```
 
-The `marker` is the substring the SEMANTIC matcher hashes for `flavor=N`. The `variants` are the realistic phrasings wolves use to test whether agents catch the marker even when buried in plausible-looking content (a github issue body, a discord transcript, a calendar invite, etc.).
+The `marker` is the substring the SEMANTIC matcher hashes for a given flavor. The `variants` are realistic phrasings used to test whether agents catch the marker even when buried in plausible-looking content (a github issue body, a discord transcript, a calendar invite, etc.).
 
 ## How to add to this catalog
 
