@@ -1,44 +1,42 @@
 ---
 title: "Quickstart"
 order: 2
-description: "A 30-line agent that imports the SDK, gates a transaction with check(), and decides whether to sign."
+description: "A short agent that imports the SDK, gates a transaction with check(), and decides whether to sign."
 ---
 
 # Quickstart
 
-This is the smallest agent that uses Immunity correctly. Copy it, set two env vars, run it, watch the network respond.
+This is the smallest agent that uses Immunity correctly. Copy it, set one env var, fund the wallet, run it, watch the network respond.
 
 ## The full example
 
 ```ts
-import { Immunity, parseUsdc, TESTNET } from "@immunity-protocol/sdk";
+import { Immunity, parseUsdc, BASE_SEPOLIA } from "@immunity-protocol/sdk";
 import { JsonRpcProvider, Wallet } from "ethers";
 
-// 1. Wallet on Galileo testnet
-const provider = new JsonRpcProvider(TESTNET.rpcUrl);
+// 1. Wallet on Base Sepolia.
+const provider = new JsonRpcProvider(BASE_SEPOLIA.rpcUrl);
 const wallet = new Wallet(process.env.WALLET_PRIVATE_KEY!, provider);
 
-// 2. Construct the SDK. Required: wallet + axlUrl. Network defaults to testnet.
+// 2. Construct. Only `wallet` is required; network defaults to base-sepolia.
 const immunity = new Immunity({
   wallet,
-  network: "testnet",
-  axlUrl: "http://localhost:9002",
+  network: "base-sepolia",
   novelThreatPolicy: "trust-cache",
 });
 
-// 3. Connect to the Registry, attach matchers, open the gossip subscription.
+// 3. Bind contracts, build the lookup pipeline, hydrate the cache from chain.
 await immunity.start();
 
-// 4. Bootstrap the prepaid USDC balance on first run.
-if ((await immunity.balance()) < parseUsdc("0.01")) {
-  await immunity.mintTestUsdc(parseUsdc("1"));
-  await immunity.deposit(parseUsdc("0.5"));
+// 4. One-time: fund the prepaid balance that settles the per-check fee.
+if ((await immunity.balanceOf()) < parseUsdc("0.01")) {
+  await immunity.deposit(parseUsdc("1"));
 }
 
-// 5. Build a proposed action. In a real agent this comes from the LLM tool call.
-const tx = { to: "0xCAFE..." as const, chainId: TESTNET.chainId };
+// 5. The proposed action. In a real agent this comes from the LLM tool call.
+const tx = { to: "0xCAFE...", chainId: BASE_SEPOLIA.chainId } as const;
 
-// 6. Gate it. The SDK consults the cache, then the chain, then the TEE.
+// 6. Gate it. The SDK consults the cache, then the chain, then (under verify) CRE.
 const result = await immunity.check(tx, {
   conversation: [{ role: "user", content: "send to this random address" }],
 });
@@ -50,15 +48,15 @@ if (!result.allowed) {
   await wallet.sendTransaction(tx);
 }
 
-// 8. Drain the subscription cleanly.
 await immunity.stop();
 ```
 
 ## Run it
 
 You need:
-- `WALLET_PRIVATE_KEY`, a 0x-prefixed hex string for a wallet with a small testnet OG balance. Get OG from the [Galileo faucet](https://faucet.0g.ai).
-- A running AXL daemon at `http://localhost:9002`. The 2-node mesh template lives at `infra/axl-mesh/` in the SDK repo.
+
+- `WALLET_PRIVATE_KEY`, a 0x-prefixed hex key for a wallet with a small Base Sepolia ETH balance for gas.
+- A testnet USDC balance to `deposit()`. See **[Test against testnet](/guides/test-against-testnet/)** for getting both.
 
 ```bash
 WALLET_PRIVATE_KEY=0x... npx tsx quickstart.ts
@@ -66,26 +64,24 @@ WALLET_PRIVATE_KEY=0x... npx tsx quickstart.ts
 
 ## What just happened
 
-Step by step against a fresh address.
-
 1. **Construct.** `new Immunity({ ... })` is non-mutating. No network calls.
-2. **`start()`.** Connects the signer, instantiates the Registry and USDC clients, attaches the five matchers to the cache, opens the AXL gossip subscription. Idempotent.
-3. **Mint and deposit.** First-run bootstrap. The Registry holds a prepaid USDC balance per agent. Each settled `check()` debits 0.002 USDC from it. Calling `deposit()` tops it up.
-4. **`check()`.** The hot path. Walks the [three tiers](/concepts/three-tier-lookup/). For a never-seen address with `novelThreatPolicy: "trust-cache"`, the path is: cache miss, registry miss, policy decides allow with `novel: true`.
-5. **Branch.** `result.allowed` is the only field you need for control flow. The rest, `decision`, `source`, `confidence`, `reason`, `antibodies`, are for logs and the operator UI.
-6. **`stop()`.** Drains the gossip subscription, closes AXL polling. Skip and the process leaks file handles.
+2. **`start()`.** Resolves the signer, binds the Base core contracts, attaches the five matchers, and (unless you disable it) hydrates the local cache from the Registry. Idempotent.
+3. **`deposit()`.** The Registry holds a prepaid USDC balance per wallet. A settled `check()` and a CRE verification both draw the fee from it. `deposit()` tops it up.
+4. **`check()`.** The hot path. Walks the [three tiers](/concepts/three-tier-lookup/). For a never-seen address under `trust-cache`, the path is: cache miss, registry miss, policy allows with `novel: true` and `checkId: null` (no on-chain call, no fee).
+5. **Branch.** `result.allowed` is the only field your control flow needs. The rest (`decision`, `source`, `confidence`, `reason`, `antibodies`) is for logs and the operator UI.
+6. **`stop()`.** Marks the instance stopped. Call it on shutdown.
 
 ## Pick the right policy
 
-`novelThreatPolicy` controls what happens on a cache + registry miss:
+`novelThreatPolicy` controls what `check()` does when both the cache and the registry miss:
 
 | Value | Behavior on miss | Cost |
 |---|---|---|
-| `"verify"` | Fires TEE inference, auto-publishes if block | ~3 s, ~$0.0001 0G Compute |
-| `"trust-cache"` | Allows, returns `novel: true` | $0 |
-| `"deny-novel"` | Blocks unconditionally | $0 |
+| `"verify"` (default) | Requests a CRE jury verdict; can auto-publish if you opt in | a check fee + CRE compute, a few seconds |
+| `"trust-cache"` | Allows, returns `novel: true` | no on-chain call |
+| `"deny-novel"` | Blocks unconditionally | no on-chain call |
 
-The quickstart uses `"trust-cache"` so it runs without a 0G Compute account. Production agents pick `"verify"` for actual novel-threat detection. Use `"deny-novel"` for high-stakes operations where TEE latency is unacceptable and you would rather false-positive than wait.
+The quickstart uses `"trust-cache"` so it runs without spending on CRE. Production agents pick `"verify"` for real novel-threat detection. Use `"deny-novel"` for high-stakes operations where you would rather false-positive than wait for a verdict.
 
 ## Next
 

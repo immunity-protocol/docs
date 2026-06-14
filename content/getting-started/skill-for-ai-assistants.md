@@ -56,12 +56,12 @@ Drop the file at the standard agentskills path for your tool. Most tools follow 
 - The three-tier lookup walkthrough with concrete latency and cost numbers.
 - Configuration table mirrored from the SDK README so the skill stays in sync.
 - The five antibody types with real catches drawn from the demo's incident catalog.
-- Empirical gotchas: peer-dep flag, AXL-as-separate-daemon, port 5678, TEE key rotation, etc.
+- Empirical gotchas: the ethers v6 peer dep, funding the prepaid balance before `check()`, registering before `publish()`, and the two-speed advisory-vs-hard-block distinction.
 - A distilled key-rules checklist your assistant can use as a self-check.
 
 ## Why bother
 
-Without the skill, your assistant guesses based on outdated training data, misnames methods, hallucinates options, and writes setup boilerplate that does not match the SDK's actual peer-dep requirements. With the skill in place, code-completion and code-generation produce idiomatic Immunity calls on the first try.
+Without the skill, your assistant guesses based on outdated training data, misnames methods, hallucinates options, and writes setup boilerplate that does not match the SDK's actual API. With the skill in place, code-completion and code-generation produce idiomatic Immunity calls on the first try.
 
 ## Source
 

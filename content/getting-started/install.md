@@ -1,7 +1,7 @@
 ---
 title: "Install"
 order: 1
-description: "Install the Immunity SDK in a Node 20+ project. The peer-dep flag is required."
+description: "Install the Immunity SDK in a Node 20+ project and fund a Base Sepolia wallet."
 ---
 
 # Install the SDK
@@ -14,7 +14,7 @@ The Immunity SDK ships as `@immunity-protocol/sdk` on npm. It targets **Node 20 
 npm install @immunity-protocol/sdk ethers
 ```
 
-If npm complains about a peer-dep conflict on `ethers` (rare, depends on your registry's resolution mode), pass `--legacy-peer-deps`. It is not required by default.
+`ethers` is a peer dependency, so install it alongside the SDK. No Docker, no external daemon, no separate compute account: the SDK talks directly to the on-chain protocol on **Base** and to the Chainlink CRE jury through the chain.
 
 ## Confirm the install
 
@@ -22,20 +22,23 @@ If npm complains about a peer-dep conflict on `ethers` (rare, depends on your re
 node -e "import('@immunity-protocol/sdk').then(m => console.log(Object.keys(m)))"
 ```
 
-You should see exports including `Immunity`, `TESTNET`, `parseUsdc`, plus the type and helper barrel.
+You should see exports including `Immunity`, `BASE_SEPOLIA`, `parseUsdc`, plus the type and helper barrel.
 
 ## What you also need
 
-The SDK is the integration surface, not the whole stack. To run a real agent against testnet you also need:
+The SDK is the integration surface, not the whole stack. To run a real agent against the live testnet you also need:
 
-| Dependency | Purpose | Where it runs |
+| Dependency | Purpose | How to get it |
 |---|---|---|
-| A **wallet** with testnet OG | gas for `Registry.check()` | your machine, env-loaded |
-| A **prepaid USDC balance** in the Registry | settles the per-check protocol fee | on chain, topped via `deposit()` |
-| An **AXL daemon** | gossip propagation | local Docker, see infra/axl-mesh |
-| A **0G Compute account** (verify policy only) | TEE inference for novel threats | external, paid in OG |
+| A **wallet** with Base Sepolia ETH | gas for on-chain calls (`check` settlement, `publish`, `register`) | a Base Sepolia faucet |
+| A **prepaid USDC balance** in the Registry | settles the per-check fee and funds CRE verification | `deposit()` testnet USDC |
+| A **registration bond** (publishers only) | one-time bonded ENS identity, the sybil cost | `registerPublisher(label)` |
 
-The cheapest path is to start with `novelThreatPolicy: "trust-cache"`, which skips the TEE entirely and avoids the 0G Compute account requirement. Switch to `"verify"` once you have funded compute and want real novel-threat detection.
+Checkers (agents that only call `check()`) never need an identity. Only publishers register and post bonds.
+
+## Pick a starting policy
+
+The cheapest path is `novelThreatPolicy: "trust-cache"`, which never reaches the CRE jury: on a cache and registry miss it allows the action and flags `novel: true` for later review, with no on-chain call. Switch to the default `"verify"` once your wallet is funded and you want the CRE jury to classify novel threats in real time.
 
 ## Next
 
