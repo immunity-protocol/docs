@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="leaf-base-url" content="">
-<meta name="description" content="TESTNET constants and how to configure a custom NetworkConfig for mainnet or a private deployment.">
+<meta name="description" content="BASE_SEPOLIA and BASE_MAINNET presets, the NetworkConfig shape, and resolveNetwork.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://docs.immunity-protocol.com/">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Network presets · Immunity Docs">
-<meta property="og:description" content="TESTNET constants and how to configure a custom NetworkConfig for mainnet or a private deployment.">
+<meta property="og:description" content="BASE_SEPOLIA and BASE_MAINNET presets, the NetworkConfig shape, and resolveNetwork.">
 <meta property="og:site_name" content="Immunity Docs">
 <meta property="og:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <meta property="og:image:width" content="1200">
@@ -17,7 +17,7 @@
 <meta property="og:image:alt" content="Immunity Docs">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Network presets · Immunity Docs">
-<meta name="twitter:description" content="TESTNET constants and how to configure a custom NetworkConfig for mainnet or a private deployment.">
+<meta name="twitter:description" content="BASE_SEPOLIA and BASE_MAINNET presets, the NetworkConfig shape, and resolveNetwork.">
 <meta name="twitter:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -141,27 +141,57 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/concepts/two-speed-enforcement"
+                       class="sidebar-link">
+                        Two-speed enforcement
+                    </a>
+                </li>
+                <li>
                     <a href="/concepts/three-tier-lookup"
                        class="sidebar-link">
                         Three-tier lookup
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/tee-verification"
+                    <a href="/concepts/corroboration-and-maturation"
                        class="sidebar-link">
-                        TEE verification
+                        Corroboration and maturation
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/settlement-and-tokenomics"
+                    <a href="/concepts/reputation-and-identity"
                        class="sidebar-link">
-                        Settlement and tokenomics
+                        Reputation and identity
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/cross-chain-mirror"
+                    <a href="/concepts/sybil-resistance"
                        class="sidebar-link">
-                        Cross-chain mirror
+                        Sybil resistance
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/challenge-game-and-jury"
+                       class="sidebar-link">
+                        The challenge game and jury
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/novel-threat-verification"
+                       class="sidebar-link">
+                        Novel-threat verification
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/settlement-and-fees"
+                       class="sidebar-link">
+                        Settlement and fees
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/the-mirror-and-consumers"
+                       class="sidebar-link">
+                        The mirror and on-chain consumers
                     </a>
                 </li>
             </ul>
@@ -182,9 +212,21 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/guides/corroborate-and-challenge"
+                       class="sidebar-link">
+                        Corroborate and challenge
+                    </a>
+                </li>
+                <li>
                     <a href="/guides/operator-in-the-loop"
                        class="sidebar-link">
                         Operator in the loop
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/run-a-reference-agent"
+                       class="sidebar-link">
+                        Run a reference agent
                     </a>
                 </li>
                 <li>
@@ -252,15 +294,21 @@ tailwind.config = {
                         Helpers
                     </a>
                 </li>
+                <li>
+                    <a href="/reference/matchers"
+                       class="sidebar-link">
+                        Matchers and seeds
+                    </a>
+                </li>
             </ul>
         </div>
         <div class="sidebar-group">
             <h3 class="sidebar-group-title">Network</h3>
             <ul class="sidebar-links">
                 <li>
-                    <a href="/network/registry-on-0g"
+                    <a href="/network/registry-on-base"
                        class="sidebar-link">
-                        Registry on 0G
+                        Registry on Base
                     </a>
                 </li>
                 <li>
@@ -300,89 +348,125 @@ tailwind.config = {
 <article class="docs-content">
     <div class="prose">
         <h1>Network presets</h1>
-<p>The SDK ships one network preset (<code>TESTNET</code>) and accepts a custom <code>NetworkConfig</code> for everything else.</p>
-<h2 id="testnet"><a href="#testnet" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>TESTNET</code></h2>
-<pre><code class="language-ts">import { TESTNET } from &quot;@immunity-protocol/sdk&quot;;
+<p>The SDK ships two presets and accepts a custom <code>NetworkConfig</code> for self-hosted deployments. Reference them by string (<code>&quot;base-sepolia&quot;</code>, <code>&quot;base-mainnet&quot;</code>) in <code>ImmunityConfig.network</code>, or import the objects directly.</p>
+<h2 id="basesepolia"><a href="#basesepolia" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>BASE_SEPOLIA</code></h2>
+<p>The live Immunity network.</p>
+<pre><code class="language-ts">import { BASE_SEPOLIA } from &quot;@immunity-protocol/sdk&quot;;
 
-console.log(TESTNET);
 // {
-//   name: &quot;testnet&quot;,
-//   chainId: 16602,
-//   rpcUrl: &quot;https://evmrpc-testnet.0g.ai&quot;,
-//   registryAddress: &quot;0xbbD14Ff50480085cA3071314ca0AA73768569679&quot;,
-//   usdcAddress: &quot;0x39D484EaBd1e6be837f9dbbb1DE540d425A70061&quot;,
-//   blockExplorerUrl: &quot;https://chainscan-galileo.0g.ai&quot;,
-//   computeProvider: &quot;0xa48f01287233509FD694a22Bf840225062E67836&quot;,
-//   storageIndexerUrl: &quot;https://indexer-storage-testnet-turbo.0g.ai&quot;,
+//   name: &quot;base-sepolia&quot;,
+//   chainId: 84532,
+//   rpcUrl: &quot;https://sepolia.base.org&quot;,
+//   blockExplorerUrl: &quot;https://sepolia.basescan.org&quot;,
+//   lighthouseGateway: &quot;https://gateway.lighthouse.storage/ipfs/&quot;,
+//   storageGatewayUrl: &quot;https://immunity-gateway.fly.dev&quot;,
+//   creOraclePublicKey: &quot;0x0286bb5ddb6912da9d9c7c0d3df9664ac3d6440c1ab0929ae02423d1ce60fe35e5&quot;,
+//   addresses: {
+//     registry:          &quot;0x15F177B17884B991703300C2dcCBA790Dda33fbC&quot;,
+//     reputation:        &quot;0x436510F3382F67bDF1eE4B6c4b6f940Eb492b3c4&quot;,
+//     registrar:         &quot;0x55237bE657245A6bf223D4b721A72b8e1D2E8523&quot;,
+//     protectedSet:      &quot;0x8b20aE052F9391e7b071A262aDa201F2189A1901&quot;,
+//     challengeManager:  &quot;0xc05ffEA7657d9F2c8879342cDAa2bE0eF238F04d&quot;,
+//     creReceiver:       &quot;0xc4f843aac2C94ce2D349C166d1D8D58cb7049C66&quot;,
+//     novelVerification: &quot;0x0f3733f4683029771E7730288339B460Eb377435&quot;,
+//     usdc:              &quot;0xe697EF7724453F239D8c0EB9295D87C344D9CE60&quot;,
+//     l2registry:        &quot;0xc647c0693ca93D2Ee5681C2eE7AF02d18C76F3B5&quot;,
+//   },
 // }
 </code></pre>
-<p>Use it directly:</p>
-<pre><code class="language-ts">import { Immunity, TESTNET } from &quot;@immunity-protocol/sdk&quot;;
+<pre><code class="language-ts">import { Immunity } from &quot;@immunity-protocol/sdk&quot;;
 import { JsonRpcProvider, Wallet } from &quot;ethers&quot;;
 
-const provider = new JsonRpcProvider(TESTNET.rpcUrl);
+const provider = new JsonRpcProvider(BASE_SEPOLIA.rpcUrl);
 const immunity = new Immunity({
   wallet: new Wallet(privateKey, provider),
-  network: &quot;testnet&quot;,   // or pass TESTNET directly
-  axlUrl: &quot;http://localhost:9002&quot;,
+  network: &quot;base-sepolia&quot;,   // or pass BASE_SEPOLIA directly
 });
 </code></pre>
+<h2 id="basemainnet"><a href="#basemainnet" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>BASE_MAINNET</code></h2>
+<p>A placeholder until the audited mainnet deploy. Its addresses are all zero and its CRE oracle key is a placeholder, so do not point production at it yet.</p>
 <h2 id="networkconfig"><a href="#networkconfig" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>NetworkConfig</code></h2>
-<p>For mainnet (when published) or a private deployment:</p>
+<p>For a self-hosted deployment, pass a full object.</p>
 <pre><code class="language-ts">import { Immunity, type NetworkConfig } from &quot;@immunity-protocol/sdk&quot;;
 
 const myNetwork: NetworkConfig = {
-  name: &quot;my-private-deployment&quot;,
-  chainId: 16601,
+  name: &quot;my-deployment&quot;,
+  chainId: 84532,
   rpcUrl: &quot;https://rpc.example.internal&quot;,
-  registryAddress: &quot;0xYourRegistry...&quot;,
-  usdcAddress: &quot;0xYourMockUsdc...&quot;,
   blockExplorerUrl: &quot;https://explorer.example.internal&quot;,
-  computeProvider: &quot;0xYourTeeProvider...&quot;,
-  storageIndexerUrl: &quot;https://storage-indexer.example.internal&quot;,
+  lighthouseGateway: &quot;https://gateway.lighthouse.storage/ipfs/&quot;,
+  storageGatewayUrl: &quot;https://my-gateway.example.internal&quot;,
+  creOraclePublicKey: &quot;0x02...&quot;,
+  addresses: {
+    registry: &quot;0x...&quot;, reputation: &quot;0x...&quot;, registrar: &quot;0x...&quot;,
+    protectedSet: &quot;0x...&quot;, challengeManager: &quot;0x...&quot;, creReceiver: &quot;0x...&quot;,
+    novelVerification: &quot;0x...&quot;, usdc: &quot;0x...&quot;, l2registry: &quot;0x...&quot;,
+  },
 };
 
-const immunity = new Immunity({
-  wallet,
-  network: myNetwork,
-  axlUrl: &quot;http://localhost:9002&quot;,
-});
+const immunity = new Immunity({ wallet, network: myNetwork });
 </code></pre>
 <h2 id="field-reference"><a href="#field-reference" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Field reference</h2>
-<h3 id="name"><a href="#name" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>name</code></h3>
-<p>Type: <code>string</code>. Display name. Surfaced in logs and error messages.</p>
-<h3 id="chainid"><a href="#chainid" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>chainId</code></h3>
-<p>Type: <code>number</code>. EVM chain id. Used for matcher hash construction (ADDRESS, CALL_PATTERN, GRAPH all hash with chainId).</p>
-<h3 id="rpcurl"><a href="#rpcurl" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>rpcUrl</code></h3>
-<p>Type: <code>string</code>. JSON-RPC endpoint. Must support EVM standard methods plus <code>eth_call</code>, <code>eth_getCode</code>, <code>eth_getLogs</code>. The SDK does <strong>not</strong> require <code>debug_*</code> or <code>trace_*</code> methods.</p>
-<h3 id="registryaddress"><a href="#registryaddress" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>registryAddress</code></h3>
-<p>Type: <code>Address</code>. The on-chain Registry contract. The SDK calls <code>check</code>, <code>publish</code>, <code>getAntibody</code> against this address.</p>
-<h3 id="usdcaddress"><a href="#usdcaddress" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>usdcAddress</code></h3>
-<p>Type: <code>Address</code>. The USDC (or MockUSDC on testnet) ERC20 contract. The SDK uses it for fee debits, deposits, and withdrawals.</p>
-<h3 id="blockexplorerurl"><a href="#blockexplorerurl" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>blockExplorerUrl</code></h3>
-<p>Type: <code>string</code>. Block explorer base URL. Used for log links in operator UIs (e.g., <code>${blockExplorerUrl}/tx/${checkId}</code>).</p>
-<h3 id="computeprovider"><a href="#computeprovider" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>computeProvider</code></h3>
-<p>Type: <code>Address</code>. The 0G Compute provider address registered in the on-chain inference services list. Used for TEE inference under <code>novelThreatPolicy: &quot;verify&quot;</code>.</p>
-<p>Optional: omit if you use a custom <code>teeVerifier</code> that does not need 0G Compute.</p>
-<h3 id="storageindexerurl"><a href="#storageindexerurl" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>storageIndexerUrl</code></h3>
-<p>Type: <code>string</code>. The 0G Storage indexer endpoint. Used by <code>publish()</code> to upload evidence bundles and by <code>fetchPublicEnvelope(cid)</code> to retrieve them.</p>
-<p>Optional: omit if your deployment does not use 0G Storage and your <code>teeVerifier</code> handles evidence differently.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td><code>string</code></td>
+<td>display name, surfaced in logs</td>
+</tr>
+<tr>
+<td><code>chainId</code></td>
+<td><code>number</code></td>
+<td>EVM chain id; used in matcher hash construction</td>
+</tr>
+<tr>
+<td><code>rpcUrl</code></td>
+<td><code>string</code></td>
+<td>JSON-RPC endpoint (standard <code>eth_call</code>/<code>eth_getCode</code>/<code>eth_getLogs</code>)</td>
+</tr>
+<tr>
+<td><code>blockExplorerUrl</code></td>
+<td><code>string</code></td>
+<td>explorer base, for log links (Basescan)</td>
+</tr>
+<tr>
+<td><code>lighthouseGateway</code></td>
+<td><code>string</code></td>
+<td>keyless IPFS READ base (with trailing <code>/ipfs/</code>)</td>
+</tr>
+<tr>
+<td><code>storageGatewayUrl</code></td>
+<td><code>string</code></td>
+<td>signed-POST WRITE target; the gateway holds the Lighthouse key and pins</td>
+</tr>
+<tr>
+<td><code>creOraclePublicKey</code></td>
+<td><code>Hex</code></td>
+<td>compressed secp256k1 pubkey of the CRE oracle; evidence context is ECIES-encrypted to it</td>
+</tr>
+<tr>
+<td><code>addresses</code></td>
+<td><code>CoreAddresses</code></td>
+<td>the deployed core contract addresses</td>
+</tr>
+</tbody>
+</table>
+<p><code>CoreAddresses</code> carries <code>registry</code>, <code>reputation</code>, <code>registrar</code>, <code>protectedSet</code>, <code>challengeManager</code>, <code>creReceiver</code>, <code>novelVerification</code>, <code>usdc</code>, and <code>l2registry</code>.</p>
+<h2 id="resolvenetworkinput"><a href="#resolvenetworkinput" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>resolveNetwork(input)</code></h2>
+<p>Resolves a preset name or config object to a concrete <code>NetworkConfig</code>. <code>undefined</code> and <code>&quot;base-sepolia&quot;</code> return <code>BASE_SEPOLIA</code>; <code>&quot;base-mainnet&quot;</code> returns <code>BASE_MAINNET</code>; <code>&quot;custom&quot;</code> throws (pass a <code>NetworkConfig</code> object instead); a <code>NetworkConfig</code> is returned as-is.</p>
 <h2 id="switching-networks"><a href="#switching-networks" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Switching networks</h2>
-<p>Pass the right config at construction. The SDK does not support hot-swapping networks on a live <code>Immunity</code> instance.</p>
-<p>To switch networks at runtime: stop the current instance, construct a new one against the target network, start it.</p>
-<pre><code class="language-ts">await immunity.stop();
-
-const next = new Immunity({
-  wallet,
-  network: { ...newNetworkConfig },
-  axlUrl,
-});
-await next.start();
-</code></pre>
+<p>Construction picks the network; there is no hot-swap. Stop the instance, construct a new one against the target network, start it.</p>
 <h2 id="see-also"><a href="#see-also" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>See also</h2>
 <ul>
 <li><strong><a href="/reference/immunityconfig/">ImmunityConfig</a></strong>, the wrapping config.</li>
-<li><strong><a href="/network/registry-on-0g/">Network: Registry on 0G</a></strong>, how to verify the Registry address yourself.</li>
+<li><strong><a href="/network/registry-on-base/">Network: Registry on Base</a></strong>, how to verify these addresses yourself.</li>
 </ul>
 
     </div>
@@ -405,7 +489,10 @@ await next.start();
         <h4 class="toc-title">On this page</h4>
         <ul class="toc-links">
             <li class="toc-item">
-                <a href="#testnet" class="toc-link">TESTNET</a>
+                <a href="#basesepolia" class="toc-link">BASE_SEPOLIA</a>
+            </li>
+            <li class="toc-item">
+                <a href="#basemainnet" class="toc-link">BASE_MAINNET</a>
             </li>
             <li class="toc-item">
                 <a href="#networkconfig" class="toc-link">NetworkConfig</a>
@@ -413,29 +500,8 @@ await next.start();
             <li class="toc-item">
                 <a href="#field-reference" class="toc-link">Field reference</a>
             </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#name" class="toc-link">name</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#chainid" class="toc-link">chainId</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#rpcurl" class="toc-link">rpcUrl</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#registryaddress" class="toc-link">registryAddress</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#usdcaddress" class="toc-link">usdcAddress</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#blockexplorerurl" class="toc-link">blockExplorerUrl</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#computeprovider" class="toc-link">computeProvider</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#storageindexerurl" class="toc-link">storageIndexerUrl</a>
+            <li class="toc-item">
+                <a href="#resolvenetworkinput" class="toc-link">resolveNetwork(input)</a>
             </li>
             <li class="toc-item">
                 <a href="#switching-networks" class="toc-link">Switching networks</a>

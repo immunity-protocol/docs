@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="leaf-base-url" content="">
-<meta name="description" content="Hash, USDC, address, and storage helpers re-exported from the SDK. Useful for tooling and mirror-contract integrations.">
+<meta name="description" content="USDC, address, enforcement, storage, and crypto helpers re-exported from the SDK for tooling and integrations.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://docs.immunity-protocol.com/">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Helpers · Immunity Docs">
-<meta property="og:description" content="Hash, USDC, address, and storage helpers re-exported from the SDK. Useful for tooling and mirror-contract integrations.">
+<meta property="og:description" content="USDC, address, enforcement, storage, and crypto helpers re-exported from the SDK for tooling and integrations.">
 <meta property="og:site_name" content="Immunity Docs">
 <meta property="og:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <meta property="og:image:width" content="1200">
@@ -17,7 +17,7 @@
 <meta property="og:image:alt" content="Immunity Docs">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Helpers · Immunity Docs">
-<meta name="twitter:description" content="Hash, USDC, address, and storage helpers re-exported from the SDK. Useful for tooling and mirror-contract integrations.">
+<meta name="twitter:description" content="USDC, address, enforcement, storage, and crypto helpers re-exported from the SDK for tooling and integrations.">
 <meta name="twitter:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -141,27 +141,57 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/concepts/two-speed-enforcement"
+                       class="sidebar-link">
+                        Two-speed enforcement
+                    </a>
+                </li>
+                <li>
                     <a href="/concepts/three-tier-lookup"
                        class="sidebar-link">
                         Three-tier lookup
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/tee-verification"
+                    <a href="/concepts/corroboration-and-maturation"
                        class="sidebar-link">
-                        TEE verification
+                        Corroboration and maturation
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/settlement-and-tokenomics"
+                    <a href="/concepts/reputation-and-identity"
                        class="sidebar-link">
-                        Settlement and tokenomics
+                        Reputation and identity
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/cross-chain-mirror"
+                    <a href="/concepts/sybil-resistance"
                        class="sidebar-link">
-                        Cross-chain mirror
+                        Sybil resistance
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/challenge-game-and-jury"
+                       class="sidebar-link">
+                        The challenge game and jury
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/novel-threat-verification"
+                       class="sidebar-link">
+                        Novel-threat verification
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/settlement-and-fees"
+                       class="sidebar-link">
+                        Settlement and fees
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/the-mirror-and-consumers"
+                       class="sidebar-link">
+                        The mirror and on-chain consumers
                     </a>
                 </li>
             </ul>
@@ -182,9 +212,21 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/guides/corroborate-and-challenge"
+                       class="sidebar-link">
+                        Corroborate and challenge
+                    </a>
+                </li>
+                <li>
                     <a href="/guides/operator-in-the-loop"
                        class="sidebar-link">
                         Operator in the loop
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/run-a-reference-agent"
+                       class="sidebar-link">
+                        Run a reference agent
                     </a>
                 </li>
                 <li>
@@ -252,15 +294,21 @@ tailwind.config = {
                         Helpers
                     </a>
                 </li>
+                <li>
+                    <a href="/reference/matchers"
+                       class="sidebar-link">
+                        Matchers and seeds
+                    </a>
+                </li>
             </ul>
         </div>
         <div class="sidebar-group">
             <h3 class="sidebar-group-title">Network</h3>
             <ul class="sidebar-links">
                 <li>
-                    <a href="/network/registry-on-0g"
+                    <a href="/network/registry-on-base"
                        class="sidebar-link">
-                        Registry on 0G
+                        Registry on Base
                     </a>
                 </li>
                 <li>
@@ -300,112 +348,83 @@ tailwind.config = {
 <article class="docs-content">
     <div class="prose">
         <h1>Helpers</h1>
-<p>The SDK re-exports a small set of utility functions that match the on-chain canonicalization byte-for-byte. Use them when you need to compute matcher hashes off chain (e.g., for a relayer, a mirror contract, or a testing harness).</p>
-<h2 id="hash-helpers"><a href="#hash-helpers" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Hash helpers</h2>
-<p>All match the on-chain Solidity computation exactly. Verified by the SDK's integration test <code>keccak-parity.test.ts</code>.</p>
+<p>The SDK re-exports a set of utilities that match the on-chain canonicalization and the read-side enforcement logic. Use them in relayers, indexers, tests, and custom verifiers. The matcher-hash helpers and seed shapes have their own page: see <a href="/reference/matchers/">Matchers and seeds</a>.</p>
+<h2 id="identity"><a href="#identity" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Identity</h2>
 <h3 id="computekeccakidabtype-flavor-primarymatcherhash-publisher"><a href="#computekeccakidabtype-flavor-primarymatcherhash-publisher" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>computeKeccakId(abType, flavor, primaryMatcherHash, publisher)</code></h3>
-<p>Reproduces the contract's <code>keccakId</code> derivation:</p>
-<pre><code>keccakId = keccak256(abi.encode(abType, flavor, primaryMatcherHash, publisher))
-</code></pre>
-<pre><code class="language-ts">import { computeKeccakId, hashAddressMatcher } from &quot;@immunity-protocol/sdk&quot;;
+<p>Reproduces the contract's id derivation, <code>keccak256(abi.encode(abType, flavor, primaryMatcherHash, publisher))</code>. Useful to predict an antibody's id before publishing.</p>
+<h3 id="formatimmidyear-immseq"><a href="#formatimmidyear-immseq" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>formatImmId(year, immSeq)</code></h3>
+<p>Formats <code>IMM-YYYY-NNNN</code> from a year and sequence number.</p>
+<h2 id="enforcement"><a href="#enforcement" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Enforcement</h2>
+<h3 id="classifyenforcementinputs-k-nowsec"><a href="#classifyenforcementinputs-k-nowsec" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>classifyEnforcement(inputs, k, nowSec)</code></h3>
+<p>Returns the read-side enforcement tier for an antibody: <code>&quot;hard-block&quot;</code>, <code>&quot;advisory&quot;</code>, or <code>&quot;none&quot;</code>. <code>k</code> is the corroboration threshold (from the Registry), <code>nowSec</code> is the current unix time as a <code>bigint</code>. This is the function behind the two-speed decision.</p>
+<ul>
+<li><code>&quot;none&quot;</code>, the antibody is SLASHED, EXPIRED, or past its TTL.</li>
+<li><code>&quot;hard-block&quot;</code>, <code>(corroboration &gt;= k or isSeeded)</code> and the target is not protected.</li>
+<li><code>&quot;advisory&quot;</code>, eligible but <code>corroboration &lt; k</code>, or the target is protected.</li>
+</ul>
+<h3 id="enforcementresolver"><a href="#enforcementresolver" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>EnforcementResolver</code></h3>
+<p>Combines Tier-1 matchers and the Tier-2 RPC lookup into a single enforcement resolution for a proposed tx and context. The <code>Immunity</code> facade builds one internally; instantiate it directly only for custom pipelines.</p>
+<h3 id="isliveantibodyab-nowsec"><a href="#isliveantibodyab-nowsec" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>isLiveAntibody(ab, nowSec)</code></h3>
+<p><code>true</code> if the antibody can surface from a lookup at all (not SLASHED, not EXPIRED, not past TTL). Says nothing about advisory vs hard-block, that is <code>classifyEnforcement</code>.</p>
+<h3 id="decodeantibodyraw--decodeenforcementinputsraw"><a href="#decodeantibodyraw--decodeenforcementinputsraw" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>decodeAntibody(raw)</code> / <code>decodeEnforcementInputs(raw)</code></h3>
+<p>Decode a raw on-chain struct into an <code>Antibody</code>, or into the inputs <code>classifyEnforcement</code> consumes. Use with <code>contracts.registry</code> to read antibodies directly.</p>
+<h2 id="usdc-math-6-decimals"><a href="#usdc-math-6-decimals" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>USDC math (6 decimals)</h2>
+<pre><code class="language-ts">import { parseUsdc, formatUsdc, USDC_DECIMALS } from &quot;@immunity-protocol/sdk&quot;;
 
-const matcherHash = hashAddressMatcher(16602, &quot;0xCAFE...&quot;);
-const id = computeKeccakId(&quot;ADDRESS&quot;, 0, matcherHash, publisherAddr);
-</code></pre>
-<p>Useful for predicting an antibody's id before publishing (to dedupe locally) or for a relayer that needs to verify a mirrored antibody's id matches the source-chain id.</p>
-<h3 id="hashaddressmatcherchainid-target"><a href="#hashaddressmatcherchainid-target" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>hashAddressMatcher(chainId, target)</code></h3>
-<pre><code>keccak256(abi.encode(chainId, target))
-</code></pre>
-<h3 id="hashcallpatternmatcherchainid-target-selector-argstemplate"><a href="#hashcallpatternmatcherchainid-target-selector-argstemplate" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>hashCallPatternMatcher(chainId, target, selector, argsTemplate)</code></h3>
-<pre><code>keccak256(abi.encode(chainId, target, selector, keccak256(argsTemplateBytes)))
-</code></pre>
-<p><code>argsTemplate</code> is the partial args object; the helper canonicalizes it to bytes before hashing.</p>
-<h3 id="hashbytecodematcherruntimebytecode"><a href="#hashbytecodematcherruntimebytecode" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>hashBytecodeMatcher(runtimeBytecode)</code></h3>
-<pre><code>keccak256(runtimeBytecode)
-</code></pre>
-<p>The runtime bytecode (not the deployment bytecode). Fetch via <code>eth_getCode(address, &quot;latest&quot;)</code>.</p>
-<h3 id="hashgraphmatcherchainid-taintedaddresses"><a href="#hashgraphmatcherchainid-taintedaddresses" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>hashGraphMatcher(chainId, taintedAddresses)</code></h3>
-<pre><code>keccak256(abi.encode(chainId, sortedAddresses))
-</code></pre>
-<p>Addresses are sorted ASCII-lowercase before hashing. Order does not matter at the input layer.</p>
-<h3 id="hashsemanticmatcherflavor-marker"><a href="#hashsemanticmatcherflavor-marker" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>hashSemanticMatcher(flavor, marker)</code></h3>
-<pre><code>keccak256(abi.encode(flavor, lowercase(marker)))
-</code></pre>
-<p>Markers are lowercased and trimmed before hashing.</p>
-<h3 id="computetaintsetidaddresses"><a href="#computetaintsetidaddresses" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>computeTaintSetId(addresses)</code></h3>
-<p>For the GRAPH auxiliary event indexer:</p>
-<pre><code>keccak256(abi.encode(sortedAddresses))
-</code></pre>
-<p>A type alias for the chain-agnostic taint identifier.</p>
-<h2 id="usdc-helpers"><a href="#usdc-helpers" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>USDC helpers</h2>
-<h3 id="parseusdcamount"><a href="#parseusdcamount" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>parseUsdc(amount)</code></h3>
-<p>String to base units. Always returns <code>bigint</code>.</p>
-<pre><code class="language-ts">parseUsdc(&quot;1.5&quot;)      // 1_500_000n
-parseUsdc(&quot;0.0001&quot;)   // 100n
-parseUsdc(&quot;0.00001&quot;)  // throws RangeError (below the 6-decimal precision)
-</code></pre>
-<h3 id="formatusdcamount"><a href="#formatusdcamount" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>formatUsdc(amount)</code></h3>
-<p>Base units to human-readable string. Always 6 decimals.</p>
-<pre><code class="language-ts">formatUsdc(1_500_000n)   // &quot;1.500000&quot;
-formatUsdc(100n)         // &quot;0.000100&quot;
-</code></pre>
-<h3 id="usdcdecimals"><a href="#usdcdecimals" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>USDC_DECIMALS</code></h3>
-<pre><code class="language-ts">import { USDC_DECIMALS } from &quot;@immunity-protocol/sdk&quot;;
-console.log(USDC_DECIMALS);  // 6
+parseUsdc(&quot;1&quot;)          // 1_000_000n
+parseUsdc(&quot;0.002&quot;)      // 2_000n
+parseUsdc(&quot;0.0000001&quot;)  // throws (more than 6 decimals)
+
+formatUsdc(1_000_000n)  // &quot;1&quot;
+formatUsdc(2_000n)      // &quot;0.002&quot;
+
+USDC_DECIMALS           // 6
 </code></pre>
 <h2 id="address-helpers"><a href="#address-helpers" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Address helpers</h2>
-<h3 id="normalizeaddressaddr"><a href="#normalizeaddressaddr" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>normalizeAddress(addr)</code></h3>
-<p>Lowercases, validates length (40 hex chars), validates 0x prefix. Returns the normalized address or throws.</p>
-<pre><code class="language-ts">normalizeAddress(&quot;0xCAFE...000&quot;)   // &quot;0xcafe...000&quot;
-normalizeAddress(&quot;CAFE...000&quot;)      // throws (no 0x)
-normalizeAddress(&quot;0xCAFE...0001&quot;)   // throws (41 chars)
-</code></pre>
-<h3 id="isaddressvalue"><a href="#isaddressvalue" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>isAddress(value)</code></h3>
-<p>Predicate. Returns <code>true</code> for any valid 0x-prefixed 20-byte hex.</p>
-<pre><code class="language-ts">isAddress(&quot;0xCAFE...000&quot;)  // true
-isAddress(&quot;0xCAFE...0001&quot;) // false
-isAddress(null)             // false
-</code></pre>
-<h3 id="chainaddresskeychainid-address"><a href="#chainaddresskeychainid-address" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>chainAddressKey(chainId, address)</code></h3>
-<p>Stable join key for <code>(chainId, address)</code> pairs. Used internally by the cache for ADDRESS lookups.</p>
-<pre><code class="language-ts">chainAddressKey(16602, &quot;0xCAFE...000&quot;)  // &quot;16602:0xcafe...000&quot;
-</code></pre>
-<h2 id="storage-helpers"><a href="#storage-helpers" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Storage helpers</h2>
-<h3 id="createstorageclientindexerurl"><a href="#createstorageclientindexerurl" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>createStorageClient(indexerUrl)</code></h3>
-<p>Returns a <code>StorageClient</code> that talks to a 0G Storage indexer.</p>
-<pre><code class="language-ts">const storage = createStorageClient(&quot;https://indexer-storage-testnet-turbo.0g.ai&quot;);
-</code></pre>
-<h3 id="uploadpublicenvelopeclient-payload"><a href="#uploadpublicenvelopeclient-payload" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>uploadPublicEnvelope(client, payload)</code></h3>
-<p>Uploads a JSON payload as a public (unencrypted) envelope. Returns the <code>cid</code> (a 0G Storage hash).</p>
-<pre><code class="language-ts">const cid = await uploadPublicEnvelope(storage, { reason: &quot;...&quot;, chainTx: &quot;0x...&quot; });
-</code></pre>
-<h3 id="fetchpublicenvelopeclient-cid"><a href="#fetchpublicenvelopeclient-cid" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>fetchPublicEnvelope(client, cid)</code></h3>
-<p>Reads a public envelope back. Returns the parsed JSON payload.</p>
-<pre><code class="language-ts">const payload = await fetchPublicEnvelope(storage, cid);
-</code></pre>
-<h3 id="uploadencryptedcontextclient-payload-recipientpubkey"><a href="#uploadencryptedcontextclient-payload-recipientpubkey" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>uploadEncryptedContext(client, payload, recipientPubkey)</code></h3>
-<p>Uploads a JSON payload encrypted to a recipient's public key (e.g., the TEE's pubkey). Used internally by the TEE flow; rare in user code.</p>
-<h2 id="tx-fact-extraction"><a href="#tx-fact-extraction" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Tx fact extraction</h2>
-<h3 id="extractfactstx"><a href="#extractfactstx" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>extractFacts(tx)</code></h3>
-<p>Parses a <code>ProposedTx</code> and returns a <code>TxFacts</code> struct. Used internally by <code>check()</code> to populate <code>result.txFacts</code>. Exposed for tooling that needs the same parse without going through the full SDK:</p>
-<pre><code class="language-ts">import { extractFacts } from &quot;@immunity-protocol/sdk&quot;;
+<pre><code class="language-ts">import { normalizeAddress, isAddress, chainAddressKey } from &quot;@immunity-protocol/sdk&quot;;
 
-const facts = extractFacts({ to: &quot;0x...&quot;, data: &quot;0xa9059cbb...&quot;, chainId: 1 });
-// { tokenAddress: &quot;0x...&quot;, tokenAmount: 1000n, originChainId: 1n }
+normalizeAddress(&quot;0xABC...&quot;)        // lowercased, validated; throws on bad input
+isAddress(&quot;0xABC...&quot;)               // boolean predicate
+chainAddressKey(84532, &quot;0xABC...&quot;)  // &quot;84532:0xabc...&quot; scope key
 </code></pre>
-<p>Returns all-zero facts when the calldata cannot be decoded as a known transfer or swap pattern.</p>
-<h2 id="tee-prompt-builders"><a href="#tee-prompt-builders" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>TEE prompt builders</h2>
-<p>Lower-level than most users need. Expose the prompt-building primitives so tooling can replicate the TEE input format without going through <code>Immunity</code>:</p>
+<h2 id="transaction-facts"><a href="#transaction-facts" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Transaction facts</h2>
+<h3 id="extractfactstx"><a href="#extractfactstx" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>extractFacts(tx)</code></h3>
+<p>Parses a <code>ProposedTx</code> into <code>TxFacts</code> <code>{ tokenAddress, tokenAmount, originChainId }</code>. Detects ERC20 transfers, common swaps, and native transfers. Returns all-zero for unrecognized calldata (normal, not an error). Used internally by <code>check()</code>; exposed for tooling.</p>
+<h2 id="storage-lighthouse--ipfs"><a href="#storage-lighthouse--ipfs" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Storage (Lighthouse / IPFS)</h2>
+<h3 id="storageclient"><a href="#storageclient" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>StorageClient</code></h3>
+<p>Signs and POSTs evidence to the protocol storage gateway (which holds the Lighthouse key and pins to IPFS), and reads public envelopes back from the keyless IPFS gateway.</p>
+<pre><code class="language-ts">import { StorageClient } from &quot;@immunity-protocol/sdk&quot;;
+
+const storage = new StorageClient({
+  storageGatewayUrl: network.storageGatewayUrl,
+  lighthouseGateway: network.lighthouseGateway,
+  signer,
+});
+</code></pre>
+<h3 id="uploadpublicenvelope--fetchpublicenvelope"><a href="#uploadpublicenvelope--fetchpublicenvelope" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>uploadPublicEnvelope</code> / <code>fetchPublicEnvelope</code></h3>
+<p>Upload a <code>PublicEnvelopeV1</code> and read it back. <code>cidToHex32</code> / <code>hex32ToCid</code> convert between the CID string form and the 32-byte on-chain digest. <code>canonicalJson</code> produces the deterministic serialization the gateway signs over.</p>
+<h2 id="encryption-ecies"><a href="#encryption-ecies" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Encryption (ECIES)</h2>
+<pre><code class="language-ts">import { encryptContext, decryptContext, getPublicKeyFromPrivate } from &quot;@immunity-protocol/sdk&quot;;
+
+const bundle = await encryptContext(&quot;sensitive notes&quot;, network.creOraclePublicKey);
+// only the CRE oracle's private key can decryptContext(bundle, key)
+</code></pre>
+<p>Context is ECIES-encrypted to the CRE oracle so only the DON's confidential compute can read it. <code>getPublicKeyFromPrivate</code> derives the compressed pubkey from a private key.</p>
+<h2 id="reputation-and-lookup-advanced"><a href="#reputation-and-lookup-advanced" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Reputation and lookup (advanced)</h2>
 <ul>
-<li><code>buildVerdictPrompt(tx, ctx)</code>, returns the structured prompt the SDK posts to the TEE.</li>
-<li><code>distillBundle(tx, ctx)</code>, distills the input into the compact JSON form the TEE expects.</li>
-<li><code>parseVerdict(rawJson)</code>, parses a TEE response and validates the schema.</li>
+<li><code>ReputationClient</code>, read publisher reputation (<code>PublisherReputation</code>).</li>
+<li><code>Tier2Lookup</code>, the on-chain matcher lookup used by Tier 2.</li>
+<li><code>NegativeMatcherCache</code>, the TTL negative cache.</li>
 </ul>
-<p>Use only if you are building an alternative <code>teeVerifier</code> or a testing harness.</p>
+<h2 id="cre-verifier-advanced"><a href="#cre-verifier-advanced" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>CRE verifier (advanced)</h2>
+<ul>
+<li><code>CreNovelVerifier</code>, the Tier-3 CRE verifier; <code>verdictCommitment</code>, its attestation commitment.</li>
+<li><code>buildVerdictPrompt</code>, <code>distillBundle</code>, <code>parseVerdict</code>, the prompt/parse primitives, for building a custom <code>NovelVerifier</code>.</li>
+</ul>
 <h2 id="see-also"><a href="#see-also" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>See also</h2>
 <ul>
-<li><strong><a href="/reference/immunity-class/">Immunity class</a></strong>, the high-level API that uses these helpers internally.</li>
-<li><strong><a href="/reference/antibody/">Antibody</a></strong>, the on-chain shape these helpers compute hashes for.</li>
+<li><strong><a href="/reference/matchers/">Matchers and seeds</a></strong>, the per-type matcher-hash helpers.</li>
+<li><strong><a href="/reference/immunity-class/">Immunity class</a></strong>, the high-level API that uses these internally.</li>
 </ul>
 
     </div>
@@ -416,9 +435,9 @@ const facts = extractFacts({ to: &quot;0x...&quot;, data: &quot;0xa9059cbb...&qu
             <span class="pagination-title">Network presets</span>
         </a>
 
-        <a href="/network/registry-on-0g" class="pagination-link pagination-next">
+        <a href="/reference/matchers" class="pagination-link pagination-next">
             <span class="pagination-label">Next &rarr;</span>
-            <span class="pagination-title">Registry on 0G</span>
+            <span class="pagination-title">Matchers and seeds</span>
         </a>
     </nav>
 </article>
@@ -428,76 +447,58 @@ const facts = extractFacts({ to: &quot;0x...&quot;, data: &quot;0xa9059cbb...&qu
         <h4 class="toc-title">On this page</h4>
         <ul class="toc-links">
             <li class="toc-item">
-                <a href="#hash-helpers" class="toc-link">Hash helpers</a>
+                <a href="#identity" class="toc-link">Identity</a>
             </li>
             <li class="toc-item toc-item-sub">
                 <a href="#computekeccakidabtype-flavor-primarymatcherhash-publisher" class="toc-link">computeKeccakId(abType, flavor, primaryMatcherHash, publisher)</a>
             </li>
             <li class="toc-item toc-item-sub">
-                <a href="#hashaddressmatcherchainid-target" class="toc-link">hashAddressMatcher(chainId, target)</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#hashcallpatternmatcherchainid-target-selector-argstemplate" class="toc-link">hashCallPatternMatcher(chainId, target, selector, argsTemplate)</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#hashbytecodematcherruntimebytecode" class="toc-link">hashBytecodeMatcher(runtimeBytecode)</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#hashgraphmatcherchainid-taintedaddresses" class="toc-link">hashGraphMatcher(chainId, taintedAddresses)</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#hashsemanticmatcherflavor-marker" class="toc-link">hashSemanticMatcher(flavor, marker)</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#computetaintsetidaddresses" class="toc-link">computeTaintSetId(addresses)</a>
+                <a href="#formatimmidyear-immseq" class="toc-link">formatImmId(year, immSeq)</a>
             </li>
             <li class="toc-item">
-                <a href="#usdc-helpers" class="toc-link">USDC helpers</a>
+                <a href="#enforcement" class="toc-link">Enforcement</a>
             </li>
             <li class="toc-item toc-item-sub">
-                <a href="#parseusdcamount" class="toc-link">parseUsdc(amount)</a>
+                <a href="#classifyenforcementinputs-k-nowsec" class="toc-link">classifyEnforcement(inputs, k, nowSec)</a>
             </li>
             <li class="toc-item toc-item-sub">
-                <a href="#formatusdcamount" class="toc-link">formatUsdc(amount)</a>
+                <a href="#enforcementresolver" class="toc-link">EnforcementResolver</a>
             </li>
             <li class="toc-item toc-item-sub">
-                <a href="#usdcdecimals" class="toc-link">USDC_DECIMALS</a>
+                <a href="#isliveantibodyab-nowsec" class="toc-link">isLiveAntibody(ab, nowSec)</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#decodeantibodyraw--decodeenforcementinputsraw" class="toc-link">decodeAntibody(raw) / decodeEnforcementInputs(raw)</a>
+            </li>
+            <li class="toc-item">
+                <a href="#usdc-math-6-decimals" class="toc-link">USDC math (6 decimals)</a>
             </li>
             <li class="toc-item">
                 <a href="#address-helpers" class="toc-link">Address helpers</a>
             </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#normalizeaddressaddr" class="toc-link">normalizeAddress(addr)</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#isaddressvalue" class="toc-link">isAddress(value)</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#chainaddresskeychainid-address" class="toc-link">chainAddressKey(chainId, address)</a>
-            </li>
             <li class="toc-item">
-                <a href="#storage-helpers" class="toc-link">Storage helpers</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#createstorageclientindexerurl" class="toc-link">createStorageClient(indexerUrl)</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#uploadpublicenvelopeclient-payload" class="toc-link">uploadPublicEnvelope(client, payload)</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#fetchpublicenvelopeclient-cid" class="toc-link">fetchPublicEnvelope(client, cid)</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#uploadencryptedcontextclient-payload-recipientpubkey" class="toc-link">uploadEncryptedContext(client, payload, recipientPubkey)</a>
-            </li>
-            <li class="toc-item">
-                <a href="#tx-fact-extraction" class="toc-link">Tx fact extraction</a>
+                <a href="#transaction-facts" class="toc-link">Transaction facts</a>
             </li>
             <li class="toc-item toc-item-sub">
                 <a href="#extractfactstx" class="toc-link">extractFacts(tx)</a>
             </li>
             <li class="toc-item">
-                <a href="#tee-prompt-builders" class="toc-link">TEE prompt builders</a>
+                <a href="#storage-lighthouse--ipfs" class="toc-link">Storage (Lighthouse / IPFS)</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#storageclient" class="toc-link">StorageClient</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#uploadpublicenvelope--fetchpublicenvelope" class="toc-link">uploadPublicEnvelope / fetchPublicEnvelope</a>
+            </li>
+            <li class="toc-item">
+                <a href="#encryption-ecies" class="toc-link">Encryption (ECIES)</a>
+            </li>
+            <li class="toc-item">
+                <a href="#reputation-and-lookup-advanced" class="toc-link">Reputation and lookup (advanced)</a>
+            </li>
+            <li class="toc-item">
+                <a href="#cre-verifier-advanced" class="toc-link">CRE verifier (advanced)</a>
             </li>
             <li class="toc-item">
                 <a href="#see-also" class="toc-link">See also</a>

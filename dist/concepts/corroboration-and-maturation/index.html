@@ -4,20 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="leaf-base-url" content="">
-<meta name="description" content="The on-chain Registry contract is the source of truth. Anyone can read it without an SDK install.">
+<meta name="description" content="How an antibody earns hard-block: independent publishers corroborating one matcher, or undisputed matched volume over time.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://docs.immunity-protocol.com/">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Registry on 0G · Immunity Docs">
-<meta property="og:description" content="The on-chain Registry contract is the source of truth. Anyone can read it without an SDK install.">
+<meta property="og:title" content="Corroboration and maturation · Immunity Docs">
+<meta property="og:description" content="How an antibody earns hard-block: independent publishers corroborating one matcher, or undisputed matched volume over time.">
 <meta property="og:site_name" content="Immunity Docs">
 <meta property="og:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Immunity Docs">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Registry on 0G · Immunity Docs">
-<meta name="twitter:description" content="The on-chain Registry contract is the source of truth. Anyone can read it without an SDK install.">
+<meta name="twitter:title" content="Corroboration and maturation · Immunity Docs">
+<meta name="twitter:description" content="How an antibody earns hard-block: independent publishers corroborating one matcher, or undisputed matched volume over time.">
 <meta name="twitter:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -51,7 +51,7 @@ tailwind.config = {
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 <link rel="stylesheet" href="/assets/css/app.css">
 <script src="/assets/js/theme.js"></script>
-    <title>Registry on 0G · Immunity Docs</title>
+    <title>Corroboration and maturation · Immunity Docs</title>
 </head>
 <body class="bg-deep text-body antialiased font-body">
 <header class="site-nav">
@@ -141,27 +141,57 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/concepts/two-speed-enforcement"
+                       class="sidebar-link">
+                        Two-speed enforcement
+                    </a>
+                </li>
+                <li>
                     <a href="/concepts/three-tier-lookup"
                        class="sidebar-link">
                         Three-tier lookup
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/tee-verification"
-                       class="sidebar-link">
-                        TEE verification
+                    <a href="/concepts/corroboration-and-maturation"
+                       class="sidebar-link active">
+                        Corroboration and maturation
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/settlement-and-tokenomics"
+                    <a href="/concepts/reputation-and-identity"
                        class="sidebar-link">
-                        Settlement and tokenomics
+                        Reputation and identity
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/cross-chain-mirror"
+                    <a href="/concepts/sybil-resistance"
                        class="sidebar-link">
-                        Cross-chain mirror
+                        Sybil resistance
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/challenge-game-and-jury"
+                       class="sidebar-link">
+                        The challenge game and jury
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/novel-threat-verification"
+                       class="sidebar-link">
+                        Novel-threat verification
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/settlement-and-fees"
+                       class="sidebar-link">
+                        Settlement and fees
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/the-mirror-and-consumers"
+                       class="sidebar-link">
+                        The mirror and on-chain consumers
                     </a>
                 </li>
             </ul>
@@ -182,9 +212,21 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/guides/corroborate-and-challenge"
+                       class="sidebar-link">
+                        Corroborate and challenge
+                    </a>
+                </li>
+                <li>
                     <a href="/guides/operator-in-the-loop"
                        class="sidebar-link">
                         Operator in the loop
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/run-a-reference-agent"
+                       class="sidebar-link">
+                        Run a reference agent
                     </a>
                 </li>
                 <li>
@@ -252,15 +294,21 @@ tailwind.config = {
                         Helpers
                     </a>
                 </li>
+                <li>
+                    <a href="/reference/matchers"
+                       class="sidebar-link">
+                        Matchers and seeds
+                    </a>
+                </li>
             </ul>
         </div>
         <div class="sidebar-group">
             <h3 class="sidebar-group-title">Network</h3>
             <ul class="sidebar-links">
                 <li>
-                    <a href="/network/registry-on-0g"
-                       class="sidebar-link active">
-                        Registry on 0G
+                    <a href="/network/registry-on-base"
+                       class="sidebar-link">
+                        Registry on Base
                     </a>
                 </li>
                 <li>
@@ -299,123 +347,57 @@ tailwind.config = {
         <main class="docs-main">
 <article class="docs-content">
     <div class="prose">
-        <h1>Registry on 0G</h1>
-<p>The on-chain Registry is the canonical source of truth for the Immunity network. Every antibody mint, every match settlement, every challenge, lives here. The cache is a derivative; the gossip mesh is a derivative; the public feed is a derivative. <strong>The Registry is the truth.</strong></p>
-<p>This page is the read-only reference for verifying anything you see in any other layer.</p>
-<h2 id="live-deployment"><a href="#live-deployment" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Live deployment</h2>
-<table>
-<thead>
-<tr>
-<th>Network</th>
-<th>Registry</th>
-<th>MockUSDC</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Galileo testnet</td>
-<td><code>0xbbD14Ff50480085cA3071314ca0AA73768569679</code></td>
-<td><code>0x39D484EaBd1e6be837f9dbbb1DE540d425A70061</code></td>
-</tr>
-<tr>
-<td>Mainnet</td>
-<td>not yet deployed</td>
-<td>n/a</td>
-</tr>
-</tbody>
-</table>
-<p>Cross-reference at <a href="https://chainscan-galileo.0g.ai">chainscan-galileo.0g.ai</a>.</p>
-<h2 id="read-only-methods-anyone-can-call"><a href="#read-only-methods-anyone-can-call" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Read-only methods anyone can call</h2>
-<p>These views require no balance, no auth, no approval. Any RPC client works.</p>
-<h3 id="getantibodykeccakid---antibody"><a href="#getantibodykeccakid---antibody" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>getAntibody(keccakId) -&gt; Antibody</code></h3>
-<p>Read a published antibody by id. Returns the full struct (see <a href="/reference/antibody/">Antibody reference</a>).</p>
-<pre><code class="language-ts">import { Contract, JsonRpcProvider } from &quot;ethers&quot;;
-
-const provider = new JsonRpcProvider(&quot;https://evmrpc-testnet.0g.ai&quot;);
-const registry = new Contract(REGISTRY_ADDRESS, REGISTRY_ABI, provider);
-
-const ab = await registry.getAntibody(&quot;0x...keccakId&quot;);
-console.log(ab);
+        <h1>Corroboration and maturation</h1>
+<p>A published antibody starts on <strong>probation</strong>, advisory-only. It becomes enforceable only by earning positive signal. Two mechanisms drive that: corroboration and maturation.</p>
+<h2 id="many-antibodies-one-target"><a href="#many-antibodies-one-target" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Many antibodies, one target</h2>
+<p>The Registry does not give the first publisher of a target an exclusive claim. A target's <code>primaryMatcherHash</code> maps to a <strong>set</strong> of antibodies (<code>matcherHash -&gt; keccakId[]</code>), with distinct-publisher tracking. When two different publishers flag the same address, they create two antibodies that share one matcher hash but have different <code>keccakId</code>s (the <code>keccakId</code> includes the publisher).</p>
+<p>This multi-antibody model does two things at once:</p>
+<ul>
+<li>it enables <strong>corroboration</strong>, the count of distinct reputable publishers behind a matcher, and</li>
+<li>it removes the front-running rent-extraction problem, where a first claimant could squat a matcher and collect everyone else's fees.</li>
+</ul>
+<p><code>check()</code> aggregates across all live antibodies for a target and derives the enforcement tier from the distinct-reputable-publisher count.</p>
+<h2 id="corroboration-gated-hard-block"><a href="#corroboration-gated-hard-block" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Corroboration-gated hard-block</h2>
+<p>Hard-block requires <code>corroboration &gt;= K</code>, where <code>K</code> is the corroboration threshold read from the Registry. Until then the antibody is advisory: it propagates and warns, but it does not block honest activity. This is what makes a single compromised or rogue key unable to censor anything. See <strong><a href="/concepts/sybil-resistance/">Sybil resistance</a></strong>.</p>
+<p>A genesis-seeded corpus entry (<code>isSeeded</code>) is the one exception: it hard-blocks without waiting for corroboration, because the genesis set is disclosed and audited.</p>
+<h2 id="maturation"><a href="#maturation" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Maturation</h2>
+<p>Maturation is the transition <code>PROBATION -&gt; ACTIVE</code>. It happens on positive signal, never on mere survival:</p>
+<ul>
+<li><strong>corroboration reaches <code>K</code></strong>, or</li>
+<li><strong>undisputed matched volume accrues over time</strong>, real checks matched the antibody and nobody successfully challenged it.</li>
+</ul>
+<p>On maturation the antibody's escrowed publisher fees release. Before maturation those fees are held in escrow and clawed back if the antibody is slashed, so a false antibody that matured incorrectly cannot have already been paid.</p>
+<p>Maturation is realized either by a permissionless <code>mature(antibodyId)</code> poke once the rule is satisfied, or lazily the next time the antibody is read on a <code>check()</code>.</p>
+<h2 id="corroborating-from-the-sdk"><a href="#corroborating-from-the-sdk" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Corroborating from the SDK</h2>
+<p>Any registered publisher can strengthen a true threat with <code>corroborate()</code>:</p>
+<pre><code class="language-ts">await immunity.corroborate({
+  seed: { abType: &quot;ADDRESS&quot;, chainId: BASE_SEPOLIA.chainId, target: badAddress },
+  verdict: &quot;MALICIOUS&quot;,
+  confidence: 90,
+  severity: 90,
+  reasonSummary: &quot;Independent confirmation of the drainer pattern&quot;,
+});
 </code></pre>
-<h3 id="getantibodybyimmseqimmseq---antibody"><a href="#getantibodybyimmseqimmseq---antibody" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>getAntibodyByImmSeq(immSeq) -&gt; Antibody</code></h3>
-<p>Same struct, indexed by sequential id (<code>uint64</code>).</p>
-<pre><code class="language-ts">const ab = await registry.getAntibodyByImmSeq(42);
-</code></pre>
-<h3 id="getantibodybymatcherhashprimarymatcherhash---antibody"><a href="#getantibodybymatcherhashprimarymatcherhash---antibody" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>getAntibodyByMatcherHash(primaryMatcherHash) -&gt; Antibody</code></h3>
-<p>The fast path the SDK uses for Tier 2 lookups. Pass the type-specific matcher hash; returns the antibody if present, reverts on miss.</p>
-<pre><code class="language-ts">const matcherHash = hashAddressMatcher(16602, &quot;0xCAFE...&quot;);
-const ab = await registry.getAntibodyByMatcherHash(matcherHash);
-</code></pre>
-<h3 id="firstmatchmatcherhashes---antibody-uint256"><a href="#firstmatchmatcherhashes---antibody-uint256" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>firstMatch(matcherHashes[]) -&gt; (Antibody, uint256)</code></h3>
-<p>Batched candidate lookup. Pass an array of candidate hashes; the contract returns the first match found and its index in your array. Returns <code>(default, 0)</code> if no match.</p>
-<p>The SDK uses this internally for Tier 2 to reduce round-trips when probing multiple candidate matchers (e.g., <code>tx.to</code> AND <code>context.counterparty.id</code>).</p>
-<h3 id="treasurybalance---uint256"><a href="#treasurybalance---uint256" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>treasuryBalance() -&gt; uint256</code></h3>
-<p>Current treasury balance in 6-decimal USDC base units.</p>
-<pre><code class="language-ts">const balance = await registry.treasuryBalance();
-console.log(`treasury: ${formatUsdc(balance)} USDC`);
-</code></pre>
-<h3 id="prepaidbalanceaddress---uint256"><a href="#prepaidbalanceaddress---uint256" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>prepaidBalance(address) -&gt; uint256</code></h3>
-<p>The prepaid USDC balance for a specific agent address.</p>
-<pre><code class="language-ts">const myBalance = await registry.prepaidBalance(agentAddress);
-</code></pre>
-<h2 id="write-methods-require-gas--usdc"><a href="#write-methods-require-gas--usdc" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Write methods (require gas + USDC)</h2>
-<h3 id="checkantibodyid-tokenaddress-tokenamount-originchainid---receipt"><a href="#checkantibodyid-tokenaddress-tokenamount-originchainid---receipt" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>check(antibodyId, tokenAddress, tokenAmount, originChainId) -&gt; Receipt</code></h3>
-<p>Settles a check. Debits 0.002 USDC from the caller's prepaid balance. The SDK calls this for every Tier 1 / Tier 2 / Tier 3 hit.</p>
-<p><code>antibodyId == 0</code> signals &quot;no match found&quot;; the protocol fee still applies and goes 100% to the treasury.</p>
-<h3 id="publishseed-verdict-confidence-severity-evidencecid-contexthash-embeddinghash-attestation---antibody"><a href="#publishseed-verdict-confidence-severity-evidencecid-contexthash-embeddinghash-attestation---antibody" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>publish(seed, verdict, confidence, severity, evidenceCid, contextHash, embeddingHash, attestation) -&gt; Antibody</code></h3>
-<p>Mints a new antibody. Locks 1 USDC of stake for 72 hours. The SDK wraps this into the high-level <code>publish()</code> method.</p>
-<h3 id="depositamount--withdrawamount"><a href="#depositamount--withdrawamount" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>deposit(amount)</code> / <code>withdraw(amount)</code></h3>
-<p>Top up / pull out the prepaid USDC balance. The SDK exposes both as facade methods.</p>
-<h3 id="challengekeccakid-evidencecid"><a href="#challengekeccakid-evidencecid" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>challenge(keccakId, evidenceCid)</code></h3>
-<p>File a challenge against an antibody. Requires a stake from the challenger (currently 1 USDC). Adjudication is governance-driven in v1; on-chain optimistic disputes are roadmapped for v2.</p>
-<h2 id="verifying-any-claim-against-the-registry"><a href="#verifying-any-claim-against-the-registry" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Verifying any claim against the Registry</h2>
-<p>Every claim made anywhere in the Immunity stack should reduce to a Registry view call. Examples:</p>
-<h3 id="this-antibody-is-real"><a href="#this-antibody-is-real" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>&quot;This antibody is real&quot;</h3>
-<pre><code class="language-ts">const ab = await registry.getAntibody(claimedKeccakId);
-// throws AntibodyNotFoundError if forged
-</code></pre>
-<h3 id="this-is-the-first-publisher-for-this-matcher"><a href="#this-is-the-first-publisher-for-this-matcher" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>&quot;This is the first publisher for this matcher&quot;</h3>
-<pre><code class="language-ts">const ab = await registry.getAntibodyByMatcherHash(matcherHash);
-console.log(`first publisher: ${ab.publisher}`);
-</code></pre>
-<h3 id="this-sdk-provider-is-who-they-say-they-are"><a href="#this-sdk-provider-is-who-they-say-they-are" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>&quot;This SDK provider is who they say they are&quot;</h3>
-<p>The Registry exposes the inference services list (used by 0G Compute). Read it with:</p>
-<pre><code class="language-ts">const inferenceServingContract = new Contract(
-  &quot;0xa79F4c8311FF93C06b8CfB403690cc987c93F91E&quot;,  // testnet Inference contract
-  INFERENCE_ABI,
-  provider,
-);
-const [services] = await inferenceServingContract.getAllServices(0, 50);
-for (const s of services) {
-  console.log({
-    provider: s.provider,
-    model: s.model,
-    verifiability: s.verifiability,
-    additionalInfo: JSON.parse(s.additionalInfo),
-  });
-}
-</code></pre>
-<p>A provider claiming <code>verifiability: &quot;TeeML&quot;</code> should have <code>additionalInfo.ImageDigest</code> set if their TEE truly attests the model image. Anyone can verify the consistency.</p>
-<h2 id="why-this-matters"><a href="#why-this-matters" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Why this matters</h2>
-<p>A network that you have to trust is a network that can quietly redefine itself. The Registry exposes every claim as a public view. Run your own RPC, run your own cross-references, run your own dashboards. You do not need permission, you do not need an SDK, you do not need an account.</p>
+<p>This publishes a second antibody under your identity against the same matcher, incrementing the distinct-publisher count toward <code>K</code>. It is the opposite end of the immune response from the hunter: <strong>hunters challenge and kill false advisories; corroborators verify and promote true ones</strong>, both driven by independent evaluation.</p>
+<p>The <code>corroborate</code> value of <code>unverifiedAntibodyPolicy</code> automates this: when your agent hits an advisory match, it re-runs the CRE jury and, if the threat is confirmed, publishes a corroborating antibody. False advisories never accrue corroboration, because an honest re-evaluation will not confirm them.</p>
 <h2 id="see-also"><a href="#see-also" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>See also</h2>
 <ul>
-<li><strong><a href="/network/economics/">Network: economics</a></strong>, real measured numbers from live demo.</li>
-<li><strong><a href="/network/the-public-feed/">Network: the public feed</a></strong>, the registry's derivative views.</li>
-<li><strong><a href="/reference/antibody/">Reference: Antibody</a></strong>, the struct shape returned by these views.</li>
+<li><strong><a href="/concepts/two-speed-enforcement/">Two-speed enforcement</a></strong>, advisory vs hard-block.</li>
+<li><strong><a href="/concepts/challenge-game-and-jury/">The challenge game and jury</a></strong>, the other direction of the immune response.</li>
+<li><strong><a href="/guides/corroborate-and-challenge/">Corroborate and challenge</a></strong>, the SDK calls in practice.</li>
 </ul>
 
     </div>
 
     <nav class="docs-pagination">
-        <a href="/reference/helpers" class="pagination-link pagination-prev">
+        <a href="/concepts/three-tier-lookup" class="pagination-link pagination-prev">
             <span class="pagination-label">&larr; Previous</span>
-            <span class="pagination-title">Helpers</span>
+            <span class="pagination-title">Three-tier lookup</span>
         </a>
 
-        <a href="/network/the-public-feed" class="pagination-link pagination-next">
+        <a href="/concepts/reputation-and-identity" class="pagination-link pagination-next">
             <span class="pagination-label">Next &rarr;</span>
-            <span class="pagination-title">The public feed</span>
+            <span class="pagination-title">Reputation and identity</span>
         </a>
     </nav>
 </article>
@@ -425,58 +407,16 @@ for (const s of services) {
         <h4 class="toc-title">On this page</h4>
         <ul class="toc-links">
             <li class="toc-item">
-                <a href="#live-deployment" class="toc-link">Live deployment</a>
+                <a href="#many-antibodies-one-target" class="toc-link">Many antibodies, one target</a>
             </li>
             <li class="toc-item">
-                <a href="#read-only-methods-anyone-can-call" class="toc-link">Read-only methods anyone can call</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#getantibodykeccakid---antibody" class="toc-link">getAntibody(keccakId) -&gt; Antibody</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#getantibodybyimmseqimmseq---antibody" class="toc-link">getAntibodyByImmSeq(immSeq) -&gt; Antibody</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#getantibodybymatcherhashprimarymatcherhash---antibody" class="toc-link">getAntibodyByMatcherHash(primaryMatcherHash) -&gt; Antibody</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#firstmatchmatcherhashes---antibody-uint256" class="toc-link">firstMatch(matcherHashes[]) -&gt; (Antibody, uint256)</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#treasurybalance---uint256" class="toc-link">treasuryBalance() -&gt; uint256</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#prepaidbalanceaddress---uint256" class="toc-link">prepaidBalance(address) -&gt; uint256</a>
+                <a href="#corroboration-gated-hard-block" class="toc-link">Corroboration-gated hard-block</a>
             </li>
             <li class="toc-item">
-                <a href="#write-methods-require-gas--usdc" class="toc-link">Write methods (require gas + USDC)</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#checkantibodyid-tokenaddress-tokenamount-originchainid---receipt" class="toc-link">check(antibodyId, tokenAddress, tokenAmount, originChainId) -&gt; Receipt</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#publishseed-verdict-confidence-severity-evidencecid-contexthash-embeddinghash-attestation---antibody" class="toc-link">publish(seed, verdict, confidence, severity, evidenceCid, contextHash, embeddingHash, attestation) -&gt; Antibody</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#depositamount--withdrawamount" class="toc-link">deposit(amount) / withdraw(amount)</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#challengekeccakid-evidencecid" class="toc-link">challenge(keccakId, evidenceCid)</a>
+                <a href="#maturation" class="toc-link">Maturation</a>
             </li>
             <li class="toc-item">
-                <a href="#verifying-any-claim-against-the-registry" class="toc-link">Verifying any claim against the Registry</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#this-antibody-is-real" class="toc-link">"This antibody is real"</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#this-is-the-first-publisher-for-this-matcher" class="toc-link">"This is the first publisher for this matcher"</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#this-sdk-provider-is-who-they-say-they-are" class="toc-link">"This SDK provider is who they say they are"</a>
-            </li>
-            <li class="toc-item">
-                <a href="#why-this-matters" class="toc-link">Why this matters</a>
+                <a href="#corroborating-from-the-sdk" class="toc-link">Corroborating from the SDK</a>
             </li>
             <li class="toc-item">
                 <a href="#see-also" class="toc-link">See also</a>

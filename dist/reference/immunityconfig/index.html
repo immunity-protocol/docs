@@ -141,27 +141,57 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/concepts/two-speed-enforcement"
+                       class="sidebar-link">
+                        Two-speed enforcement
+                    </a>
+                </li>
+                <li>
                     <a href="/concepts/three-tier-lookup"
                        class="sidebar-link">
                         Three-tier lookup
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/tee-verification"
+                    <a href="/concepts/corroboration-and-maturation"
                        class="sidebar-link">
-                        TEE verification
+                        Corroboration and maturation
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/settlement-and-tokenomics"
+                    <a href="/concepts/reputation-and-identity"
                        class="sidebar-link">
-                        Settlement and tokenomics
+                        Reputation and identity
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/cross-chain-mirror"
+                    <a href="/concepts/sybil-resistance"
                        class="sidebar-link">
-                        Cross-chain mirror
+                        Sybil resistance
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/challenge-game-and-jury"
+                       class="sidebar-link">
+                        The challenge game and jury
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/novel-threat-verification"
+                       class="sidebar-link">
+                        Novel-threat verification
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/settlement-and-fees"
+                       class="sidebar-link">
+                        Settlement and fees
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/the-mirror-and-consumers"
+                       class="sidebar-link">
+                        The mirror and on-chain consumers
                     </a>
                 </li>
             </ul>
@@ -182,9 +212,21 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/guides/corroborate-and-challenge"
+                       class="sidebar-link">
+                        Corroborate and challenge
+                    </a>
+                </li>
+                <li>
                     <a href="/guides/operator-in-the-loop"
                        class="sidebar-link">
                         Operator in the loop
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/run-a-reference-agent"
+                       class="sidebar-link">
+                        Run a reference agent
                     </a>
                 </li>
                 <li>
@@ -252,15 +294,21 @@ tailwind.config = {
                         Helpers
                     </a>
                 </li>
+                <li>
+                    <a href="/reference/matchers"
+                       class="sidebar-link">
+                        Matchers and seeds
+                    </a>
+                </li>
             </ul>
         </div>
         <div class="sidebar-group">
             <h3 class="sidebar-group-title">Network</h3>
             <ul class="sidebar-links">
                 <li>
-                    <a href="/network/registry-on-0g"
+                    <a href="/network/registry-on-base"
                        class="sidebar-link">
-                        Registry on 0G
+                        Registry on Base
                     </a>
                 </li>
                 <li>
@@ -300,50 +348,20 @@ tailwind.config = {
 <article class="docs-content">
     <div class="prose">
         <h1><code>ImmunityConfig</code></h1>
-<p>The argument to <code>new Immunity(config)</code>. All fields except <code>wallet</code> and <code>axlUrl</code> are optional with sensible defaults.</p>
+<p>The argument to <code>new Immunity(config)</code>. Only <code>wallet</code> is required; everything else has a sensible default.</p>
 <h2 id="required"><a href="#required" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Required</h2>
 <h3 id="wallet"><a href="#wallet" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>wallet</code></h3>
-<p>Type: <code>Signer | string</code></p>
-<p>ethers v6 <code>Signer</code> instance, or a 0x-prefixed private-key string. The SDK normalizes both. Used to sign every on-chain settlement and publish.</p>
+<p>Type: <code>Signer | string</code>.</p>
+<p>An ethers v6 <code>Signer</code>, or a 0x-prefixed 64-hex-char private-key string. A private key (or an unconnected signer) is connected to the network's RPC at <code>start()</code>. Used to sign every on-chain call.</p>
 <pre><code class="language-ts">import { Wallet } from &quot;ethers&quot;;
 const wallet = new Wallet(process.env.PRIVATE_KEY!);
 </code></pre>
-<p>If you pass a private-key string, the SDK constructs a wallet against the configured network's RPC. If you pass a <code>Signer</code>, the SDK uses it as-is (the signer must already be connected to a provider).</p>
-<p>Throws <code>MissingConfigError</code> on construction if absent.</p>
-<h3 id="axlurl"><a href="#axlurl" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>axlUrl</code></h3>
-<p>Type: <code>string</code></p>
-<p>External Gensyn AXL daemon HTTP endpoint. The SDK does not embed AXL.</p>
-<pre><code class="language-ts">axlUrl: &quot;http://localhost:9002&quot;
-</code></pre>
-<p>For Docker-Compose contexts, the daemon must bind to <code>0.0.0.0</code> (not the default <code>127.0.0.1</code>) or it is unreachable from the host. See <code>infra/axl-mesh/</code> in the SDK repo for a 2-node mesh template.</p>
-<p>Throws <code>MissingConfigError</code> on construction if absent.</p>
+<p>Throws <code>MissingConfigError</code> if absent or malformed.</p>
 <h2 id="network"><a href="#network" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Network</h2>
 <h3 id="network-1"><a href="#network-1" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>network</code></h3>
-<p>Type: <code>&quot;testnet&quot; | NetworkConfig</code>. Default: <code>&quot;testnet&quot;</code>.</p>
-<p>Pick the on-chain Registry to target.</p>
-<pre><code class="language-ts">network: &quot;testnet&quot;
-</code></pre>
-<p>For mainnet (when published), pass a custom <code>NetworkConfig</code>:</p>
-<pre><code class="language-ts">network: {
-  name: &quot;mainnet&quot;,
-  chainId: 16600,
-  rpcUrl: &quot;https://evmrpc.0g.ai&quot;,
-  registryAddress: &quot;0x...&quot;,
-  usdcAddress: &quot;0x...&quot;,
-  blockExplorerUrl: &quot;https://chainscan.0g.ai&quot;,
-  computeProvider: &quot;0x...&quot;,
-  storageIndexerUrl: &quot;https://indexer-storage.0g.ai&quot;,
-}
-</code></pre>
-<h3 id="axlidentitypath"><a href="#axlidentitypath" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>axlIdentityPath</code></h3>
-<p>Type: <code>string</code>. Default: ephemeral.</p>
-<p>Path to an ed25519 PEM file used as the agent's persistent peer identity in the AXL mesh. Without it, the SDK generates a fresh identity at every start and your AXL pubkey rotates, which means subscribers lose you.</p>
-<p>Generate one with:</p>
-<pre><code class="language-bash">openssl genpkey -algorithm ed25519 -out agent.pem
-chmod 600 agent.pem
-</code></pre>
-<p>Pass the path:</p>
-<pre><code class="language-ts">axlIdentityPath: &quot;/var/lib/myagent/agent.pem&quot;
+<p>Type: <code>&quot;base-sepolia&quot; | &quot;base-mainnet&quot; | NetworkConfig</code>. Default: <code>&quot;base-sepolia&quot;</code>.</p>
+<p>Pick the on-chain network. <code>&quot;base-sepolia&quot;</code> is the live network; <code>&quot;base-mainnet&quot;</code> is a placeholder until the audited mainnet deploy. Pass a <a href="/reference/network-presets/"><code>NetworkConfig</code></a> object for a self-hosted deployment.</p>
+<pre><code class="language-ts">network: &quot;base-sepolia&quot;
 </code></pre>
 <h2 id="decision-policy"><a href="#decision-policy" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Decision policy</h2>
 <h3 id="novelthreatpolicy"><a href="#novelthreatpolicy" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>novelThreatPolicy</code></h3>
@@ -360,103 +378,99 @@ chmod 600 agent.pem
 <tbody>
 <tr>
 <td><code>&quot;verify&quot;</code></td>
-<td>Fires TEE inference, auto-publishes if block</td>
-<td>~3 s, ~$0.0001 0G Compute</td>
+<td>requests a CRE jury verdict; can auto-publish if you opt in</td>
+<td>a check fee + CRE compute</td>
 </tr>
 <tr>
 <td><code>&quot;trust-cache&quot;</code></td>
-<td>Allows, returns <code>novel: true</code></td>
-<td>$0</td>
+<td>allows, returns <code>novel: true</code></td>
+<td>no on-chain call</td>
 </tr>
 <tr>
 <td><code>&quot;deny-novel&quot;</code></td>
-<td>Blocks unconditionally</td>
-<td>$0</td>
+<td>blocks unconditionally</td>
+<td>no on-chain call</td>
 </tr>
 </tbody>
 </table>
-<p>Override per-call via <code>check(tx, ctx, { policy: &quot;deny-novel&quot; })</code>.</p>
+<p>Override per call via <code>check(tx, ctx, { policy: &quot;deny-novel&quot; })</code>.</p>
+<h3 id="unverifiedantibodypolicy"><a href="#unverifiedantibodypolicy" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>unverifiedAntibodyPolicy</code></h3>
+<p>Type: <code>&quot;ignore&quot; | &quot;escalate&quot; | &quot;block&quot; | &quot;corroborate&quot;</code>.</p>
+<p>How the agent treats an <strong>advisory</strong> match (an antibody that is not yet hard-block-eligible). This governs the protective action, not whether a fee is charged.</p>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Behavior on an advisory match</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ignore</code></td>
+<td>take no protective action (allow), still settle any fee</td>
+</tr>
+<tr>
+<td><code>escalate</code></td>
+<td>surface to <code>onEscalate</code> for an operator decision</td>
+</tr>
+<tr>
+<td><code>block</code></td>
+<td>act on advisories as if hard-block</td>
+</tr>
+<tr>
+<td><code>corroborate</code></td>
+<td>re-verify through CRE and, if confirmed, publish a corroborating antibody</td>
+</tr>
+</tbody>
+</table>
+<p>See <a href="/concepts/two-speed-enforcement/">Two-speed enforcement</a>.</p>
 <h3 id="confidencethresholds"><a href="#confidencethresholds" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>confidenceThresholds</code></h3>
 <p>Type: <code>{ block?: number; escalate?: number }</code>. Default: <code>{ block: 85, escalate: 60 }</code>.</p>
-<p>TEE verdict thresholds (0..100). Behavior at each threshold:</p>
-<ul>
-<li><code>confidence &gt;= block</code>, automatic block.</li>
-<li><code>escalate &lt;= confidence &lt; block</code>, invokes <code>onEscalate</code> handler. If no handler is configured, throws <code>EscalationError</code>.</li>
-<li><code>confidence &lt; escalate</code>, automatic allow.</li>
-</ul>
-<pre><code class="language-ts">confidenceThresholds: { block: 90, escalate: 70 }
-</code></pre>
-<p>Tighter thresholds (higher block, higher escalate) = fewer false positives, more pass-throughs. Looser = the opposite.</p>
+<p>Verdict thresholds (0..100). <code>confidence &gt;= block</code> auto-blocks a MALICIOUS verdict; <code>confidence &gt;= escalate</code> triggers <code>onEscalate</code>; below that, allow.</p>
 <h3 id="onescalate"><a href="#onescalate" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>onEscalate</code></h3>
 <p>Type: <code>(ctx: EscalationContext) =&gt; Promise&lt;boolean&gt;</code>. Default: undefined.</p>
-<p>Async handler invoked when a SUSPICIOUS verdict falls in the escalate band. Return <code>true</code> to allow, <code>false</code> to block.</p>
-<pre><code class="language-ts">onEscalate: async ({ reason, confidence, matched }) =&gt; {
-  return await promptOperator(reason, matched);
-}
-</code></pre>
-<p>See <a href="/guides/operator-in-the-loop/">Operator in the loop</a> for patterns.</p>
+<p>Async handler invoked when a SUSPICIOUS verdict lands in the escalate band. Return <code>true</code> to allow, <code>false</code> to block. <code>EscalationContext</code> is <code>{ reason, confidence, matched: { keccakId, immId }[] }</code>. See <a href="/guides/operator-in-the-loop/">Operator in the loop</a>.</p>
 <h3 id="escalationtimeout"><a href="#escalationtimeout" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>escalationTimeout</code></h3>
-<p>Type: <code>number</code> (seconds). Default: <code>300</code>.</p>
-<p>How long the SDK waits for <code>onEscalate</code> to resolve. After the timeout, <code>onTimeout</code> decides.</p>
+<p>Type: <code>number</code> (seconds). How long to wait for <code>onEscalate</code> before <code>onTimeout</code> decides.</p>
 <h3 id="ontimeout"><a href="#ontimeout" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>onTimeout</code></h3>
-<p>Type: <code>&quot;deny&quot; | &quot;allow&quot;</code>. Default: <code>&quot;deny&quot;</code>.</p>
-<p>Decision when the escalate handler times out. <code>&quot;deny&quot;</code> is the safe default.</p>
-<h2 id="custom-verifier"><a href="#custom-verifier" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Custom verifier</h2>
-<h3 id="teeverifier"><a href="#teeverifier" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>teeVerifier</code></h3>
-<p>Type: <code>TeeVerifyFn</code>. Default: built from 0G Compute broker.</p>
-<p>Pluggable backend for TEE verification. The default uses 0G Compute's qwen-2.5-7b-instruct provider. Override to inject:</p>
-<ul>
-<li>An Anthropic-backed shim during testnet flakes.</li>
-<li>A local model gateway for offline development.</li>
-<li>A deterministic stub for tests.</li>
-</ul>
-<p>The function signature:</p>
-<pre><code class="language-ts">type TeeVerifyFn = (
-  tx: ProposedTx | null,
-  ctx: CheckContext
-) =&gt; Promise&lt;TeeVerifyOutcome | null&gt;;
-</code></pre>
-<p>Returning <code>null</code> means &quot;TEE not available, fall through to policy&quot;.</p>
-<h2 id="cache-and-gossip"><a href="#cache-and-gossip" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Cache and gossip</h2>
-<h3 id="denykeccakids"><a href="#denykeccakids" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>denyKeccakIds</code></h3>
-<p>Type: <code>readonly string[]</code>. Default: <code>[]</code>.</p>
-<p>Local-only mute list. When a Tier 1 cache hit or Tier 2 lookup hit comes back with a keccak in this set, check-flow treats it as a miss and continues. Used to mute a known-bad auto-mint locally when the on-chain <code>slash()</code> is not reachable.</p>
-<pre><code class="language-ts">denyKeccakIds: [&quot;0xBADANTIBODYIDIPUBLISHEDBYACCIDENT...&quot;]
-</code></pre>
-<h3 id="semanticautomint"><a href="#semanticautomint" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>semanticAutoMint</code></h3>
+<p>Type: <code>&quot;deny&quot; | &quot;allow&quot;</code>. Decision when the escalate handler times out. <code>&quot;deny&quot;</code> is the safe default.</p>
+<h2 id="tier-3-verification"><a href="#tier-3-verification" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Tier-3 verification</h2>
+<h3 id="verifier"><a href="#verifier" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>verifier</code></h3>
+<p>Type: <code>NovelVerifier</code>. Default: built-in CRE verifier.</p>
+<p>The Tier-3 novel-input verifier. On Base Sepolia the SDK builds the CRE-backed verifier from the network config automatically. Inject your own for tests, a custom backend, or offline development. When no verifier is available, the <code>verify</code> path fails <strong>closed</strong>.</p>
+<h3 id="autopublishconfirmedthreats"><a href="#autopublishconfirmedthreats" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>autoPublishConfirmedThreats</code></h3>
 <p>Type: <code>boolean</code>. Default: <code>false</code>.</p>
-<p>Opt in to TEE-driven SEMANTIC auto-publishes. When <code>false</code>, the SDK still detects SEMANTIC threats but does not auto-mint a new antibody from a TEE-supplied marker substring. Set to <code>true</code> if you have validated your TEE provider's marker quality.</p>
+<p>When a Tier-3 verify or corroborate confirms a threat during <code>check()</code>, automatically publish or corroborate an antibody on chain. The protective decision and re-verification always happen regardless; this gates only the bond-spending write, and only when the wallet is registered and funded. The detached write is surfaced as <code>CheckResult.pendingWrite</code>.</p>
+<h2 id="cache"><a href="#cache" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Cache</h2>
+<h3 id="denykeccakids"><a href="#denykeccakids" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>denyKeccakIds</code></h3>
+<p>Type: <code>ReadonlyArray&lt;0x string&gt;</code>. Default: <code>[]</code>.</p>
+<p>Local-only mute list. A Tier-1 or Tier-2 hit whose <code>keccakId</code> is in this set is treated as a miss. Use it to mute an antibody locally while you address it on chain.</p>
 <h3 id="bootstrapcacheonstart"><a href="#bootstrapcacheonstart" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>bootstrapCacheOnStart</code></h3>
 <p>Type: <code>boolean</code>. Default: <code>true</code>.</p>
-<p>Whether to hydrate the cache from the chain at <code>start()</code>. Useful to disable in tests or in agents that genuinely want a cold cache for first-block timing measurements.</p>
-<h2 id="funding-thresholds"><a href="#funding-thresholds" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Funding thresholds</h2>
-<h3 id="minledgerog"><a href="#minledgerog" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>minLedgerOg</code></h3>
-<p>Type: <code>number</code>. Default: <code>0.1</code>.</p>
-<p>Minimum 0G Compute ledger balance (in OG) before <code>start()</code> warns. Set to 0 to skip the check (e.g., when using a <code>teeVerifier</code> shim that does not need 0G Compute).</p>
-<h3 id="minproviderog"><a href="#minproviderog" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>minProviderOg</code></h3>
-<p>Type: <code>number</code>. Default: <code>0.05</code>.</p>
-<p>Minimum 0G Compute provider sub-account balance (in OG) before <code>start()</code> warns.</p>
+<p>Hydrate the local cache from the Registry at <code>start()</code>. Set <code>false</code> for one-shot scripts.</p>
+<h3 id="bootstrap"><a href="#bootstrap" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>bootstrap</code></h3>
+<p>Type: <code>{ concurrency?: number; limit?: number; fetchRetries?: number }</code>.</p>
+<p>Tuning for the bootstrap step: <code>concurrency</code> (default 4), <code>limit</code> (default none), <code>fetchRetries</code> (default 3).</p>
 <h2 id="full-example"><a href="#full-example" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Full example</h2>
 <pre><code class="language-ts">import { Immunity } from &quot;@immunity-protocol/sdk&quot;;
 import { Wallet } from &quot;ethers&quot;;
 
 const immunity = new Immunity({
   wallet: new Wallet(process.env.WALLET_PRIVATE_KEY!),
-  network: &quot;testnet&quot;,
-  axlUrl: &quot;http://localhost:9002&quot;,
-  axlIdentityPath: &quot;/var/lib/agent/axl.pem&quot;,
+  network: &quot;base-sepolia&quot;,
   novelThreatPolicy: &quot;verify&quot;,
+  unverifiedAntibodyPolicy: &quot;escalate&quot;,
   confidenceThresholds: { block: 85, escalate: 60 },
   onEscalate: async ({ reason }) =&gt; promptOperator(reason),
   escalationTimeout: 120,
   onTimeout: &quot;deny&quot;,
-  semanticAutoMint: false,
+  autoPublishConfirmedThreats: false,
 });
 </code></pre>
 <h2 id="see-also"><a href="#see-also" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>See also</h2>
 <ul>
 <li><strong><a href="/reference/immunity-class/">Immunity class</a></strong>, the methods you call after construction.</li>
-<li><strong><a href="/reference/checkresult/">CheckResult</a></strong>, the shape of <code>check()</code>'s return.</li>
+<li><strong><a href="/reference/network-presets/">Network presets</a></strong>, the <code>NetworkConfig</code> shape.</li>
 <li><strong><a href="/reference/errors/">Errors</a></strong>, full taxonomy.</li>
 </ul>
 
@@ -485,23 +499,20 @@ const immunity = new Immunity({
             <li class="toc-item toc-item-sub">
                 <a href="#wallet" class="toc-link">wallet</a>
             </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#axlurl" class="toc-link">axlUrl</a>
-            </li>
             <li class="toc-item">
                 <a href="#network" class="toc-link">Network</a>
             </li>
             <li class="toc-item toc-item-sub">
                 <a href="#network-1" class="toc-link">network</a>
             </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#axlidentitypath" class="toc-link">axlIdentityPath</a>
-            </li>
             <li class="toc-item">
                 <a href="#decision-policy" class="toc-link">Decision policy</a>
             </li>
             <li class="toc-item toc-item-sub">
                 <a href="#novelthreatpolicy" class="toc-link">novelThreatPolicy</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#unverifiedantibodypolicy" class="toc-link">unverifiedAntibodyPolicy</a>
             </li>
             <li class="toc-item toc-item-sub">
                 <a href="#confidencethresholds" class="toc-link">confidenceThresholds</a>
@@ -516,31 +527,25 @@ const immunity = new Immunity({
                 <a href="#ontimeout" class="toc-link">onTimeout</a>
             </li>
             <li class="toc-item">
-                <a href="#custom-verifier" class="toc-link">Custom verifier</a>
+                <a href="#tier-3-verification" class="toc-link">Tier-3 verification</a>
             </li>
             <li class="toc-item toc-item-sub">
-                <a href="#teeverifier" class="toc-link">teeVerifier</a>
+                <a href="#verifier" class="toc-link">verifier</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#autopublishconfirmedthreats" class="toc-link">autoPublishConfirmedThreats</a>
             </li>
             <li class="toc-item">
-                <a href="#cache-and-gossip" class="toc-link">Cache and gossip</a>
+                <a href="#cache" class="toc-link">Cache</a>
             </li>
             <li class="toc-item toc-item-sub">
                 <a href="#denykeccakids" class="toc-link">denyKeccakIds</a>
             </li>
             <li class="toc-item toc-item-sub">
-                <a href="#semanticautomint" class="toc-link">semanticAutoMint</a>
-            </li>
-            <li class="toc-item toc-item-sub">
                 <a href="#bootstrapcacheonstart" class="toc-link">bootstrapCacheOnStart</a>
             </li>
-            <li class="toc-item">
-                <a href="#funding-thresholds" class="toc-link">Funding thresholds</a>
-            </li>
             <li class="toc-item toc-item-sub">
-                <a href="#minledgerog" class="toc-link">minLedgerOg</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#minproviderog" class="toc-link">minProviderOg</a>
+                <a href="#bootstrap" class="toc-link">bootstrap</a>
             </li>
             <li class="toc-item">
                 <a href="#full-example" class="toc-link">Full example</a>

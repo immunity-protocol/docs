@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="leaf-base-url" content="">
-<meta name="description" content="Real measured numbers from the live demo. Gas, protocol fee, treasury split, publisher rewards. What it actually costs.">
+<meta name="description" content="What it costs and what you earn on Base: the per-check fee, the fee split, the non-refundable bond, the treasury, and the break-even math.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://docs.immunity-protocol.com/">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Economics · Immunity Docs">
-<meta property="og:description" content="Real measured numbers from the live demo. Gas, protocol fee, treasury split, publisher rewards. What it actually costs.">
+<meta property="og:description" content="What it costs and what you earn on Base: the per-check fee, the fee split, the non-refundable bond, the treasury, and the break-even math.">
 <meta property="og:site_name" content="Immunity Docs">
 <meta property="og:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <meta property="og:image:width" content="1200">
@@ -17,7 +17,7 @@
 <meta property="og:image:alt" content="Immunity Docs">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Economics · Immunity Docs">
-<meta name="twitter:description" content="Real measured numbers from the live demo. Gas, protocol fee, treasury split, publisher rewards. What it actually costs.">
+<meta name="twitter:description" content="What it costs and what you earn on Base: the per-check fee, the fee split, the non-refundable bond, the treasury, and the break-even math.">
 <meta name="twitter:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -141,27 +141,57 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/concepts/two-speed-enforcement"
+                       class="sidebar-link">
+                        Two-speed enforcement
+                    </a>
+                </li>
+                <li>
                     <a href="/concepts/three-tier-lookup"
                        class="sidebar-link">
                         Three-tier lookup
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/tee-verification"
+                    <a href="/concepts/corroboration-and-maturation"
                        class="sidebar-link">
-                        TEE verification
+                        Corroboration and maturation
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/settlement-and-tokenomics"
+                    <a href="/concepts/reputation-and-identity"
                        class="sidebar-link">
-                        Settlement and tokenomics
+                        Reputation and identity
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/cross-chain-mirror"
+                    <a href="/concepts/sybil-resistance"
                        class="sidebar-link">
-                        Cross-chain mirror
+                        Sybil resistance
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/challenge-game-and-jury"
+                       class="sidebar-link">
+                        The challenge game and jury
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/novel-threat-verification"
+                       class="sidebar-link">
+                        Novel-threat verification
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/settlement-and-fees"
+                       class="sidebar-link">
+                        Settlement and fees
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/the-mirror-and-consumers"
+                       class="sidebar-link">
+                        The mirror and on-chain consumers
                     </a>
                 </li>
             </ul>
@@ -182,9 +212,21 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/guides/corroborate-and-challenge"
+                       class="sidebar-link">
+                        Corroborate and challenge
+                    </a>
+                </li>
+                <li>
                     <a href="/guides/operator-in-the-loop"
                        class="sidebar-link">
                         Operator in the loop
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/run-a-reference-agent"
+                       class="sidebar-link">
+                        Run a reference agent
                     </a>
                 </li>
                 <li>
@@ -252,15 +294,21 @@ tailwind.config = {
                         Helpers
                     </a>
                 </li>
+                <li>
+                    <a href="/reference/matchers"
+                       class="sidebar-link">
+                        Matchers and seeds
+                    </a>
+                </li>
             </ul>
         </div>
         <div class="sidebar-group">
             <h3 class="sidebar-group-title">Network</h3>
             <ul class="sidebar-links">
                 <li>
-                    <a href="/network/registry-on-0g"
+                    <a href="/network/registry-on-base"
                        class="sidebar-link">
-                        Registry on 0G
+                        Registry on Base
                     </a>
                 </li>
                 <li>
@@ -300,198 +348,64 @@ tailwind.config = {
 <article class="docs-content">
     <div class="prose">
         <h1>Economics</h1>
-<p>Numbers in this page are measured from the live demo against 0G Galileo testnet. Mainnet pricing follows the same gas economics; multiply by your live gas price for absolute numbers in fiat.</p>
-<h2 id="per-operation-gas-measured"><a href="#per-operation-gas-measured" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Per-operation gas (measured)</h2>
-<table>
-<thead>
-<tr>
-<th>Operation</th>
-<th>Gas used</th>
-<th>Source</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>Registry.check()</code> settlement</td>
-<td>~49,000</td>
-<td>live receipts, 4 ADDRESS check txs</td>
-</tr>
-<tr>
-<td>Publish ADDRESS antibody</td>
-<td>~248,000</td>
-<td>live receipts, 2 publisher txs</td>
-</tr>
-<tr>
-<td>Publish SEMANTIC antibody</td>
-<td>~282,000</td>
-<td>live receipts, includes seed-blob upload</td>
-</tr>
-<tr>
-<td>Withdraw stake (post-72h)</td>
-<td>~62,000</td>
-<td>live receipts</td>
-</tr>
-<tr>
-<td>Deposit USDC (with allowance)</td>
-<td>~74,000</td>
-<td>live receipts</td>
-</tr>
-<tr>
-<td>Deposit USDC (first-time approve)</td>
-<td>~120,000</td>
-<td>first deposit only</td>
-</tr>
-</tbody>
-</table>
-<p>At 4 gwei (typical Galileo testnet) and 0G ~$0.54 (current spot):</p>
-<table>
-<thead>
-<tr>
-<th>Operation</th>
-<th>Cost in USDC</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>Registry.check()</code> settlement</td>
-<td>~$0.0001</td>
-</tr>
-<tr>
-<td>Publish ADDRESS antibody</td>
-<td>~$0.0005</td>
-</tr>
-<tr>
-<td>Publish SEMANTIC antibody</td>
-<td>~$0.0006</td>
-</tr>
-<tr>
-<td>Withdraw stake</td>
-<td>~$0.00013</td>
-</tr>
-<tr>
-<td>Deposit USDC</td>
-<td>~$0.00016</td>
-</tr>
-</tbody>
-</table>
-<h2 id="protocol-fee"><a href="#protocol-fee" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Protocol fee</h2>
-<p><strong>0.002 USDC</strong> flat per settled <code>check()</code>. Goes through the Registry, not directly to the publisher.</p>
-<p>The fee economics:</p>
-<pre><code>Per check, 0.002 USDC debited from agent prepaid balance:
-  match found    -&gt; 80% to publisher (0.0016), 20% to treasury (0.0004)
-  no match found -&gt; 100% to treasury (0.002)
+<p>The protocol runs on two flows: a per-check <strong>fee</strong> and a per-publish <strong>bond</strong>. This page is the numbers view; the mechanism is in <a href="/concepts/settlement-and-fees/">Settlement and fees</a>. All parameters below are governance-tunable; the values are the current Base Sepolia settings.</p>
+<h2 id="per-check-fee"><a href="#per-check-fee" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Per-check fee</h2>
+<p>The protocol fee is <strong>0.002 USDC</strong> per settled check, debited from the caller's prepaid balance. It pays for the <em>evaluation</em>:</p>
+<pre><code>settled check, fee 0.002 USDC:
+  hit (an antibody covers it)  -&gt; 80% to the publisher, 20% to the treasury
+                                  (publisher share escrowed if the antibody is still advisory)
+  miss under verify (CRE runs) -&gt; 100% to the treasury, which funds the CRE compute
 </code></pre>
+<p>A check that makes no on-chain call (a <code>trust-cache</code>/<code>deny-novel</code> policy decision) settles nothing.</p>
+<h2 id="per-publish-bond"><a href="#per-publish-bond" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Per-publish bond</h2>
+<p>The publish bond is <strong>non-refundable while the antibody is enforced</strong> and scales with the claim:</p>
+<pre><code>bond = base x severityFactor x prominenceFactor
+</code></pre>
+<p>Higher claimed severity, a protected blue-chip target, or a young, low-volume frontier address all raise the bond. The bond releases on clean expiry or retirement and is forfeited on slash (routed to the challenger and treasury). See <a href="/concepts/sybil-resistance/">Sybil resistance</a>.</p>
+<h2 id="gas"><a href="#gas" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Gas</h2>
+<p>Gas is paid in ETH on Base. The contract-level gas per operation is roughly:</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Approx. gas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>settle a check</td>
+<td>tens of thousands</td>
+</tr>
+<tr>
+<td>publish an antibody</td>
+<td>a few hundred thousand (varies by type and evidence size)</td>
+</tr>
+<tr>
+<td>register a publisher</td>
+<td>a few hundred thousand (mints an ENS subname)</td>
+</tr>
+<tr>
+<td>deposit / withdraw</td>
+<td>tens of thousands</td>
+</tr>
+</tbody>
+</table>
+<p>Absolute cost is <code>gas x Base gas price x ETH price</code>. Base is an L2, so these are fractions of a cent at typical gas prices. Recompute against live gas when you need exact fiat figures.</p>
 <h2 id="treasury"><a href="#treasury" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Treasury</h2>
-<p>Accumulated from non-match checks (100% of the fee) and the treasury share of matched checks (20%).</p>
-<p>Treasury balance is publicly readable:</p>
-<pre><code class="language-ts">const balance = await registry.treasuryBalance();
-console.log(formatUsdc(balance));
-</code></pre>
-<p>The treasury pays for:</p>
-<ul>
-<li><strong>0G Compute charges</strong>, every TEE inference paid in OG to the inference provider.</li>
-<li><strong>Indexer hosting</strong>, Postgres + Fly machines + Moralis API key for token pricing.</li>
-<li><strong>Public feed delivery</strong>, RSS / JSON / webhook infra.</li>
-<li><strong>Audit costs</strong>, contract audits and key rotations.</li>
-<li><strong>Bounties and grants</strong> for high-value antibody publications.</li>
-</ul>
-<h2 id="publisher-rewards"><a href="#publisher-rewards" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Publisher rewards</h2>
-<p>A publisher who consistently mints accurate antibodies turns the 1 USDC stake into a perpetuity:</p>
-<ul>
-<li>1 USDC stake locked 72h.</li>
-<li>Each match earns 0.0016 USDC (80% of the 0.002 fee).</li>
-<li>Stake unlocks for withdrawal after 72h, or on first match (whichever comes later in the implementation).</li>
-</ul>
-<p>Break-even math: a publisher recovers the 1 USDC stake after <strong>625 matches</strong> (1 USDC / 0.0016 USDC per match). After that every match is pure profit.</p>
-<p>The live demo has 14 publishers as of writing. Top publisher (<code>0x4789dd...bc28</code>) has 43 published antibodies, 386 successful blocks, and earns approximately $0.62 in cumulative rewards. Modest in absolute terms; meaningful in unit economics terms (the 14 publishers' combined stake is 14 USDC; their combined return on the stake exceeds the stake itself).</p>
-<h2 id="what-you-pay-total"><a href="#what-you-pay-total" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>What you pay total</h2>
-<p>Worst-case per agent action that triggers a novel-threat round-trip and an auto-publish:</p>
-<table>
-<thead>
-<tr>
-<th>Component</th>
-<th>Cost in USDC</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Cache hit</td>
-<td>$0</td>
-</tr>
-<tr>
-<td>Protocol fee (per settled check)</td>
-<td>$0.002</td>
-</tr>
-<tr>
-<td>Settlement gas</td>
-<td>~$0.0001</td>
-</tr>
-<tr>
-<td>TEE compute (novel only)</td>
-<td>+$0.00015</td>
-</tr>
-<tr>
-<td>Publish gas (auto-mint only)</td>
-<td>~$0.0005</td>
-</tr>
-<tr>
-<td>1 USDC stake locked 72h (refundable)</td>
-<td>refundable</td>
-</tr>
-<tr>
-<td><strong>Total worst case</strong></td>
-<td><strong>~$0.00285</strong></td>
-</tr>
-</tbody>
-</table>
-<p>Cache-hit checks (99% of agent traffic) cost the <strong>$0.002 fee</strong> plus settlement gas, total ~$0.0021.</p>
-<h2 id="what-you-earn-publisher"><a href="#what-you-earn-publisher" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>What you earn (publisher)</h2>
-<table>
-<thead>
-<tr>
-<th>Source</th>
-<th>Per match</th>
-<th>Cumulative</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Match rewards (80% of the protocol fee)</td>
-<td>$0.0016</td>
-<td>unbounded as long as antibody stays ACTIVE</td>
-</tr>
-<tr>
-<td>Sweep bounty (releasing expired stakes)</td>
-<td>~$0.0001</td>
-<td>small, opportunistic</td>
-</tr>
-</tbody>
-</table>
-<p>Both rewards land in your prepaid USDC balance. Withdraw via <code>immunity.withdraw(amount)</code>.</p>
-<h2 id="what-gets-slashed"><a href="#what-gets-slashed" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>What gets slashed</h2>
-<p>A publisher's 1 USDC stake is slashed if a challenge against the antibody succeeds. Today challenges are governance-driven: a challenger files an on-chain claim, the protocol team adjudicates, the loser forfeits stake.</p>
-<p>Slash destinations:</p>
-<ul>
-<li>v1: 100% to the treasury.</li>
-<li>v2: split between treasury and the successful challenger (planned 50/50).</li>
-</ul>
+<p>The treasury accumulates the 20% cut of matched checks and the full fee on novel evaluations. It funds CRE compute, indexer and explorer hosting, audits, and bounties. The balance is publicly readable from the Registry. See <a href="/concepts/settlement-and-fees/">Settlement and fees</a>.</p>
+<h2 id="publisher-break-even"><a href="#publisher-break-even" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Publisher break-even</h2>
+<p>A publisher who flags accurate threats turns the bond into a fee stream. Once an antibody matures, each match pays 0.0016 USDC (80% of the 0.002 fee). Break-even on a bond <code>B</code> is <code>B / 0.0016</code> matches; a well-targeted antibody on a frequently-encountered threat clears that quickly, and every match after is profit. A false antibody, by contrast, earns zero (escrow is clawed back on slash) and forfeits its bond.</p>
 <h2 id="why-the-model-works"><a href="#why-the-model-works" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Why the model works</h2>
-<p>The economics are calibrated to make spam unprofitable and accuracy compounding:</p>
 <ul>
-<li><strong>Spam publish costs 1 USDC every time.</strong> A spam publisher mints 1 USDC of stake, gets challenged, loses the stake. There is no path to recovery without earning matches.</li>
-<li><strong>Accuracy compounds.</strong> A real, well-targeted antibody (Tornado Cash, a Lazarus wallet, a known drainer kit) gets matched dozens of times per day across the network. Cumulative match rewards exceed the stake within a week.</li>
-<li><strong>Treasury accumulates by default.</strong> Every check (matched or not) pays into the treasury directly or via the 20% split. The treasury funds the network's off-chain costs (TEE compute, indexer infra) so the protocol does not need external grants to operate.</li>
-</ul>
-<h2 id="where-to-look"><a href="#where-to-look" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Where to look</h2>
-<ul>
-<li>Live treasury balance, <a href="https://chainscan-galileo.0g.ai">chainscan-galileo.0g.ai</a> for the Registry contract.</li>
-<li>Live publisher leaderboard, <a href="https://immunity-protocol.com/publishers">immunity-protocol.com/publishers</a>.</li>
-<li>Live block count and value-protected, <a href="https://immunity-protocol.com/dashboard">immunity-protocol.com/dashboard</a>.</li>
+<li><strong>Spam never pays.</strong> A false publish forfeits its bond and earns nothing, and the bond scales up exactly on the targets an attacker would want to grief.</li>
+<li><strong>Accuracy compounds.</strong> A real, well-targeted antibody is matched repeatedly across the network; cumulative match rewards exceed the bond.</li>
+<li><strong>The treasury self-funds the network.</strong> Every settled check pays into the treasury directly or via the split, covering the off-chain costs (CRE compute, indexer) without external grants.</li>
 </ul>
 <h2 id="see-also"><a href="#see-also" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>See also</h2>
 <ul>
-<li><strong><a href="/concepts/settlement-and-tokenomics/">Settlement and tokenomics</a></strong>, the conceptual picture.</li>
-<li><strong><a href="/network/registry-on-0g/">Network: Registry on 0G</a></strong>, how to read these numbers yourself.</li>
+<li><strong><a href="/concepts/settlement-and-fees/">Settlement and fees</a></strong>, the mechanism behind these numbers.</li>
+<li><strong><a href="/concepts/sybil-resistance/">Sybil resistance</a></strong>, the bond curve and why it scales.</li>
+<li><strong><a href="/network/registry-on-base/">Network: Registry on Base</a></strong>, how to read these values yourself.</li>
 </ul>
 
     </div>
@@ -514,31 +428,22 @@ console.log(formatUsdc(balance));
         <h4 class="toc-title">On this page</h4>
         <ul class="toc-links">
             <li class="toc-item">
-                <a href="#per-operation-gas-measured" class="toc-link">Per-operation gas (measured)</a>
+                <a href="#per-check-fee" class="toc-link">Per-check fee</a>
             </li>
             <li class="toc-item">
-                <a href="#protocol-fee" class="toc-link">Protocol fee</a>
+                <a href="#per-publish-bond" class="toc-link">Per-publish bond</a>
+            </li>
+            <li class="toc-item">
+                <a href="#gas" class="toc-link">Gas</a>
             </li>
             <li class="toc-item">
                 <a href="#treasury" class="toc-link">Treasury</a>
             </li>
             <li class="toc-item">
-                <a href="#publisher-rewards" class="toc-link">Publisher rewards</a>
-            </li>
-            <li class="toc-item">
-                <a href="#what-you-pay-total" class="toc-link">What you pay total</a>
-            </li>
-            <li class="toc-item">
-                <a href="#what-you-earn-publisher" class="toc-link">What you earn (publisher)</a>
-            </li>
-            <li class="toc-item">
-                <a href="#what-gets-slashed" class="toc-link">What gets slashed</a>
+                <a href="#publisher-break-even" class="toc-link">Publisher break-even</a>
             </li>
             <li class="toc-item">
                 <a href="#why-the-model-works" class="toc-link">Why the model works</a>
-            </li>
-            <li class="toc-item">
-                <a href="#where-to-look" class="toc-link">Where to look</a>
             </li>
             <li class="toc-item">
                 <a href="#see-also" class="toc-link">See also</a>

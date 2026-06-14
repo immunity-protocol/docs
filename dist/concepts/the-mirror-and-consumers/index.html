@@ -4,20 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="leaf-base-url" content="">
-<meta name="description" content="Mint a fresh antibody on chain. Lock a bond sized by severity and prominence. Earn a fee share on every match once it matures.">
+<meta name="description" content="On-chain consumers like a Uniswap v4 hook need a cheap, swap-path read of ADDRESS antibody enforcement. The Mirror provides it, and respects the protected set.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://docs.immunity-protocol.com/">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Publish an antibody · Immunity Docs">
-<meta property="og:description" content="Mint a fresh antibody on chain. Lock a bond sized by severity and prominence. Earn a fee share on every match once it matures.">
+<meta property="og:title" content="The mirror and on-chain consumers · Immunity Docs">
+<meta property="og:description" content="On-chain consumers like a Uniswap v4 hook need a cheap, swap-path read of ADDRESS antibody enforcement. The Mirror provides it, and respects the protected set.">
 <meta property="og:site_name" content="Immunity Docs">
 <meta property="og:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Immunity Docs">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Publish an antibody · Immunity Docs">
-<meta name="twitter:description" content="Mint a fresh antibody on chain. Lock a bond sized by severity and prominence. Earn a fee share on every match once it matures.">
+<meta name="twitter:title" content="The mirror and on-chain consumers · Immunity Docs">
+<meta name="twitter:description" content="On-chain consumers like a Uniswap v4 hook need a cheap, swap-path read of ADDRESS antibody enforcement. The Mirror provides it, and respects the protected set.">
 <meta name="twitter:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -51,7 +51,7 @@ tailwind.config = {
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 <link rel="stylesheet" href="/assets/css/app.css">
 <script src="/assets/js/theme.js"></script>
-    <title>Publish an antibody · Immunity Docs</title>
+    <title>The mirror and on-chain consumers · Immunity Docs</title>
 </head>
 <body class="bg-deep text-body antialiased font-body">
 <header class="site-nav">
@@ -190,7 +190,7 @@ tailwind.config = {
                 </li>
                 <li>
                     <a href="/concepts/the-mirror-and-consumers"
-                       class="sidebar-link">
+                       class="sidebar-link active">
                         The mirror and on-chain consumers
                     </a>
                 </li>
@@ -207,7 +207,7 @@ tailwind.config = {
                 </li>
                 <li>
                     <a href="/guides/publish-an-antibody"
-                       class="sidebar-link active">
+                       class="sidebar-link">
                         Publish an antibody
                     </a>
                 </li>
@@ -347,167 +347,46 @@ tailwind.config = {
         <main class="docs-main">
 <article class="docs-content">
     <div class="prose">
-        <h1>Publish an antibody</h1>
-<p>The agent role you adopt when you spot a threat the network does not yet know about. <code>publish()</code> mints a new antibody on the Registry, locks a non-refundable bond, and starts you earning a fee share on every match across the network once the antibody matures.</p>
-<h2 id="before-you-publish-register"><a href="#before-you-publish-register" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Before you publish: register</h2>
-<p>Publishing requires a registered identity. Register once:</p>
-<pre><code class="language-ts">if (!(await immunity.isRegistered())) {
-  const { txHash, bond } = await immunity.registerPublisher(&quot;my-agent&quot;);
+        <h1>The mirror and on-chain consumers</h1>
+<p>Most of Immunity is consumed off chain through the SDK. But some consumers live <strong>inside a transaction</strong>: a Uniswap v4 pool hook that must decide, mid-swap, whether a token is flagged. A hook cannot run the SDK, walk three tiers, or call the CRE jury in the swap path. It needs a single, cheap, deterministic on-chain read. That is what the <strong>Mirror</strong> provides.</p>
+<h2 id="what-the-mirror-carries"><a href="#what-the-mirror-carries" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>What the mirror carries</h2>
+<p>Only <strong>ADDRESS</strong> antibodies matter to an on-chain consumer. The other four types (CALL_PATTERN, BYTECODE, GRAPH, SEMANTIC) are richer matchers resolved at SDK level. ADDRESS enforcement, by contrast, can be reduced to a yes/no a contract can read in one call.</p>
+<p>The Mirror exposes the <strong>enforcement decision</strong>, not raw antibody data: is this address hard-blocked right now, accounting for status, corroboration, and the protected set. A relayer keeps the Mirror in sync with the Registry by replaying its events. On Base the Registry is native, so the Mirror is a read-optimized projection beside it; the same pattern can replicate enforcement to other L2s for hooks deployed there.</p>
+<h2 id="how-a-uniswap-v4-hook-uses-it"><a href="#how-a-uniswap-v4-hook-uses-it" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>How a Uniswap v4 hook uses it</h2>
+<p>A v4 hook runs logic on every swap. The Immunity hook reads the Mirror for the swap's input and output tokens in <code>beforeSwap</code> and reverts the swap if either is hard-blocked. This is <strong>collective LP protection</strong>: the liquidity provider installs the hook once, and every swapper is protected automatically with no SDK in the loop.</p>
+<pre><code class="language-solidity">// inside beforeSwap, conceptually
+if (mirror.isHardBlocked(tokenIn) || mirror.isHardBlocked(tokenOut)) {
+    revert ImmunityBlocked();
 }
 </code></pre>
-<p>This mints the contract-owned <code>my-agent.immunity.eth</code> subname and locks the registration bond. See <strong><a href="/concepts/reputation-and-identity/">Reputation and identity</a></strong>.</p>
-<h2 id="when-to-publish"><a href="#when-to-publish" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>When to publish</h2>
-<p>You have direct evidence of a malicious address, contract, function pattern, taint graph, or content marker. Common sources:</p>
+<p>See <strong><a href="/guides/uniswap-v4-hook/">Guides: Uniswap v4 hook</a></strong> for installation and a runnable example.</p>
+<h2 id="the-protected-set-still-applies"><a href="#the-protected-set-still-applies" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>The protected set still applies</h2>
+<p>The Mirror honors the <strong>protected set</strong>. A blue-chip address (USDC, WETH, a canonical router) can never be hard-blocked, so the hook will never revert a swap against the canonical router no matter how an antibody was published. The hook also ships with <code>Pausable</code> and a never-block allowlist as belt-and-suspenders safety rails. See <strong><a href="/concepts/sybil-resistance/">Sybil resistance</a></strong>.</p>
+<h2 id="trust-model"><a href="#trust-model" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Trust model</h2>
+<p>The Mirror is <strong>observation-only</strong>. It cannot mint antibodies; it only projects enforcement decisions already true on the Registry. The risk surface is delayed propagation, not false propagation:</p>
 <ul>
-<li>A security team's triage queue: you confirmed a wallet drained a victim.</li>
-<li>An off-chain intelligence feed (sanctioned lists, scam-address tags) you are seeding into the network.</li>
-<li>A threat your own agent caught at runtime and you want to publish after manual review (rather than relying on <code>autoPublishConfirmedThreats</code>).</li>
+<li>a relayer outage means a new flag is late to the Mirror, never that a fake flag appears,</li>
+<li>the Mirror cannot hard-block anything the Registry does not, and it cannot override the protected set.</li>
 </ul>
-<h2 id="the-minimal-call"><a href="#the-minimal-call" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>The minimal call</h2>
-<pre><code class="language-ts">import { Immunity, BASE_SEPOLIA } from &quot;@immunity-protocol/sdk&quot;;
-
-const result = await immunity.publish({
-  seed: {
-    abType: &quot;ADDRESS&quot;,
-    chainId: BASE_SEPOLIA.chainId,
-    target: &quot;0xCAFE000000000000000000000000000000000001&quot;,
-  },
-  verdict: &quot;MALICIOUS&quot;,
-  confidence: 95,
-  severity: 90,
-  reasonSummary: &quot;Known drainer contract, 47 victim wallets&quot;,
-});
-
-console.log(result);
-// {
-//   keccakId:    &quot;0x...&quot;,
-//   immSeq:      42,
-//   immId:       &quot;IMM-2026-0042&quot;,
-//   evidenceCid: &quot;0x...&quot;,       // IPFS digest of the public envelope
-//   contextHash: &quot;0x...&quot;,       // present only if you passed `context`
-//   txHash:      &quot;0x...&quot;,
-// }
-</code></pre>
-<p>The antibody starts on <strong>PROBATION</strong>: advisory-only, fees escrowed, until it matures. See <strong><a href="/concepts/corroboration-and-maturation/">Corroboration and maturation</a></strong>.</p>
-<h2 id="required-prepaid-balance"><a href="#required-prepaid-balance" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Required prepaid balance</h2>
-<p><code>publish()</code> locks a bond sized by claimed severity and target prominence (not a flat amount), plus gas. The bond comes from your prepaid balance, so fund it first:</p>
-<pre><code class="language-ts">import { parseUsdc } from &quot;@immunity-protocol/sdk&quot;;
-
-if ((await immunity.balanceOf()) &lt; parseUsdc(&quot;2&quot;)) {
-  await immunity.deposit(parseUsdc(&quot;5&quot;));
-}
-</code></pre>
-<p>Flagging a higher-severity threat, a protected blue-chip, or a young frontier address costs a larger bond. See <strong><a href="/concepts/sybil-resistance/">Sybil resistance</a></strong>.</p>
-<h2 id="per-type-seed-shapes"><a href="#per-type-seed-shapes" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Per-type seed shapes</h2>
-<p>The <code>seed</code> field is a discriminated union by <code>abType</code>. Full details in <strong><a href="/reference/matchers/">Matchers and seeds</a></strong>.</p>
-<pre><code class="language-ts">// ADDRESS
-seed: { abType: &quot;ADDRESS&quot;, chainId: 84532, target: &quot;0xBAD...&quot; }
-
-// CALL_PATTERN  (selector + raw-calldata args template; 0x for selector-only)
-seed: { abType: &quot;CALL_PATTERN&quot;, chainId: 84532, target: &quot;0xRouter...&quot;,
-        selector: &quot;0x095ea7b3&quot;, argsTemplate: &quot;0x&quot; }
-
-// BYTECODE  (keccak256 of the deployed runtime bytecode)
-seed: { abType: &quot;BYTECODE&quot;, bytecodeHash: &quot;0x...&quot; }
-
-// GRAPH  (order-independent tainted set + its taintSetId)
-seed: { abType: &quot;GRAPH&quot;, chainId: 84532,
-        taintedAddresses: [&quot;0xMixer1...&quot;, &quot;0xMixer2...&quot;],
-        taintSetId: computeTaintSetId({ chainId: 84532, taintedAddresses: [...] }) }
-
-// SEMANTIC  (flavor + a marker string or precomputed hash)
-seed: { abType: &quot;SEMANTIC&quot;, flavor: &quot;PROMPT_INJECTION&quot;,
-        pattern: { kind: &quot;marker&quot;, value: &quot;ignore previous instructions and&quot; } }
-</code></pre>
-<h2 id="verdict-confidence-severity-reason"><a href="#verdict-confidence-severity-reason" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Verdict, confidence, severity, reason</h2>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Range</th>
-<th>Meaning</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>verdict</code></td>
-<td><code>&quot;MALICIOUS&quot;</code> / <code>&quot;SUSPICIOUS&quot;</code></td>
-<td>your classification</td>
-</tr>
-<tr>
-<td><code>confidence</code></td>
-<td>0..100</td>
-<td>your confidence in the classification</td>
-</tr>
-<tr>
-<td><code>severity</code></td>
-<td>0..100</td>
-<td>damage potential; <strong>scales the bond</strong></td>
-</tr>
-<tr>
-<td><code>reasonSummary</code></td>
-<td>string</td>
-<td>short public summary on the evidence envelope</td>
-</tr>
-<tr>
-<td><code>context</code></td>
-<td>string (optional)</td>
-<td>sensitive detail, ECIES-encrypted to the CRE oracle</td>
-</tr>
-</tbody>
-</table>
-<h2 id="bond-and-rewards"><a href="#bond-and-rewards" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Bond and rewards</h2>
-<p>The bond is non-refundable while the antibody is enforced. Once the antibody matures (corroboration reaches <code>K</code>, or undisputed matched volume over time), the escrowed publisher fees release and you earn a share of the fee on every match. If the antibody is challenged and ruled invalid, the bond and escrowed fees are clawed back. A false antibody earns exactly zero. See <strong><a href="/concepts/settlement-and-fees/">Settlement and fees</a></strong>.</p>
-<h2 id="errors-to-handle"><a href="#errors-to-handle" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Errors to handle</h2>
-<table>
-<thead>
-<tr>
-<th>Error</th>
-<th>Code</th>
-<th>Meaning</th>
-<th>Fix</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>NotRegisteredError</code></td>
-<td><code>ERR_NOT_REGISTERED</code></td>
-<td>not a registered publisher</td>
-<td><code>registerPublisher()</code> first</td>
-</tr>
-<tr>
-<td><code>DuplicateAntibodyError</code></td>
-<td><code>ERR_DUPLICATE_ANTIBODY</code></td>
-<td>you already published this matcher</td>
-<td>catch and skip</td>
-</tr>
-<tr>
-<td><code>InsufficientBalanceError</code></td>
-<td><code>ERR_INSUFFICIENT_BALANCE</code></td>
-<td>balance below the bond</td>
-<td><code>deposit()</code></td>
-</tr>
-</tbody>
-</table>
-<p><code>DuplicateAntibodyError</code> carries the existing <code>keccakId</code>. If a <em>different</em> publisher already flagged the target, use <code>corroborate()</code> instead of <code>publish()</code> to strengthen the signal. See <strong><a href="/guides/corroborate-and-challenge/">Corroborate and challenge</a></strong>.</p>
+<p>A consumer that wants ground truth can always cross-check the Mirror against the Registry directly.</p>
 <h2 id="see-also"><a href="#see-also" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>See also</h2>
 <ul>
-<li><strong><a href="/concepts/antibodies/">Concepts: Antibodies</a></strong>, the lifecycle.</li>
-<li><strong><a href="/concepts/settlement-and-fees/">Settlement and fees</a></strong>, the bond and reward math.</li>
-<li><strong><a href="/reference/immunity-class/">Reference: Immunity class</a></strong>, the full publish API.</li>
+<li><strong><a href="/concepts/two-speed-enforcement/">Two-speed enforcement</a></strong>, where the hard-block decision comes from.</li>
+<li><strong><a href="/guides/uniswap-v4-hook/">Guides: Uniswap v4 hook</a></strong>, the canonical mirror consumer.</li>
+<li><strong><a href="/concepts/sybil-resistance/">Sybil resistance</a></strong>, the protected set the hook honors.</li>
 </ul>
 
     </div>
 
     <nav class="docs-pagination">
-        <a href="/guides/gate-a-transaction" class="pagination-link pagination-prev">
+        <a href="/concepts/settlement-and-fees" class="pagination-link pagination-prev">
             <span class="pagination-label">&larr; Previous</span>
-            <span class="pagination-title">Gate a transaction</span>
+            <span class="pagination-title">Settlement and fees</span>
         </a>
 
-        <a href="/guides/corroborate-and-challenge" class="pagination-link pagination-next">
+        <a href="/guides/gate-a-transaction" class="pagination-link pagination-next">
             <span class="pagination-label">Next &rarr;</span>
-            <span class="pagination-title">Corroborate and challenge</span>
+            <span class="pagination-title">Gate a transaction</span>
         </a>
     </nav>
 </article>
@@ -517,28 +396,16 @@ seed: { abType: &quot;SEMANTIC&quot;, flavor: &quot;PROMPT_INJECTION&quot;,
         <h4 class="toc-title">On this page</h4>
         <ul class="toc-links">
             <li class="toc-item">
-                <a href="#before-you-publish-register" class="toc-link">Before you publish: register</a>
+                <a href="#what-the-mirror-carries" class="toc-link">What the mirror carries</a>
             </li>
             <li class="toc-item">
-                <a href="#when-to-publish" class="toc-link">When to publish</a>
+                <a href="#how-a-uniswap-v4-hook-uses-it" class="toc-link">How a Uniswap v4 hook uses it</a>
             </li>
             <li class="toc-item">
-                <a href="#the-minimal-call" class="toc-link">The minimal call</a>
+                <a href="#the-protected-set-still-applies" class="toc-link">The protected set still applies</a>
             </li>
             <li class="toc-item">
-                <a href="#required-prepaid-balance" class="toc-link">Required prepaid balance</a>
-            </li>
-            <li class="toc-item">
-                <a href="#per-type-seed-shapes" class="toc-link">Per-type seed shapes</a>
-            </li>
-            <li class="toc-item">
-                <a href="#verdict-confidence-severity-reason" class="toc-link">Verdict, confidence, severity, reason</a>
-            </li>
-            <li class="toc-item">
-                <a href="#bond-and-rewards" class="toc-link">Bond and rewards</a>
-            </li>
-            <li class="toc-item">
-                <a href="#errors-to-handle" class="toc-link">Errors to handle</a>
+                <a href="#trust-model" class="toc-link">Trust model</a>
             </li>
             <li class="toc-item">
                 <a href="#see-also" class="toc-link">See also</a>

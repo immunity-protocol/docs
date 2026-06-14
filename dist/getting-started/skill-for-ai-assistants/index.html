@@ -141,27 +141,57 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/concepts/two-speed-enforcement"
+                       class="sidebar-link">
+                        Two-speed enforcement
+                    </a>
+                </li>
+                <li>
                     <a href="/concepts/three-tier-lookup"
                        class="sidebar-link">
                         Three-tier lookup
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/tee-verification"
+                    <a href="/concepts/corroboration-and-maturation"
                        class="sidebar-link">
-                        TEE verification
+                        Corroboration and maturation
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/settlement-and-tokenomics"
+                    <a href="/concepts/reputation-and-identity"
                        class="sidebar-link">
-                        Settlement and tokenomics
+                        Reputation and identity
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/cross-chain-mirror"
+                    <a href="/concepts/sybil-resistance"
                        class="sidebar-link">
-                        Cross-chain mirror
+                        Sybil resistance
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/challenge-game-and-jury"
+                       class="sidebar-link">
+                        The challenge game and jury
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/novel-threat-verification"
+                       class="sidebar-link">
+                        Novel-threat verification
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/settlement-and-fees"
+                       class="sidebar-link">
+                        Settlement and fees
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/the-mirror-and-consumers"
+                       class="sidebar-link">
+                        The mirror and on-chain consumers
                     </a>
                 </li>
             </ul>
@@ -182,9 +212,21 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/guides/corroborate-and-challenge"
+                       class="sidebar-link">
+                        Corroborate and challenge
+                    </a>
+                </li>
+                <li>
                     <a href="/guides/operator-in-the-loop"
                        class="sidebar-link">
                         Operator in the loop
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/run-a-reference-agent"
+                       class="sidebar-link">
+                        Run a reference agent
                     </a>
                 </li>
                 <li>
@@ -252,15 +294,21 @@ tailwind.config = {
                         Helpers
                     </a>
                 </li>
+                <li>
+                    <a href="/reference/matchers"
+                       class="sidebar-link">
+                        Matchers and seeds
+                    </a>
+                </li>
             </ul>
         </div>
         <div class="sidebar-group">
             <h3 class="sidebar-group-title">Network</h3>
             <ul class="sidebar-links">
                 <li>
-                    <a href="/network/registry-on-0g"
+                    <a href="/network/registry-on-base"
                        class="sidebar-link">
-                        Registry on 0G
+                        Registry on Base
                     </a>
                 </li>
                 <li>
@@ -330,11 +378,11 @@ curl -fsSL https://raw.githubusercontent.com/immunity-protocol/skills/main/skill
 <li>The three-tier lookup walkthrough with concrete latency and cost numbers.</li>
 <li>Configuration table mirrored from the SDK README so the skill stays in sync.</li>
 <li>The five antibody types with real catches drawn from the demo's incident catalog.</li>
-<li>Empirical gotchas: peer-dep flag, AXL-as-separate-daemon, port 5678, TEE key rotation, etc.</li>
+<li>Empirical gotchas: the ethers v6 peer dep, funding the prepaid balance before <code>check()</code>, registering before <code>publish()</code>, and the two-speed advisory-vs-hard-block distinction.</li>
 <li>A distilled key-rules checklist your assistant can use as a self-check.</li>
 </ul>
 <h2 id="why-bother"><a href="#why-bother" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Why bother</h2>
-<p>Without the skill, your assistant guesses based on outdated training data, misnames methods, hallucinates options, and writes setup boilerplate that does not match the SDK's actual peer-dep requirements. With the skill in place, code-completion and code-generation produce idiomatic Immunity calls on the first try.</p>
+<p>Without the skill, your assistant guesses based on outdated training data, misnames methods, hallucinates options, and writes setup boilerplate that does not match the SDK's actual API. With the skill in place, code-completion and code-generation produce idiomatic Immunity calls on the first try.</p>
 <h2 id="source"><a href="#source" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Source</h2>
 <p>The skill lives at <a href="https://github.com/immunity-protocol/skills/blob/main/skills/immunity/SKILL.md">github.com/immunity-protocol/skills/blob/main/skills/immunity/SKILL.md</a>. It is updated alongside SDK releases. Pin to a tag in your install if you need stability across SDK upgrades.</p>
 

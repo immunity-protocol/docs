@@ -141,27 +141,57 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/concepts/two-speed-enforcement"
+                       class="sidebar-link">
+                        Two-speed enforcement
+                    </a>
+                </li>
+                <li>
                     <a href="/concepts/three-tier-lookup"
                        class="sidebar-link">
                         Three-tier lookup
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/tee-verification"
+                    <a href="/concepts/corroboration-and-maturation"
                        class="sidebar-link">
-                        TEE verification
+                        Corroboration and maturation
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/settlement-and-tokenomics"
+                    <a href="/concepts/reputation-and-identity"
                        class="sidebar-link">
-                        Settlement and tokenomics
+                        Reputation and identity
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/cross-chain-mirror"
+                    <a href="/concepts/sybil-resistance"
                        class="sidebar-link">
-                        Cross-chain mirror
+                        Sybil resistance
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/challenge-game-and-jury"
+                       class="sidebar-link">
+                        The challenge game and jury
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/novel-threat-verification"
+                       class="sidebar-link">
+                        Novel-threat verification
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/settlement-and-fees"
+                       class="sidebar-link">
+                        Settlement and fees
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/the-mirror-and-consumers"
+                       class="sidebar-link">
+                        The mirror and on-chain consumers
                     </a>
                 </li>
             </ul>
@@ -182,9 +212,21 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/guides/corroborate-and-challenge"
+                       class="sidebar-link">
+                        Corroborate and challenge
+                    </a>
+                </li>
+                <li>
                     <a href="/guides/operator-in-the-loop"
                        class="sidebar-link">
                         Operator in the loop
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/run-a-reference-agent"
+                       class="sidebar-link">
+                        Run a reference agent
                     </a>
                 </li>
                 <li>
@@ -252,15 +294,21 @@ tailwind.config = {
                         Helpers
                     </a>
                 </li>
+                <li>
+                    <a href="/reference/matchers"
+                       class="sidebar-link">
+                        Matchers and seeds
+                    </a>
+                </li>
             </ul>
         </div>
         <div class="sidebar-group">
             <h3 class="sidebar-group-title">Network</h3>
             <ul class="sidebar-links">
                 <li>
-                    <a href="/network/registry-on-0g"
+                    <a href="/network/registry-on-base"
                        class="sidebar-link">
-                        Registry on 0G
+                        Registry on Base
                     </a>
                 </li>
                 <li>
@@ -303,7 +351,7 @@ tailwind.config = {
 <p>The demo fleet's incident catalog has <strong>20 attack-class families</strong>, each with <strong>7 phrasing variants</strong>. Every variant carries a canonical marker substring that the SEMANTIC matcher hashes; matching any variant of a family populates the cache for every other variant.</p>
 <p>The catalog is open source at <a href="https://github.com/immunity-protocol/immunity-demo/blob/main/agents/src/data/incidents.ts">immunity-demo/agents/src/data/incidents.ts</a>. This page is the human-readable index.</p>
 <h2 id="prompt-injection-semantic-by-far-the-largest-category"><a href="#prompt-injection-semantic-by-far-the-largest-category" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Prompt injection (SEMANTIC, by far the largest category)</h2>
-<p>These are the patterns AI agents face every day. The demo fleet's wolves run them at random against trader agents.</p>
+<p>These are the patterns AI agents face every day. The reference agents and demo exercise them against sample actions so the catalog stays live.</p>
 <table>
 <thead>
 <tr>
@@ -456,7 +504,7 @@ tailwind.config = {
   ],
 }
 </code></pre>
-<p>The <code>marker</code> is the substring the SEMANTIC matcher hashes for <code>flavor=N</code>. The <code>variants</code> are the realistic phrasings wolves use to test whether agents catch the marker even when buried in plausible-looking content (a github issue body, a discord transcript, a calendar invite, etc.).</p>
+<p>The <code>marker</code> is the substring the SEMANTIC matcher hashes for a given flavor. The <code>variants</code> are realistic phrasings used to test whether agents catch the marker even when buried in plausible-looking content (a github issue body, a discord transcript, a calendar invite, etc.).</p>
 <h2 id="how-to-add-to-this-catalog"><a href="#how-to-add-to-this-catalog" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>How to add to this catalog</h2>
 <p>Open a PR against <a href="https://github.com/immunity-protocol/immunity-demo">github.com/immunity-protocol/immunity-demo</a>. Add a new family entry with:</p>
 <ul>

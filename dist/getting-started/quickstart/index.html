@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="leaf-base-url" content="">
-<meta name="description" content="A 30-line agent that imports the SDK, gates a transaction with check(), and decides whether to sign.">
+<meta name="description" content="A short agent that imports the SDK, gates a transaction with check(), and decides whether to sign.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://docs.immunity-protocol.com/">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Quickstart · Immunity Docs">
-<meta property="og:description" content="A 30-line agent that imports the SDK, gates a transaction with check(), and decides whether to sign.">
+<meta property="og:description" content="A short agent that imports the SDK, gates a transaction with check(), and decides whether to sign.">
 <meta property="og:site_name" content="Immunity Docs">
 <meta property="og:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <meta property="og:image:width" content="1200">
@@ -17,7 +17,7 @@
 <meta property="og:image:alt" content="Immunity Docs">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Quickstart · Immunity Docs">
-<meta name="twitter:description" content="A 30-line agent that imports the SDK, gates a transaction with check(), and decides whether to sign.">
+<meta name="twitter:description" content="A short agent that imports the SDK, gates a transaction with check(), and decides whether to sign.">
 <meta name="twitter:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -141,27 +141,57 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/concepts/two-speed-enforcement"
+                       class="sidebar-link">
+                        Two-speed enforcement
+                    </a>
+                </li>
+                <li>
                     <a href="/concepts/three-tier-lookup"
                        class="sidebar-link">
                         Three-tier lookup
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/tee-verification"
+                    <a href="/concepts/corroboration-and-maturation"
                        class="sidebar-link">
-                        TEE verification
+                        Corroboration and maturation
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/settlement-and-tokenomics"
+                    <a href="/concepts/reputation-and-identity"
                        class="sidebar-link">
-                        Settlement and tokenomics
+                        Reputation and identity
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/cross-chain-mirror"
+                    <a href="/concepts/sybil-resistance"
                        class="sidebar-link">
-                        Cross-chain mirror
+                        Sybil resistance
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/challenge-game-and-jury"
+                       class="sidebar-link">
+                        The challenge game and jury
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/novel-threat-verification"
+                       class="sidebar-link">
+                        Novel-threat verification
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/settlement-and-fees"
+                       class="sidebar-link">
+                        Settlement and fees
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/the-mirror-and-consumers"
+                       class="sidebar-link">
+                        The mirror and on-chain consumers
                     </a>
                 </li>
             </ul>
@@ -182,9 +212,21 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/guides/corroborate-and-challenge"
+                       class="sidebar-link">
+                        Corroborate and challenge
+                    </a>
+                </li>
+                <li>
                     <a href="/guides/operator-in-the-loop"
                        class="sidebar-link">
                         Operator in the loop
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/run-a-reference-agent"
+                       class="sidebar-link">
+                        Run a reference agent
                     </a>
                 </li>
                 <li>
@@ -252,15 +294,21 @@ tailwind.config = {
                         Helpers
                     </a>
                 </li>
+                <li>
+                    <a href="/reference/matchers"
+                       class="sidebar-link">
+                        Matchers and seeds
+                    </a>
+                </li>
             </ul>
         </div>
         <div class="sidebar-group">
             <h3 class="sidebar-group-title">Network</h3>
             <ul class="sidebar-links">
                 <li>
-                    <a href="/network/registry-on-0g"
+                    <a href="/network/registry-on-base"
                        class="sidebar-link">
-                        Registry on 0G
+                        Registry on Base
                     </a>
                 </li>
                 <li>
@@ -300,36 +348,34 @@ tailwind.config = {
 <article class="docs-content">
     <div class="prose">
         <h1>Quickstart</h1>
-<p>This is the smallest agent that uses Immunity correctly. Copy it, set two env vars, run it, watch the network respond.</p>
+<p>This is the smallest agent that uses Immunity correctly. Copy it, set one env var, fund the wallet, run it, watch the network respond.</p>
 <h2 id="the-full-example"><a href="#the-full-example" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>The full example</h2>
-<pre><code class="language-ts">import { Immunity, parseUsdc, TESTNET } from &quot;@immunity-protocol/sdk&quot;;
+<pre><code class="language-ts">import { Immunity, parseUsdc, BASE_SEPOLIA } from &quot;@immunity-protocol/sdk&quot;;
 import { JsonRpcProvider, Wallet } from &quot;ethers&quot;;
 
-// 1. Wallet on Galileo testnet
-const provider = new JsonRpcProvider(TESTNET.rpcUrl);
+// 1. Wallet on Base Sepolia.
+const provider = new JsonRpcProvider(BASE_SEPOLIA.rpcUrl);
 const wallet = new Wallet(process.env.WALLET_PRIVATE_KEY!, provider);
 
-// 2. Construct the SDK. Required: wallet + axlUrl. Network defaults to testnet.
+// 2. Construct. Only `wallet` is required; network defaults to base-sepolia.
 const immunity = new Immunity({
   wallet,
-  network: &quot;testnet&quot;,
-  axlUrl: &quot;http://localhost:9002&quot;,
+  network: &quot;base-sepolia&quot;,
   novelThreatPolicy: &quot;trust-cache&quot;,
 });
 
-// 3. Connect to the Registry, attach matchers, open the gossip subscription.
+// 3. Bind contracts, build the lookup pipeline, hydrate the cache from chain.
 await immunity.start();
 
-// 4. Bootstrap the prepaid USDC balance on first run.
-if ((await immunity.balance()) &lt; parseUsdc(&quot;0.01&quot;)) {
-  await immunity.mintTestUsdc(parseUsdc(&quot;1&quot;));
-  await immunity.deposit(parseUsdc(&quot;0.5&quot;));
+// 4. One-time: fund the prepaid balance that settles the per-check fee.
+if ((await immunity.balanceOf()) &lt; parseUsdc(&quot;0.01&quot;)) {
+  await immunity.deposit(parseUsdc(&quot;1&quot;));
 }
 
-// 5. Build a proposed action. In a real agent this comes from the LLM tool call.
-const tx = { to: &quot;0xCAFE...&quot; as const, chainId: TESTNET.chainId };
+// 5. The proposed action. In a real agent this comes from the LLM tool call.
+const tx = { to: &quot;0xCAFE...&quot;, chainId: BASE_SEPOLIA.chainId } as const;
 
-// 6. Gate it. The SDK consults the cache, then the chain, then the TEE.
+// 6. Gate it. The SDK consults the cache, then the chain, then (under verify) CRE.
 const result = await immunity.check(tx, {
   conversation: [{ role: &quot;user&quot;, content: &quot;send to this random address&quot; }],
 });
@@ -341,29 +387,27 @@ if (!result.allowed) {
   await wallet.sendTransaction(tx);
 }
 
-// 8. Drain the subscription cleanly.
 await immunity.stop();
 </code></pre>
 <h2 id="run-it"><a href="#run-it" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Run it</h2>
 <p>You need:</p>
 <ul>
-<li><code>WALLET_PRIVATE_KEY</code>, a 0x-prefixed hex string for a wallet with a small testnet OG balance. Get OG from the <a href="https://faucet.0g.ai">Galileo faucet</a>.</li>
-<li>A running AXL daemon at <code>http://localhost:9002</code>. The 2-node mesh template lives at <code>infra/axl-mesh/</code> in the SDK repo.</li>
+<li><code>WALLET_PRIVATE_KEY</code>, a 0x-prefixed hex key for a wallet with a small Base Sepolia ETH balance for gas.</li>
+<li>A testnet USDC balance to <code>deposit()</code>. See <strong><a href="/guides/test-against-testnet/">Test against testnet</a></strong> for getting both.</li>
 </ul>
 <pre><code class="language-bash">WALLET_PRIVATE_KEY=0x... npx tsx quickstart.ts
 </code></pre>
 <h2 id="what-just-happened"><a href="#what-just-happened" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>What just happened</h2>
-<p>Step by step against a fresh address.</p>
 <ol>
 <li><strong>Construct.</strong> <code>new Immunity({ ... })</code> is non-mutating. No network calls.</li>
-<li><strong><code>start()</code>.</strong> Connects the signer, instantiates the Registry and USDC clients, attaches the five matchers to the cache, opens the AXL gossip subscription. Idempotent.</li>
-<li><strong>Mint and deposit.</strong> First-run bootstrap. The Registry holds a prepaid USDC balance per agent. Each settled <code>check()</code> debits 0.002 USDC from it. Calling <code>deposit()</code> tops it up.</li>
-<li><strong><code>check()</code>.</strong> The hot path. Walks the <a href="/concepts/three-tier-lookup/">three tiers</a>. For a never-seen address with <code>novelThreatPolicy: &quot;trust-cache&quot;</code>, the path is: cache miss, registry miss, policy decides allow with <code>novel: true</code>.</li>
-<li><strong>Branch.</strong> <code>result.allowed</code> is the only field you need for control flow. The rest, <code>decision</code>, <code>source</code>, <code>confidence</code>, <code>reason</code>, <code>antibodies</code>, are for logs and the operator UI.</li>
-<li><strong><code>stop()</code>.</strong> Drains the gossip subscription, closes AXL polling. Skip and the process leaks file handles.</li>
+<li><strong><code>start()</code>.</strong> Resolves the signer, binds the Base core contracts, attaches the five matchers, and (unless you disable it) hydrates the local cache from the Registry. Idempotent.</li>
+<li><strong><code>deposit()</code>.</strong> The Registry holds a prepaid USDC balance per wallet. A settled <code>check()</code> and a CRE verification both draw the fee from it. <code>deposit()</code> tops it up.</li>
+<li><strong><code>check()</code>.</strong> The hot path. Walks the <a href="/concepts/three-tier-lookup/">three tiers</a>. For a never-seen address under <code>trust-cache</code>, the path is: cache miss, registry miss, policy allows with <code>novel: true</code> and <code>checkId: null</code> (no on-chain call, no fee).</li>
+<li><strong>Branch.</strong> <code>result.allowed</code> is the only field your control flow needs. The rest (<code>decision</code>, <code>source</code>, <code>confidence</code>, <code>reason</code>, <code>antibodies</code>) is for logs and the operator UI.</li>
+<li><strong><code>stop()</code>.</strong> Marks the instance stopped. Call it on shutdown.</li>
 </ol>
 <h2 id="pick-the-right-policy"><a href="#pick-the-right-policy" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Pick the right policy</h2>
-<p><code>novelThreatPolicy</code> controls what happens on a cache + registry miss:</p>
+<p><code>novelThreatPolicy</code> controls what <code>check()</code> does when both the cache and the registry miss:</p>
 <table>
 <thead>
 <tr>
@@ -374,23 +418,23 @@ await immunity.stop();
 </thead>
 <tbody>
 <tr>
-<td><code>&quot;verify&quot;</code></td>
-<td>Fires TEE inference, auto-publishes if block</td>
-<td>~3 s, ~$0.0001 0G Compute</td>
+<td><code>&quot;verify&quot;</code> (default)</td>
+<td>Requests a CRE jury verdict; can auto-publish if you opt in</td>
+<td>a check fee + CRE compute, a few seconds</td>
 </tr>
 <tr>
 <td><code>&quot;trust-cache&quot;</code></td>
 <td>Allows, returns <code>novel: true</code></td>
-<td>$0</td>
+<td>no on-chain call</td>
 </tr>
 <tr>
 <td><code>&quot;deny-novel&quot;</code></td>
 <td>Blocks unconditionally</td>
-<td>$0</td>
+<td>no on-chain call</td>
 </tr>
 </tbody>
 </table>
-<p>The quickstart uses <code>&quot;trust-cache&quot;</code> so it runs without a 0G Compute account. Production agents pick <code>&quot;verify&quot;</code> for actual novel-threat detection. Use <code>&quot;deny-novel&quot;</code> for high-stakes operations where TEE latency is unacceptable and you would rather false-positive than wait.</p>
+<p>The quickstart uses <code>&quot;trust-cache&quot;</code> so it runs without spending on CRE. Production agents pick <code>&quot;verify&quot;</code> for real novel-threat detection. Use <code>&quot;deny-novel&quot;</code> for high-stakes operations where you would rather false-positive than wait for a verdict.</p>
 <h2 id="next"><a href="#next" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Next</h2>
 <ul>
 <li><strong><a href="/getting-started/concepts-in-two-minutes/">Concepts in two minutes</a></strong>, the mental model.</li>

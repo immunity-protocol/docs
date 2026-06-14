@@ -141,27 +141,57 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/concepts/two-speed-enforcement"
+                       class="sidebar-link">
+                        Two-speed enforcement
+                    </a>
+                </li>
+                <li>
                     <a href="/concepts/three-tier-lookup"
                        class="sidebar-link">
                         Three-tier lookup
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/tee-verification"
+                    <a href="/concepts/corroboration-and-maturation"
                        class="sidebar-link">
-                        TEE verification
+                        Corroboration and maturation
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/settlement-and-tokenomics"
+                    <a href="/concepts/reputation-and-identity"
                        class="sidebar-link">
-                        Settlement and tokenomics
+                        Reputation and identity
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/cross-chain-mirror"
+                    <a href="/concepts/sybil-resistance"
                        class="sidebar-link">
-                        Cross-chain mirror
+                        Sybil resistance
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/challenge-game-and-jury"
+                       class="sidebar-link">
+                        The challenge game and jury
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/novel-threat-verification"
+                       class="sidebar-link">
+                        Novel-threat verification
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/settlement-and-fees"
+                       class="sidebar-link">
+                        Settlement and fees
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/the-mirror-and-consumers"
+                       class="sidebar-link">
+                        The mirror and on-chain consumers
                     </a>
                 </li>
             </ul>
@@ -182,9 +212,21 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/guides/corroborate-and-challenge"
+                       class="sidebar-link">
+                        Corroborate and challenge
+                    </a>
+                </li>
+                <li>
                     <a href="/guides/operator-in-the-loop"
                        class="sidebar-link">
                         Operator in the loop
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/run-a-reference-agent"
+                       class="sidebar-link">
+                        Run a reference agent
                     </a>
                 </li>
                 <li>
@@ -252,15 +294,21 @@ tailwind.config = {
                         Helpers
                     </a>
                 </li>
+                <li>
+                    <a href="/reference/matchers"
+                       class="sidebar-link">
+                        Matchers and seeds
+                    </a>
+                </li>
             </ul>
         </div>
         <div class="sidebar-group">
             <h3 class="sidebar-group-title">Network</h3>
             <ul class="sidebar-links">
                 <li>
-                    <a href="/network/registry-on-0g"
+                    <a href="/network/registry-on-base"
                        class="sidebar-link">
-                        Registry on 0G
+                        Registry on Base
                     </a>
                 </li>
                 <li>
@@ -300,8 +348,8 @@ tailwind.config = {
 <article class="docs-content">
     <div class="prose">
         <h1>Errors</h1>
-<p>All SDK errors extend <code>ImmunityError</code>. Branch on the stable <code>code</code> string, not the message text. Messages may change between versions; codes do not.</p>
-<pre><code class="language-ts">import { ImmunityError } from &quot;@immunity-protocol/sdk&quot;;
+<p>Every SDK error extends <code>ImmunityError</code> and carries a stable <code>code</code> string. Branch on <code>code</code>, not on the message text: messages may change between versions, codes do not.</p>
+<pre><code class="language-ts">import { ImmunityError, parseUsdc } from &quot;@immunity-protocol/sdk&quot;;
 
 try {
   await immunity.check(tx, ctx);
@@ -309,8 +357,8 @@ try {
   if (err instanceof ImmunityError) {
     switch (err.code) {
       case &quot;ERR_INSUFFICIENT_BALANCE&quot;:
-        await immunity.deposit(parseUsdc(&quot;0.5&quot;));
-        return safeSend(tx, ctx);  // retry
+        await immunity.deposit(parseUsdc(&quot;1&quot;));
+        return retry();
       case &quot;ERR_NETWORK&quot;:
         return null;  // degrade gracefully
       default:
@@ -334,138 +382,117 @@ try {
 <tr>
 <td><code>MissingConfigError</code></td>
 <td><code>ERR_MISSING_CONFIG</code></td>
-<td>construction missing <code>wallet</code> or <code>axlUrl</code></td>
+<td>construction missing or malformed <code>wallet</code>/<code>network</code></td>
 <td>fix config</td>
 </tr>
 <tr>
 <td><code>NotStartedError</code></td>
 <td><code>ERR_NOT_STARTED</code></td>
-<td>called any method before <code>start()</code></td>
+<td>a method called before <code>start()</code></td>
 <td>call <code>start()</code> first</td>
 </tr>
 <tr>
 <td><code>BlockError</code></td>
 <td><code>ERR_BLOCKED</code></td>
-<td>hard policy block (e.g. <code>deny-novel</code> short-circuit)</td>
-<td>not retryable; the action is denied</td>
+<td>hard policy block (rare; ordinary blocks use <code>result.allowed</code>)</td>
+<td>not retryable</td>
 </tr>
 <tr>
 <td><code>EscalationError</code></td>
 <td><code>ERR_ESCALATION_TIMEOUT</code></td>
-<td><code>onEscalate</code> did not resolve within <code>escalationTimeout</code></td>
-<td>tune timeout or improve handler</td>
+<td><code>onEscalate</code> exceeded <code>escalationTimeout</code></td>
+<td>tune timeout or handler</td>
 </tr>
 <tr>
 <td><code>EscalationError</code></td>
 <td><code>ERR_ESCALATION_DENIED</code></td>
-<td>operator returned <code>false</code> from <code>onEscalate</code></td>
+<td>operator returned <code>false</code></td>
 <td>as designed; not retryable</td>
 </tr>
 <tr>
 <td><code>EscalationError</code></td>
 <td><code>ERR_ESCALATION_NO_HANDLER</code></td>
-<td>escalate verdict but no handler configured</td>
-<td>set <code>onEscalate</code> in config</td>
+<td>escalate verdict, no handler configured</td>
+<td>set <code>onEscalate</code></td>
 </tr>
 <tr>
 <td><code>InsufficientBalanceError</code></td>
 <td><code>ERR_INSUFFICIENT_BALANCE</code></td>
-<td>prepaid USDC below the fee or stake</td>
-<td>call <code>deposit()</code></td>
+<td>prepaid balance below the fee or bond</td>
+<td><code>deposit()</code></td>
+</tr>
+<tr>
+<td><code>NotRegisteredError</code></td>
+<td><code>ERR_NOT_REGISTERED</code></td>
+<td><code>publish()</code> before <code>registerPublisher()</code></td>
+<td>register first</td>
+</tr>
+<tr>
+<td><code>AlreadyRegisteredError</code></td>
+<td><code>ERR_ALREADY_REGISTERED</code></td>
+<td><code>registerPublisher()</code> when already registered</td>
+<td>nothing to do</td>
 </tr>
 <tr>
 <td><code>NetworkError</code></td>
 <td><code>ERR_NETWORK</code></td>
-<td>RPC or AXL unreachable</td>
-<td>retry with backoff; check infra</td>
+<td>RPC, storage gateway, or CRE unreachable</td>
+<td>retry with backoff</td>
 </tr>
 <tr>
 <td><code>AntibodyNotFoundError</code></td>
 <td><code>ERR_ANTIBODY_NOT_FOUND</code></td>
-<td><code>getAntibody(id)</code> for an unknown id</td>
+<td>reading an unknown antibody id</td>
 <td>nothing to do</td>
 </tr>
 <tr>
 <td><code>DuplicateAntibodyError</code></td>
 <td><code>ERR_DUPLICATE_ANTIBODY</code></td>
-<td>matcher hash already exists on chain</td>
-<td>catch and skip; the network already knows</td>
+<td>matcher already published under this identity</td>
+<td>catch and skip</td>
 </tr>
 <tr>
 <td><code>StakeLockedError</code></td>
 <td><code>ERR_STAKE_LOCKED</code></td>
-<td>tried to withdraw locked stake</td>
-<td>wait for the 72h unlock</td>
+<td>withdraw overlapping a locked bond</td>
+<td>wait for unlock</td>
 </tr>
 <tr>
 <td><code>TeeAttestationError</code></td>
 <td><code>ERR_TEE_ATTESTATION</code></td>
-<td>TEE response failed signature verification</td>
-<td>one retry, then degrade to <code>trust-cache</code></td>
+<td>CRE verdict failed attestation verification</td>
+<td>retry once, then degrade</td>
 </tr>
 <tr>
 <td><code>TeeResponseError</code></td>
 <td><code>ERR_TEE_RESPONSE</code></td>
-<td>TEE returned malformed JSON</td>
-<td>log and degrade to <code>trust-cache</code></td>
+<td>CRE returned malformed verdict JSON</td>
+<td>log and degrade</td>
 </tr>
 </tbody>
 </table>
 <h2 id="class-details"><a href="#class-details" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Class details</h2>
 <h3 id="immunityerror"><a href="#immunityerror" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>ImmunityError</code></h3>
-<p>The abstract base. <code>instanceof ImmunityError</code> matches every SDK-internal error. Carries <code>code: string</code> and <code>message: string</code>.</p>
+<p>The base. <code>instanceof ImmunityError</code> matches every SDK error. Carries <code>code</code> and <code>message</code>.</p>
 <pre><code class="language-ts">class ImmunityError extends Error {
   readonly code: string;
-  constructor(code: string, message: string);
 }
 </code></pre>
-<p>Plain <code>Error</code> instances thrown by the SDK are extremely rare and indicate a bug. Report them.</p>
-<h3 id="missingconfigerror"><a href="#missingconfigerror" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>MissingConfigError</code></h3>
-<p>Construction-time. The SDK is being instantiated without a required field. Recovery is always &quot;fix the config&quot;.</p>
-<h3 id="notstartederror"><a href="#notstartederror" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>NotStartedError</code></h3>
-<p>You called <code>check</code>, <code>publish</code>, or any other lifecycle-dependent method before <code>start()</code>. Idempotent recovery: call <code>start()</code> then retry the original method.</p>
-<h3 id="blockerror"><a href="#blockerror" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>BlockError</code></h3>
-<p>A <strong>hard</strong> block from policy, not from a matched antibody. Today this fires only when:</p>
-<ul>
-<li><code>novelThreatPolicy: &quot;deny-novel&quot;</code> and no candidate matcher could be constructed.</li>
-<li>The TEE response said <code>block</code> AND a critical attestation step failed.</li>
-</ul>
-<p>Most agents will never see this; ordinary blocks come back via <code>result.allowed === false</code>, not via <code>BlockError</code>.</p>
-<h3 id="escalationerror-family"><a href="#escalationerror-family" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>EscalationError</code> family</h3>
-<p>Three sub-codes for the <code>onEscalate</code> flow. Only fires when a SUSPICIOUS verdict lands in the escalate band (default 60-84 confidence) and either:</p>
-<ul>
-<li><code>_TIMEOUT</code>, the handler took longer than <code>escalationTimeout</code>.</li>
-<li><code>_DENIED</code>, the handler returned <code>false</code>.</li>
-<li><code>_NO_HANDLER</code>, no <code>onEscalate</code> was configured.</li>
-</ul>
-<p>Treat all three as &quot;the action is blocked, log the reason.&quot;</p>
+<h3 id="escalationerror"><a href="#escalationerror" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>EscalationError</code></h3>
+<p>Carries <code>kind: &quot;timeout&quot; | &quot;denied&quot; | &quot;no-handler&quot;</code>. Only fires when a SUSPICIOUS verdict lands in the escalate band. Treat all three as &quot;the action is blocked, log the reason.&quot;</p>
 <h3 id="insufficientbalanceerror"><a href="#insufficientbalanceerror" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>InsufficientBalanceError</code></h3>
-<p>The Registry's prepaid balance for your wallet is below the protocol fee (0.002 USDC) or the publisher stake (1 USDC), depending on which call triggered it. Call <code>deposit()</code> and retry.</p>
-<h3 id="networkerror"><a href="#networkerror" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>NetworkError</code></h3>
-<p>Transient infrastructure failures: RPC drop, AXL daemon unreachable, 0G Compute provider 5xx. Retry with exponential backoff (1s, 2s, 4s) capped at three attempts.</p>
-<h3 id="antibodynotfounderror"><a href="#antibodynotfounderror" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>AntibodyNotFoundError</code></h3>
-<p><code>getAntibody()</code> was called with an id that does not exist in the Registry. Not retryable.</p>
+<p>Carries <code>required</code> and <code>available</code> (both <code>bigint</code>). The prepaid balance cannot cover a settled fee or a publish bond. <code>deposit()</code> and retry.</p>
 <h3 id="duplicateantibodyerror"><a href="#duplicateantibodyerror" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>DuplicateAntibodyError</code></h3>
-<p><code>publish()</code> was called with a matcher tuple that already exists. The error includes the existing <code>keccakId</code> so you can fetch the prior antibody:</p>
-<pre><code class="language-ts">catch (err) {
-  if (err instanceof DuplicateAntibodyError) {
-    const existing = await immunity.getAntibody(err.existingKeccakId);
-    console.log(`already published as ${existing.immId}`);
-  }
-}
-</code></pre>
-<p>Common when seeding from external lists; treat as success.</p>
+<p>Carries the existing <code>keccakId</code>, so you can fetch the prior antibody instead of minting a duplicate. Common when seeding from external lists; treat as success.</p>
 <h3 id="stakelockederror"><a href="#stakelockederror" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>StakeLockedError</code></h3>
-<p><code>withdraw()</code> requested an amount that overlaps locked publisher stake. Wait until <code>stakeLockUntil</code> passes, then retry.</p>
-<h3 id="teeattestationerror"><a href="#teeattestationerror" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>TeeAttestationError</code></h3>
-<p>The TEE response signature failed verification against the registered TEE signer. Most often caused by provider key rotation. Recreate the <code>Immunity</code> instance to pick up the new signer (the SDK calls <code>acknowledgeProviderSigner()</code> internally during <code>start()</code>).</p>
-<h3 id="teeresponseerror"><a href="#teeresponseerror" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>TeeResponseError</code></h3>
-<p>The TEE returned a 200 response but the body did not match the strict JSON schema. The SDK never extracts free text from a malformed response. Log the raw response for triage and degrade to <code>trust-cache</code> for the immediate retry.</p>
+<p>Carries <code>unlockAt</code> (<code>bigint</code>, unix seconds). The requested withdrawal overlaps a bond locked while an antibody is enforced. Wait until <code>unlockAt</code>.</p>
+<h3 id="teeattestationerror--teeresponseerror"><a href="#teeattestationerror--teeresponseerror" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>TeeAttestationError</code> / <code>TeeResponseError</code></h3>
+<p>Tier-3 failures. <code>TeeAttestationError</code> means the returned verdict did not verify against the pinned CRE workflow. <code>TeeResponseError</code> means the verdict body did not match the strict schema. The SDK never extracts free text from a malformed verdict. Retry once, then degrade to <code>trust-cache</code> for the immediate call.</p>
 <h2 id="best-practice-retry-table"><a href="#best-practice-retry-table" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Best-practice retry table</h2>
 <table>
 <thead>
 <tr>
-<th>Error code</th>
+<th>Code</th>
 <th>Retry?</th>
 <th>Strategy</th>
 </tr>
@@ -473,57 +500,62 @@ try {
 <tbody>
 <tr>
 <td><code>ERR_NETWORK</code></td>
-<td>Yes</td>
-<td>backoff 1s/2s/4s, max 3 attempts</td>
+<td>yes</td>
+<td>backoff 1s/2s/4s, max 3</td>
 </tr>
 <tr>
 <td><code>ERR_TEE_ATTESTATION</code></td>
-<td>Once</td>
-<td>recreate Immunity, retry once, then degrade</td>
+<td>once</td>
+<td>retry once, then degrade</td>
 </tr>
 <tr>
 <td><code>ERR_TEE_RESPONSE</code></td>
-<td>Once</td>
+<td>once</td>
 <td>retry once, then degrade</td>
 </tr>
 <tr>
 <td><code>ERR_INSUFFICIENT_BALANCE</code></td>
-<td>Yes</td>
+<td>yes</td>
 <td>deposit + retry</td>
 </tr>
 <tr>
-<td><code>ERR_ESCALATION_TIMEOUT</code></td>
-<td>No</td>
-<td>escalation-by-design; log and abort</td>
+<td><code>ERR_NOT_STARTED</code></td>
+<td>yes</td>
+<td><code>start()</code> first</td>
+</tr>
+<tr>
+<td><code>ERR_ESCALATION_*</code></td>
+<td>no</td>
+<td>escalation by design; log and abort</td>
 </tr>
 <tr>
 <td><code>ERR_BLOCKED</code></td>
-<td>No</td>
-<td>hard block; do not retry</td>
+<td>no</td>
+<td>hard block</td>
 </tr>
 <tr>
-<td><code>ERR_ANTIBODY_NOT_FOUND</code></td>
-<td>No</td>
-<td>nothing to retry</td>
+<td><code>ERR_NOT_REGISTERED</code></td>
+<td>no</td>
+<td>register first</td>
 </tr>
 <tr>
 <td><code>ERR_DUPLICATE_ANTIBODY</code></td>
-<td>No</td>
-<td>catch, treat as success</td>
+<td>no</td>
+<td>treat as success</td>
 </tr>
 <tr>
 <td><code>ERR_STAKE_LOCKED</code></td>
-<td>No</td>
+<td>no</td>
 <td>wait for unlock</td>
 </tr>
 <tr>
-<td><code>ERR_NOT_STARTED</code></td>
-<td>Yes</td>
-<td>call <code>start()</code> first</td>
+<td><code>ERR_ANTIBODY_NOT_FOUND</code></td>
+<td>no</td>
+<td>nothing to retry</td>
 </tr>
 <tr>
 <td><code>ERR_MISSING_CONFIG</code></td>
-<td>No</td>
+<td>no</td>
 <td>fix config</td>
 </tr>
 </tbody>
@@ -563,25 +595,10 @@ try {
                 <a href="#immunityerror" class="toc-link">ImmunityError</a>
             </li>
             <li class="toc-item toc-item-sub">
-                <a href="#missingconfigerror" class="toc-link">MissingConfigError</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#notstartederror" class="toc-link">NotStartedError</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#blockerror" class="toc-link">BlockError</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#escalationerror-family" class="toc-link">EscalationError family</a>
+                <a href="#escalationerror" class="toc-link">EscalationError</a>
             </li>
             <li class="toc-item toc-item-sub">
                 <a href="#insufficientbalanceerror" class="toc-link">InsufficientBalanceError</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#networkerror" class="toc-link">NetworkError</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#antibodynotfounderror" class="toc-link">AntibodyNotFoundError</a>
             </li>
             <li class="toc-item toc-item-sub">
                 <a href="#duplicateantibodyerror" class="toc-link">DuplicateAntibodyError</a>
@@ -590,10 +607,7 @@ try {
                 <a href="#stakelockederror" class="toc-link">StakeLockedError</a>
             </li>
             <li class="toc-item toc-item-sub">
-                <a href="#teeattestationerror" class="toc-link">TeeAttestationError</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#teeresponseerror" class="toc-link">TeeResponseError</a>
+                <a href="#teeattestationerror--teeresponseerror" class="toc-link">TeeAttestationError / TeeResponseError</a>
             </li>
             <li class="toc-item">
                 <a href="#best-practice-retry-table" class="toc-link">Best-practice retry table</a>

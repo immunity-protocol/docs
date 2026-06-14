@@ -4,20 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="leaf-base-url" content="">
-<meta name="description" content="Mint a fresh antibody on chain. Lock a bond sized by severity and prominence. Earn a fee share on every match once it matures.">
+<meta name="description" content="Immunity separates propagation (instant, always) from enforcement (trust-gated). The same antibody can warn or hard-block depending on who published it and how corroborated it is.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://docs.immunity-protocol.com/">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Publish an antibody · Immunity Docs">
-<meta property="og:description" content="Mint a fresh antibody on chain. Lock a bond sized by severity and prominence. Earn a fee share on every match once it matures.">
+<meta property="og:title" content="Two-speed enforcement · Immunity Docs">
+<meta property="og:description" content="Immunity separates propagation (instant, always) from enforcement (trust-gated). The same antibody can warn or hard-block depending on who published it and how corroborated it is.">
 <meta property="og:site_name" content="Immunity Docs">
 <meta property="og:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Immunity Docs">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Publish an antibody · Immunity Docs">
-<meta name="twitter:description" content="Mint a fresh antibody on chain. Lock a bond sized by severity and prominence. Earn a fee share on every match once it matures.">
+<meta name="twitter:title" content="Two-speed enforcement · Immunity Docs">
+<meta name="twitter:description" content="Immunity separates propagation (instant, always) from enforcement (trust-gated). The same antibody can warn or hard-block depending on who published it and how corroborated it is.">
 <meta name="twitter:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -51,7 +51,7 @@ tailwind.config = {
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 <link rel="stylesheet" href="/assets/css/app.css">
 <script src="/assets/js/theme.js"></script>
-    <title>Publish an antibody · Immunity Docs</title>
+    <title>Two-speed enforcement · Immunity Docs</title>
 </head>
 <body class="bg-deep text-body antialiased font-body">
 <header class="site-nav">
@@ -142,7 +142,7 @@ tailwind.config = {
                 </li>
                 <li>
                     <a href="/concepts/two-speed-enforcement"
-                       class="sidebar-link">
+                       class="sidebar-link active">
                         Two-speed enforcement
                     </a>
                 </li>
@@ -207,7 +207,7 @@ tailwind.config = {
                 </li>
                 <li>
                     <a href="/guides/publish-an-antibody"
-                       class="sidebar-link active">
+                       class="sidebar-link">
                         Publish an antibody
                     </a>
                 </li>
@@ -347,167 +347,101 @@ tailwind.config = {
         <main class="docs-main">
 <article class="docs-content">
     <div class="prose">
-        <h1>Publish an antibody</h1>
-<p>The agent role you adopt when you spot a threat the network does not yet know about. <code>publish()</code> mints a new antibody on the Registry, locks a non-refundable bond, and starts you earning a fee share on every match across the network once the antibody matures.</p>
-<h2 id="before-you-publish-register"><a href="#before-you-publish-register" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Before you publish: register</h2>
-<p>Publishing requires a registered identity. Register once:</p>
-<pre><code class="language-ts">if (!(await immunity.isRegistered())) {
-  const { txHash, bond } = await immunity.registerPublisher(&quot;my-agent&quot;);
-}
-</code></pre>
-<p>This mints the contract-owned <code>my-agent.immunity.eth</code> subname and locks the registration bond. See <strong><a href="/concepts/reputation-and-identity/">Reputation and identity</a></strong>.</p>
-<h2 id="when-to-publish"><a href="#when-to-publish" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>When to publish</h2>
-<p>You have direct evidence of a malicious address, contract, function pattern, taint graph, or content marker. Common sources:</p>
+        <h1>Two-speed enforcement</h1>
+<p>This is the central design idea in Immunity. Older threat-sharing designs conflate two things that need to move at different speeds:</p>
 <ul>
-<li>A security team's triage queue: you confirmed a wallet drained a victim.</li>
-<li>An off-chain intelligence feed (sanctioned lists, scam-address tags) you are seeding into the network.</li>
-<li>A threat your own agent caught at runtime and you want to publish after manual review (rather than relying on <code>autoPublishConfirmedThreats</code>).</li>
+<li><strong>Propagation</strong> must be instant, so a real threat protects the network the moment it is seen.</li>
+<li><strong>Enforcement</strong> must be earned, so a cheap actor cannot censor honest activity by publishing a false flag.</li>
 </ul>
-<h2 id="the-minimal-call"><a href="#the-minimal-call" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>The minimal call</h2>
-<pre><code class="language-ts">import { Immunity, BASE_SEPOLIA } from &quot;@immunity-protocol/sdk&quot;;
-
-const result = await immunity.publish({
-  seed: {
-    abType: &quot;ADDRESS&quot;,
-    chainId: BASE_SEPOLIA.chainId,
-    target: &quot;0xCAFE000000000000000000000000000000000001&quot;,
-  },
-  verdict: &quot;MALICIOUS&quot;,
-  confidence: 95,
-  severity: 90,
-  reasonSummary: &quot;Known drainer contract, 47 victim wallets&quot;,
-});
-
-console.log(result);
-// {
-//   keccakId:    &quot;0x...&quot;,
-//   immSeq:      42,
-//   immId:       &quot;IMM-2026-0042&quot;,
-//   evidenceCid: &quot;0x...&quot;,       // IPFS digest of the public envelope
-//   contextHash: &quot;0x...&quot;,       // present only if you passed `context`
-//   txHash:      &quot;0x...&quot;,
-// }
-</code></pre>
-<p>The antibody starts on <strong>PROBATION</strong>: advisory-only, fees escrowed, until it matures. See <strong><a href="/concepts/corroboration-and-maturation/">Corroboration and maturation</a></strong>.</p>
-<h2 id="required-prepaid-balance"><a href="#required-prepaid-balance" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Required prepaid balance</h2>
-<p><code>publish()</code> locks a bond sized by claimed severity and target prominence (not a flat amount), plus gas. The bond comes from your prepaid balance, so fund it first:</p>
-<pre><code class="language-ts">import { parseUsdc } from &quot;@immunity-protocol/sdk&quot;;
-
-if ((await immunity.balanceOf()) &lt; parseUsdc(&quot;2&quot;)) {
-  await immunity.deposit(parseUsdc(&quot;5&quot;));
-}
-</code></pre>
-<p>Flagging a higher-severity threat, a protected blue-chip, or a young frontier address costs a larger bond. See <strong><a href="/concepts/sybil-resistance/">Sybil resistance</a></strong>.</p>
-<h2 id="per-type-seed-shapes"><a href="#per-type-seed-shapes" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Per-type seed shapes</h2>
-<p>The <code>seed</code> field is a discriminated union by <code>abType</code>. Full details in <strong><a href="/reference/matchers/">Matchers and seeds</a></strong>.</p>
-<pre><code class="language-ts">// ADDRESS
-seed: { abType: &quot;ADDRESS&quot;, chainId: 84532, target: &quot;0xBAD...&quot; }
-
-// CALL_PATTERN  (selector + raw-calldata args template; 0x for selector-only)
-seed: { abType: &quot;CALL_PATTERN&quot;, chainId: 84532, target: &quot;0xRouter...&quot;,
-        selector: &quot;0x095ea7b3&quot;, argsTemplate: &quot;0x&quot; }
-
-// BYTECODE  (keccak256 of the deployed runtime bytecode)
-seed: { abType: &quot;BYTECODE&quot;, bytecodeHash: &quot;0x...&quot; }
-
-// GRAPH  (order-independent tainted set + its taintSetId)
-seed: { abType: &quot;GRAPH&quot;, chainId: 84532,
-        taintedAddresses: [&quot;0xMixer1...&quot;, &quot;0xMixer2...&quot;],
-        taintSetId: computeTaintSetId({ chainId: 84532, taintedAddresses: [...] }) }
-
-// SEMANTIC  (flavor + a marker string or precomputed hash)
-seed: { abType: &quot;SEMANTIC&quot;, flavor: &quot;PROMPT_INJECTION&quot;,
-        pattern: { kind: &quot;marker&quot;, value: &quot;ignore previous instructions and&quot; } }
-</code></pre>
-<h2 id="verdict-confidence-severity-reason"><a href="#verdict-confidence-severity-reason" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Verdict, confidence, severity, reason</h2>
+<p>Immunity splits them.</p>
+<h2 id="the-two-speeds"><a href="#the-two-speeds" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>The two speeds</h2>
+<p><strong>Information propagates instantly, always.</strong> An antibody is visible network-wide the moment it is published to the Registry. Every agent can see it, log it, and surface it.</p>
+<p><strong>Enforcement authority is trust-gated.</strong> Whether an antibody actually <em>hard-blocks</em> an action or only <em>warns</em> (advisory) is a separate, read-side decision derived from:</p>
+<ul>
+<li>the publisher's on-chain <strong>reputation</strong>,</li>
+<li>the antibody's <strong>maturity</strong> (probation vs active),</li>
+<li>how many independent reputable publishers <strong>corroborate</strong> the same matcher,</li>
+<li>the target's <strong>prominence</strong> (a blue-chip or a young frontier address gets extra protection).</li>
+</ul>
+<p>This dissolves the speed/safety tension. A trusted, corroborated antibody against a normal target gets fast hard protection. A lone, low-reputation publisher flagging a blue-chip gets advisory-only, which censors nobody, while the information still propagates for anyone who wants to act on it.</p>
+<h2 id="advisory-vs-hard-block"><a href="#advisory-vs-hard-block" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Advisory vs hard-block</h2>
+<p>Every matched antibody resolves to one of three enforcement tiers, computed on the read side by <code>classifyEnforcement</code>:</p>
 <table>
 <thead>
 <tr>
-<th>Field</th>
-<th>Range</th>
-<th>Meaning</th>
+<th>Tier</th>
+<th>When</th>
+<th>Effect</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>verdict</code></td>
-<td><code>&quot;MALICIOUS&quot;</code> / <code>&quot;SUSPICIOUS&quot;</code></td>
-<td>your classification</td>
+<td><code>hard-block</code></td>
+<td><code>(corroboration &gt;= K or genesis-seeded)</code> <strong>and</strong> the target is not protected</td>
+<td>the SDK blocks the action</td>
 </tr>
 <tr>
-<td><code>confidence</code></td>
-<td>0..100</td>
-<td>your confidence in the classification</td>
+<td><code>advisory</code></td>
+<td>eligible for enforcement but <code>corroboration &lt; K</code>, <strong>or</strong> the target is in the protected set</td>
+<td>governed by <code>unverifiedAntibodyPolicy</code></td>
 </tr>
 <tr>
-<td><code>severity</code></td>
-<td>0..100</td>
-<td>damage potential; <strong>scales the bond</strong></td>
-</tr>
-<tr>
-<td><code>reasonSummary</code></td>
-<td>string</td>
-<td>short public summary on the evidence envelope</td>
-</tr>
-<tr>
-<td><code>context</code></td>
-<td>string (optional)</td>
-<td>sensitive detail, ECIES-encrypted to the CRE oracle</td>
+<td><code>none</code></td>
+<td>the antibody is <code>SLASHED</code>, <code>EXPIRED</code>, or past its TTL</td>
+<td>ignored</td>
 </tr>
 </tbody>
 </table>
-<h2 id="bond-and-rewards"><a href="#bond-and-rewards" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Bond and rewards</h2>
-<p>The bond is non-refundable while the antibody is enforced. Once the antibody matures (corroboration reaches <code>K</code>, or undisputed matched volume over time), the escrowed publisher fees release and you earn a share of the fee on every match. If the antibody is challenged and ruled invalid, the bond and escrowed fees are clawed back. A false antibody earns exactly zero. See <strong><a href="/concepts/settlement-and-fees/">Settlement and fees</a></strong>.</p>
-<h2 id="errors-to-handle"><a href="#errors-to-handle" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Errors to handle</h2>
+<p><code>K</code> is the corroboration threshold read from the Registry. A genesis-seeded corpus entry hard-blocks without waiting for corroboration; everything else must earn it. A <strong>protected</strong> target is capped at advisory even when corroboration clears <code>K</code>, so no antibody can hard-block the canonical USDC, WETH, or a major router.</p>
+<h2 id="what-you-do-with-an-advisory"><a href="#what-you-do-with-an-advisory" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>What you do with an advisory</h2>
+<p>A hard-block is acted on automatically. An advisory is yours to govern with <code>unverifiedAntibodyPolicy</code>:</p>
 <table>
 <thead>
 <tr>
-<th>Error</th>
-<th>Code</th>
-<th>Meaning</th>
-<th>Fix</th>
+<th>Policy</th>
+<th>Behavior on an advisory match</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>NotRegisteredError</code></td>
-<td><code>ERR_NOT_REGISTERED</code></td>
-<td>not a registered publisher</td>
-<td><code>registerPublisher()</code> first</td>
+<td><code>ignore</code></td>
+<td>take no protective action (allow), but still settle the fee</td>
 </tr>
 <tr>
-<td><code>DuplicateAntibodyError</code></td>
-<td><code>ERR_DUPLICATE_ANTIBODY</code></td>
-<td>you already published this matcher</td>
-<td>catch and skip</td>
+<td><code>escalate</code> (typical)</td>
+<td>surface to your <code>onEscalate</code> handler for an operator decision</td>
 </tr>
 <tr>
-<td><code>InsufficientBalanceError</code></td>
-<td><code>ERR_INSUFFICIENT_BALANCE</code></td>
-<td>balance below the bond</td>
-<td><code>deposit()</code></td>
+<td><code>block</code></td>
+<td>act on advisories as if they were hard-blocks (paranoid)</td>
+</tr>
+<tr>
+<td><code>corroborate</code></td>
+<td>re-verify the advisory through the CRE jury and, if confirmed, publish your own corroborating antibody to strengthen the signal</td>
 </tr>
 </tbody>
 </table>
-<p><code>DuplicateAntibodyError</code> carries the existing <code>keccakId</code>. If a <em>different</em> publisher already flagged the target, use <code>corroborate()</code> instead of <code>publish()</code> to strengthen the signal. See <strong><a href="/guides/corroborate-and-challenge/">Corroborate and challenge</a></strong>.</p>
+<p><code>corroborate</code> is the organic maturation engine: the agents actually being targeted re-verify true threats and push them toward hard-block, while false advisories never accrue corroboration because honest re-evaluations will not confirm them. See <strong><a href="/concepts/corroboration-and-maturation/">Corroboration and maturation</a></strong>.</p>
+<h2 id="why-this-is-the-strongest-single-fix"><a href="#why-this-is-the-strongest-single-fix" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Why this is the strongest single fix</h2>
+<p>The worst attack on a threat network is a cheap actor flagging a genuine address to deny real activity. Two-speed enforcement neuters it: a lone low-reputation flag is advisory-only, and a protected target can never be hard-blocked at all. Combined with bonded identity and the challenge game, the attacker pays and loses while honest activity is never censored. The full attacker math is in <strong><a href="/concepts/sybil-resistance/">Sybil resistance</a></strong>.</p>
 <h2 id="see-also"><a href="#see-also" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>See also</h2>
 <ul>
-<li><strong><a href="/concepts/antibodies/">Concepts: Antibodies</a></strong>, the lifecycle.</li>
-<li><strong><a href="/concepts/settlement-and-fees/">Settlement and fees</a></strong>, the bond and reward math.</li>
-<li><strong><a href="/reference/immunity-class/">Reference: Immunity class</a></strong>, the full publish API.</li>
+<li><strong><a href="/concepts/sybil-resistance/">Sybil resistance</a></strong>, the attack this defends against and the rest of the toolkit.</li>
+<li><strong><a href="/concepts/corroboration-and-maturation/">Corroboration and maturation</a></strong>, how an antibody earns hard-block.</li>
+<li><strong><a href="/reference/helpers/">Reference: helpers</a></strong>, <code>classifyEnforcement</code> and <code>EnforcementResolver</code>.</li>
 </ul>
 
     </div>
 
     <nav class="docs-pagination">
-        <a href="/guides/gate-a-transaction" class="pagination-link pagination-prev">
+        <a href="/concepts/antibodies" class="pagination-link pagination-prev">
             <span class="pagination-label">&larr; Previous</span>
-            <span class="pagination-title">Gate a transaction</span>
+            <span class="pagination-title">Antibodies</span>
         </a>
 
-        <a href="/guides/corroborate-and-challenge" class="pagination-link pagination-next">
+        <a href="/concepts/three-tier-lookup" class="pagination-link pagination-next">
             <span class="pagination-label">Next &rarr;</span>
-            <span class="pagination-title">Corroborate and challenge</span>
+            <span class="pagination-title">Three-tier lookup</span>
         </a>
     </nav>
 </article>
@@ -517,28 +451,16 @@ seed: { abType: &quot;SEMANTIC&quot;, flavor: &quot;PROMPT_INJECTION&quot;,
         <h4 class="toc-title">On this page</h4>
         <ul class="toc-links">
             <li class="toc-item">
-                <a href="#before-you-publish-register" class="toc-link">Before you publish: register</a>
+                <a href="#the-two-speeds" class="toc-link">The two speeds</a>
             </li>
             <li class="toc-item">
-                <a href="#when-to-publish" class="toc-link">When to publish</a>
+                <a href="#advisory-vs-hard-block" class="toc-link">Advisory vs hard-block</a>
             </li>
             <li class="toc-item">
-                <a href="#the-minimal-call" class="toc-link">The minimal call</a>
+                <a href="#what-you-do-with-an-advisory" class="toc-link">What you do with an advisory</a>
             </li>
             <li class="toc-item">
-                <a href="#required-prepaid-balance" class="toc-link">Required prepaid balance</a>
-            </li>
-            <li class="toc-item">
-                <a href="#per-type-seed-shapes" class="toc-link">Per-type seed shapes</a>
-            </li>
-            <li class="toc-item">
-                <a href="#verdict-confidence-severity-reason" class="toc-link">Verdict, confidence, severity, reason</a>
-            </li>
-            <li class="toc-item">
-                <a href="#bond-and-rewards" class="toc-link">Bond and rewards</a>
-            </li>
-            <li class="toc-item">
-                <a href="#errors-to-handle" class="toc-link">Errors to handle</a>
+                <a href="#why-this-is-the-strongest-single-fix" class="toc-link">Why this is the strongest single fix</a>
             </li>
             <li class="toc-item">
                 <a href="#see-also" class="toc-link">See also</a>

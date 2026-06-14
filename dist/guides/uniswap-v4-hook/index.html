@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="leaf-base-url" content="">
-<meta name="description" content="Install the Immunity hook on a Uniswap v4 pool. Every swap on the pool is checked against the cross-chain mirror; flagged tokens revert at the BeforeSwap stage.">
+<meta name="description" content="Install the Immunity hook on a Uniswap v4 pool. Every swap is checked against the on-chain mirror; flagged tokens revert at the beforeSwap stage, and protected blue-chips never do.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://docs.immunity-protocol.com/">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Uniswap v4 hook · Immunity Docs">
-<meta property="og:description" content="Install the Immunity hook on a Uniswap v4 pool. Every swap on the pool is checked against the cross-chain mirror; flagged tokens revert at the BeforeSwap stage.">
+<meta property="og:description" content="Install the Immunity hook on a Uniswap v4 pool. Every swap is checked against the on-chain mirror; flagged tokens revert at the beforeSwap stage, and protected blue-chips never do.">
 <meta property="og:site_name" content="Immunity Docs">
 <meta property="og:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <meta property="og:image:width" content="1200">
@@ -17,7 +17,7 @@
 <meta property="og:image:alt" content="Immunity Docs">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Uniswap v4 hook · Immunity Docs">
-<meta name="twitter:description" content="Install the Immunity hook on a Uniswap v4 pool. Every swap on the pool is checked against the cross-chain mirror; flagged tokens revert at the BeforeSwap stage.">
+<meta name="twitter:description" content="Install the Immunity hook on a Uniswap v4 pool. Every swap is checked against the on-chain mirror; flagged tokens revert at the beforeSwap stage, and protected blue-chips never do.">
 <meta name="twitter:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -141,27 +141,57 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/concepts/two-speed-enforcement"
+                       class="sidebar-link">
+                        Two-speed enforcement
+                    </a>
+                </li>
+                <li>
                     <a href="/concepts/three-tier-lookup"
                        class="sidebar-link">
                         Three-tier lookup
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/tee-verification"
+                    <a href="/concepts/corroboration-and-maturation"
                        class="sidebar-link">
-                        TEE verification
+                        Corroboration and maturation
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/settlement-and-tokenomics"
+                    <a href="/concepts/reputation-and-identity"
                        class="sidebar-link">
-                        Settlement and tokenomics
+                        Reputation and identity
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/cross-chain-mirror"
+                    <a href="/concepts/sybil-resistance"
                        class="sidebar-link">
-                        Cross-chain mirror
+                        Sybil resistance
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/challenge-game-and-jury"
+                       class="sidebar-link">
+                        The challenge game and jury
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/novel-threat-verification"
+                       class="sidebar-link">
+                        Novel-threat verification
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/settlement-and-fees"
+                       class="sidebar-link">
+                        Settlement and fees
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/the-mirror-and-consumers"
+                       class="sidebar-link">
+                        The mirror and on-chain consumers
                     </a>
                 </li>
             </ul>
@@ -182,9 +212,21 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/guides/corroborate-and-challenge"
+                       class="sidebar-link">
+                        Corroborate and challenge
+                    </a>
+                </li>
+                <li>
                     <a href="/guides/operator-in-the-loop"
                        class="sidebar-link">
                         Operator in the loop
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/run-a-reference-agent"
+                       class="sidebar-link">
+                        Run a reference agent
                     </a>
                 </li>
                 <li>
@@ -252,15 +294,21 @@ tailwind.config = {
                         Helpers
                     </a>
                 </li>
+                <li>
+                    <a href="/reference/matchers"
+                       class="sidebar-link">
+                        Matchers and seeds
+                    </a>
+                </li>
             </ul>
         </div>
         <div class="sidebar-group">
             <h3 class="sidebar-group-title">Network</h3>
             <ul class="sidebar-links">
                 <li>
-                    <a href="/network/registry-on-0g"
+                    <a href="/network/registry-on-base"
                        class="sidebar-link">
-                        Registry on 0G
+                        Registry on Base
                     </a>
                 </li>
                 <li>
@@ -300,35 +348,29 @@ tailwind.config = {
 <article class="docs-content">
     <div class="prose">
         <h1>Uniswap v4 hook</h1>
-<p>The Immunity hook is a Uniswap v4 BeforeSwap hook that consults the on-chain mirror for the input/output tokens of an inbound swap. If either token is flagged, the swap reverts with a friendly typed error and the LP is unaffected. No SDK install needed for the swappers; the hook protects the pool itself.</p>
-<p>This is the <strong>collective LP defense</strong> path. You do not need every swapper on your pool to know about Immunity; the hook is the policy.</p>
+<p>The Immunity hook is a Uniswap v4 <code>beforeSwap</code> hook that consults the on-chain <strong>Mirror</strong> for the input and output tokens of an inbound swap. If either token is hard-blocked, the swap reverts with a typed error and the LP is unaffected. Swappers need no SDK; the hook is the policy for the whole pool.</p>
+<p>This is the <strong>collective LP defense</strong> path. You do not need every swapper to know about Immunity; the hook protects them automatically.</p>
 <h2 id="how-the-hook-works"><a href="#how-the-hook-works" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>How the hook works</h2>
-<pre><code>swapper sends swap            Uniswap v4 PoolManager           Immunity hook              Mirror
-                                                                 (BeforeSwap)
-       │                              │                              │                     │
-       │  swap(...)                   │                              │                     │
-       ├─────────────────────────────&gt;│                              │                     │
-       │                              │  beforeSwap(poolKey,         │                     │
-       │                              │             swapParams)      │                     │
-       │                              ├─────────────────────────────&gt;│                     │
-       │                              │                              │  isMirrored(token)  │
-       │                              │                              ├────────────────────&gt;│
-       │                              │                              │  bool               │
-       │                              │                              │&lt;────────────────────┤
-       │                              │                              │                     │
-       │                              │  revert TokenBlocked or      │                     │
-       │                              │  return BeforeSwapDelta()    │                     │
-       │                              │&lt;─────────────────────────────┤                     │
-       │  TX REVERTED                 │                              │                     │
-       │&lt;─────────────────────────────┤                              │                     │
+<pre><code>swapper          PoolManager             ImmunityHook            Mirror
+   │                  │                  (beforeSwap)              │
+   │  swap(...)       │                      │                     │
+   ├─────────────────&gt;│  beforeSwap(key,     │                     │
+   │                  │            params)   │                     │
+   │                  ├─────────────────────&gt;│  isHardBlocked(t)   │
+   │                  │                      ├────────────────────&gt;│
+   │                  │                      │  bool               │
+   │                  │                      │&lt;────────────────────┤
+   │                  │  revert ImmunityBlocked  or  proceed       │
+   │  TX REVERTED     │&lt;─────────────────────┤                     │
+   │&lt;─────────────────┤                      │                     │
 </code></pre>
-<p>Hook contract reads the <code>MirrorRegistry</code> cheap (one SLOAD per token). The pool reverts atomically; LP balances do not move. The error message includes the antibody's <code>keccakId</code> so the swapper can look up why.</p>
+<p>The hook reads the Mirror cheaply (about one SLOAD per token). The pool reverts atomically; LP balances never move. The revert carries the offending token and <code>keccakId</code> so the swapper can look up why.</p>
+<h2 id="what-the-hook-checks"><a href="#what-the-hook-checks" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>What the hook checks</h2>
+<p>The hook reads the <strong>enforcement decision</strong> for the swap's tokens, not raw antibody data. ADDRESS is the antibody type relevant to a swap-path check; the Mirror reduces it to a single hard-block yes/no. The Mirror honors the <strong>protected set</strong>, so a swap against the canonical USDC, WETH, or router can never be reverted no matter how an antibody was published. See <strong><a href="/concepts/the-mirror-and-consumers/">The mirror and on-chain consumers</a></strong>.</p>
+<p>The hook also ships with <code>Pausable</code> and a never-block allowlist as safety rails.</p>
 <h2 id="installing-the-hook-on-your-pool"><a href="#installing-the-hook-on-your-pool" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Installing the hook on your pool</h2>
-<p>Two paths.</p>
-<h3 id="a-deploy-a-new-pool-with-the-hook-attached"><a href="#a-deploy-a-new-pool-with-the-hook-attached" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>A) Deploy a new pool with the hook attached</h3>
-<p>When initializing a v4 pool, set <code>hooks</code> to the deployed <code>ImmunityHook</code> contract. The pool will route every <code>BeforeSwap</code> through the hook automatically.</p>
-<pre><code class="language-solidity">// In your deployment script.
-PoolKey memory key = PoolKey({
+<p>You cannot retrofit a hook onto an existing v4 pool; hook attachment is part of pool initialization. Set <code>hooks</code> to the deployed <code>ImmunityHook</code> when you initialize the pool:</p>
+<pre><code class="language-solidity">PoolKey memory key = PoolKey({
     currency0: token0,
     currency1: token1,
     fee: 3000,
@@ -336,84 +378,37 @@ PoolKey memory key = PoolKey({
     hooks: IHooks(immunityHook)
 });
 
-poolManager.initialize(key, sqrtPriceX96, ZERO_BYTES);
+poolManager.initialize(key, sqrtPriceX96);
 </code></pre>
-<p>The hook addresses for live deployments:</p>
-<table>
-<thead>
-<tr>
-<th>Network</th>
-<th>ImmunityHook</th>
-<th>MirrorRegistry</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Sepolia (demo)</td>
-<td><code>0xd3335f3d69e97c314350eda63fb5ba0163dd0080</code></td>
-<td><code>0x...</code> (see SDK constants)</td>
-</tr>
-<tr>
-<td>Ethereum mainnet</td>
-<td>Roadmap</td>
-<td>Roadmap</td>
-</tr>
-<tr>
-<td>Base</td>
-<td>Roadmap</td>
-<td>Roadmap</td>
-</tr>
-</tbody>
-</table>
-<h3 id="b-existing-pool-no-hook"><a href="#b-existing-pool-no-hook" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>B) Existing pool, no hook</h3>
-<p>You cannot retrofit a hook onto an already-deployed v4 pool. Hook attachment is part of pool initialization. To migrate an existing pool, you deploy a sibling pool with the hook attached, migrate liquidity, and deprecate the unprotected pool.</p>
-<p>The Immunity demo at <a href="https://immunity-protocol.com/dex">immunity-protocol.com/dex</a> shows two side-by-side pools: protected (with hook) and unprotected (without). Try the same swap against both and you can see the hook intervene live.</p>
-<h2 id="what-the-hook-checks"><a href="#what-the-hook-checks" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>What the hook checks</h2>
-<p>Today the hook consults the <strong>MirrorRegistry</strong> for ADDRESS antibodies whose <code>target</code> matches either swap token. ADDRESS is the only antibody type that mirrors cross-chain (see <a href="/concepts/cross-chain-mirror/">Cross-chain mirror</a> for why).</p>
-<p>Future hook features (roadmap):</p>
-<ul>
-<li>Sender-address checks (block swaps from sanctioned wallets).</li>
-<li>Tx-origin checks (block swaps from drainer-controlled bots).</li>
-<li>Calldata-pattern checks (block swaps targeting honeypot tokens via specific approve patterns).</li>
-</ul>
-<p>For now, address-of-token is the only check.</p>
+<p>The deployed <code>ImmunityHook</code> and <code>Mirror</code> addresses for Base Sepolia live in the <code>immunity-contracts-mirror</code> repo. To protect liquidity already in an unprotected pool, deploy a sibling pool with the hook attached, migrate liquidity, and deprecate the old pool.</p>
 <h2 id="errors-a-swapper-sees"><a href="#errors-a-swapper-sees" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Errors a swapper sees</h2>
-<p>When the hook reverts, the swapper's wallet shows the error name and arguments. The Immunity hook emits:</p>
-<ul>
-<li><strong><code>TokenBlocked(address token, bytes32 keccakId)</code></strong>, the swap input or output token is on the registry.</li>
-<li><strong><code>SenderBlocked(address sender, bytes32 keccakId)</code></strong>, future. Sender address is on the registry.</li>
-<li><strong><code>OriginBlocked(address origin, bytes32 keccakId)</code></strong>, future. Tx origin is on the registry.</li>
-</ul>
-<p>The friendly Immunity SDK frontends decode these errors automatically. Direct integrations should walk Uniswap's <code>CustomRevert.WrappedError</code> envelope to find the inner selector. See the SDK source <code>dex.js</code> for a reference implementation of the unwrap.</p>
+<p>When the hook reverts, the swapper's wallet shows the typed error, <code>ImmunityBlocked(address token, bytes32 keccakId)</code>. Uniswap wraps hook reverts in a <code>CustomRevert.WrappedError</code> envelope; direct integrations walk that envelope to find the inner selector. The Immunity SDK frontends decode it automatically.</p>
 <h2 id="gas-overhead"><a href="#gas-overhead" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Gas overhead</h2>
-<p>The hook adds approximately <strong>30k gas</strong> per swap. One SLOAD per token consulted (~2 SLOADs for a swap), plus the hook contract call overhead. On a chain where the swap is already 150-200k gas, this is a 15-20% overhead.</p>
-<p>Worth the cost for any pool that's seen a single $100k drain. Decide based on your LP's risk tolerance.</p>
-<h2 id="verifying-flagged-tokens-hit-the-mirror"><a href="#verifying-flagged-tokens-hit-the-mirror" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Verifying flagged tokens hit the mirror</h2>
-<p>The mirror is observation-only and the relayer is permissionless. To verify an ADDRESS antibody on 0G has propagated to Sepolia:</p>
+<p>The hook adds roughly <strong>30k gas</strong> per swap: about one SLOAD per token consulted plus the hook call overhead. On a swap already costing 150-200k gas, that is a 15-20% overhead, worth it for any pool that has seen a single large drain.</p>
+<h2 id="verifying-a-flag-reached-the-mirror"><a href="#verifying-a-flag-reached-the-mirror" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Verifying a flag reached the mirror</h2>
+<p>The Mirror is observation-only: it can only project a hard-block the Registry already enforces, and it respects the protected set. To confirm a token is hard-blocked on chain:</p>
 <pre><code class="language-ts">import { Contract, JsonRpcProvider } from &quot;ethers&quot;;
 
-const provider = new JsonRpcProvider(&quot;https://ethereum-sepolia-rpc.publicnode.com&quot;);
+const provider = new JsonRpcProvider(&quot;https://sepolia.base.org&quot;);
 const mirror = new Contract(MIRROR_ADDRESS, [
-  &quot;function isMirrored(bytes32) view returns (bool)&quot;,
+  &quot;function isHardBlocked(address) view returns (bool)&quot;,
 ], provider);
 
-const isLive = await mirror.isMirrored(antibody.keccakId);
-console.log(`${antibody.immId} is mirrored on Sepolia: ${isLive}`);
+console.log(await mirror.isHardBlocked(tokenAddress));
 </code></pre>
-<p>Latency between 0G publish and Sepolia mirror is typically under one Sepolia block.</p>
 <h2 id="see-also"><a href="#see-also" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>See also</h2>
 <ul>
-<li><strong><a href="/concepts/cross-chain-mirror/">Cross-chain mirror</a></strong>, how the source-of-truth gets to the target chain.</li>
-<li>The live demo: <a href="https://immunity-protocol.com/dex">immunity-protocol.com/dex</a>.</li>
+<li><strong><a href="/concepts/the-mirror-and-consumers/">The mirror and on-chain consumers</a></strong>, how the hook reads enforcement.</li>
+<li><strong><a href="/concepts/sybil-resistance/">Sybil resistance</a></strong>, the protected set the hook honors.</li>
 <li>The Uniswap v4 hook source in <code>immunity-contracts-mirror</code>.</li>
 </ul>
 
     </div>
 
     <nav class="docs-pagination">
-        <a href="/guides/operator-in-the-loop" class="pagination-link pagination-prev">
+        <a href="/guides/run-a-reference-agent" class="pagination-link pagination-prev">
             <span class="pagination-label">&larr; Previous</span>
-            <span class="pagination-title">Operator in the loop</span>
+            <span class="pagination-title">Run a reference agent</span>
         </a>
 
         <a href="/guides/test-against-testnet" class="pagination-link pagination-next">
@@ -431,16 +426,10 @@ console.log(`${antibody.immId} is mirrored on Sepolia: ${isLive}`);
                 <a href="#how-the-hook-works" class="toc-link">How the hook works</a>
             </li>
             <li class="toc-item">
-                <a href="#installing-the-hook-on-your-pool" class="toc-link">Installing the hook on your pool</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#a-deploy-a-new-pool-with-the-hook-attached" class="toc-link">A) Deploy a new pool with the hook attached</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#b-existing-pool-no-hook" class="toc-link">B) Existing pool, no hook</a>
+                <a href="#what-the-hook-checks" class="toc-link">What the hook checks</a>
             </li>
             <li class="toc-item">
-                <a href="#what-the-hook-checks" class="toc-link">What the hook checks</a>
+                <a href="#installing-the-hook-on-your-pool" class="toc-link">Installing the hook on your pool</a>
             </li>
             <li class="toc-item">
                 <a href="#errors-a-swapper-sees" class="toc-link">Errors a swapper sees</a>
@@ -449,7 +438,7 @@ console.log(`${antibody.immId} is mirrored on Sepolia: ${isLive}`);
                 <a href="#gas-overhead" class="toc-link">Gas overhead</a>
             </li>
             <li class="toc-item">
-                <a href="#verifying-flagged-tokens-hit-the-mirror" class="toc-link">Verifying flagged tokens hit the mirror</a>
+                <a href="#verifying-a-flag-reached-the-mirror" class="toc-link">Verifying a flag reached the mirror</a>
             </li>
             <li class="toc-item">
                 <a href="#see-also" class="toc-link">See also</a>

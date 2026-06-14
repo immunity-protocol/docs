@@ -4,20 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="leaf-base-url" content="">
-<meta name="description" content="Mint a fresh antibody on chain. Lock a bond sized by severity and prominence. Earn a fee share on every match once it matures.">
+<meta name="description" content="When the CRE jury fires, what it verifies, and the honest caveats about how decentralized that verification really is today.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://docs.immunity-protocol.com/">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Publish an antibody · Immunity Docs">
-<meta property="og:description" content="Mint a fresh antibody on chain. Lock a bond sized by severity and prominence. Earn a fee share on every match once it matures.">
+<meta property="og:title" content="Novel-threat verification · Immunity Docs">
+<meta property="og:description" content="When the CRE jury fires, what it verifies, and the honest caveats about how decentralized that verification really is today.">
 <meta property="og:site_name" content="Immunity Docs">
 <meta property="og:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Immunity Docs">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Publish an antibody · Immunity Docs">
-<meta name="twitter:description" content="Mint a fresh antibody on chain. Lock a bond sized by severity and prominence. Earn a fee share on every match once it matures.">
+<meta name="twitter:title" content="Novel-threat verification · Immunity Docs">
+<meta name="twitter:description" content="When the CRE jury fires, what it verifies, and the honest caveats about how decentralized that verification really is today.">
 <meta name="twitter:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -51,7 +51,7 @@ tailwind.config = {
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 <link rel="stylesheet" href="/assets/css/app.css">
 <script src="/assets/js/theme.js"></script>
-    <title>Publish an antibody · Immunity Docs</title>
+    <title>Novel-threat verification · Immunity Docs</title>
 </head>
 <body class="bg-deep text-body antialiased font-body">
 <header class="site-nav">
@@ -178,7 +178,7 @@ tailwind.config = {
                 </li>
                 <li>
                     <a href="/concepts/novel-threat-verification"
-                       class="sidebar-link">
+                       class="sidebar-link active">
                         Novel-threat verification
                     </a>
                 </li>
@@ -207,7 +207,7 @@ tailwind.config = {
                 </li>
                 <li>
                     <a href="/guides/publish-an-antibody"
-                       class="sidebar-link active">
+                       class="sidebar-link">
                         Publish an antibody
                     </a>
                 </li>
@@ -347,167 +347,76 @@ tailwind.config = {
         <main class="docs-main">
 <article class="docs-content">
     <div class="prose">
-        <h1>Publish an antibody</h1>
-<p>The agent role you adopt when you spot a threat the network does not yet know about. <code>publish()</code> mints a new antibody on the Registry, locks a non-refundable bond, and starts you earning a fee share on every match across the network once the antibody matures.</p>
-<h2 id="before-you-publish-register"><a href="#before-you-publish-register" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Before you publish: register</h2>
-<p>Publishing requires a registered identity. Register once:</p>
-<pre><code class="language-ts">if (!(await immunity.isRegistered())) {
-  const { txHash, bond } = await immunity.registerPublisher(&quot;my-agent&quot;);
-}
-</code></pre>
-<p>This mints the contract-owned <code>my-agent.immunity.eth</code> subname and locks the registration bond. See <strong><a href="/concepts/reputation-and-identity/">Reputation and identity</a></strong>.</p>
-<h2 id="when-to-publish"><a href="#when-to-publish" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>When to publish</h2>
-<p>You have direct evidence of a malicious address, contract, function pattern, taint graph, or content marker. Common sources:</p>
+        <h1>Novel-threat verification</h1>
+<p>Novel-threat verification is the third tier of <code>check()</code>. It only fires when the local cache misses <strong>and</strong> the on-chain Registry has no matching antibody for the input. That combination defines a &quot;novel&quot; threat: nobody on the network has seen it before. Tier 3 runs on <strong>Chainlink CRE</strong> (the Chainlink Runtime Environment), whose decentralized oracle network (DON) produces an attested verdict.</p>
+<h2 id="when-it-fires"><a href="#when-it-fires" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>When it fires</h2>
+<p>Three preconditions must all be true:</p>
+<ol>
+<li>The agent's <code>novelThreatPolicy</code> is <code>&quot;verify&quot;</code> (the SDK default).</li>
+<li>Tier 1 (cache) and Tier 2 (registry) both missed.</li>
+<li>A verifier is available. On Base Sepolia the SDK builds the CRE verifier automatically from the network config; you can also inject a custom <code>verifier</code>.</li>
+</ol>
+<p>Under <code>&quot;trust-cache&quot;</code> the SDK skips this tier and returns <code>{ allowed: true, novel: true }</code>. Under <code>&quot;deny-novel&quot;</code> it blocks unconditionally. If <code>verify</code> is set but no verifier is available, the path fails <strong>closed</strong>: a novel input is never silently allowed.</p>
+<h2 id="what-gets-verified"><a href="#what-gets-verified" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>What gets verified</h2>
+<p>The SDK distills the agent's input into a compact bundle:</p>
 <ul>
-<li>A security team's triage queue: you confirmed a wallet drained a victim.</li>
-<li>An off-chain intelligence feed (sanctioned lists, scam-address tags) you are seeding into the network.</li>
-<li>A threat your own agent caught at runtime and you want to publish after manual review (rather than relying on <code>autoPublishConfirmedThreats</code>).</li>
+<li>The proposed <code>tx</code> (decoded calldata where possible, raw bytes otherwise).</li>
+<li>The conversation context (recent turns plus relevant tool calls).</li>
+<li>The counterparty (address, ENS, source attribution).</li>
 </ul>
-<h2 id="the-minimal-call"><a href="#the-minimal-call" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>The minimal call</h2>
-<pre><code class="language-ts">import { Immunity, BASE_SEPOLIA } from &quot;@immunity-protocol/sdk&quot;;
-
-const result = await immunity.publish({
-  seed: {
-    abType: &quot;ADDRESS&quot;,
-    chainId: BASE_SEPOLIA.chainId,
-    target: &quot;0xCAFE000000000000000000000000000000000001&quot;,
-  },
-  verdict: &quot;MALICIOUS&quot;,
-  confidence: 95,
-  severity: 90,
-  reasonSummary: &quot;Known drainer contract, 47 victim wallets&quot;,
-});
-
-console.log(result);
-// {
-//   keccakId:    &quot;0x...&quot;,
-//   immSeq:      42,
-//   immId:       &quot;IMM-2026-0042&quot;,
-//   evidenceCid: &quot;0x...&quot;,       // IPFS digest of the public envelope
-//   contextHash: &quot;0x...&quot;,       // present only if you passed `context`
-//   txHash:      &quot;0x...&quot;,
-// }
-</code></pre>
-<p>The antibody starts on <strong>PROBATION</strong>: advisory-only, fees escrowed, until it matures. See <strong><a href="/concepts/corroboration-and-maturation/">Corroboration and maturation</a></strong>.</p>
-<h2 id="required-prepaid-balance"><a href="#required-prepaid-balance" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Required prepaid balance</h2>
-<p><code>publish()</code> locks a bond sized by claimed severity and target prominence (not a flat amount), plus gas. The bond comes from your prepaid balance, so fund it first:</p>
-<pre><code class="language-ts">import { parseUsdc } from &quot;@immunity-protocol/sdk&quot;;
-
-if ((await immunity.balanceOf()) &lt; parseUsdc(&quot;2&quot;)) {
-  await immunity.deposit(parseUsdc(&quot;5&quot;));
+<p>That bundle is <strong>ECIES-encrypted to the CRE oracle's public key</strong> (<code>creOraclePublicKey</code> in the network config), uploaded to storage, and referenced from an on-chain <code>requestVerification(checkId, evidenceCid, contextHash)</code> call that the agent's wallet pays the fee for. The Chainlink DON picks up the request, decrypts the context inside its confidential compute (only the DON holds the matching private key, in a Chainlink Vault DON), runs an LLM evaluation over it via Confidential HTTP, and writes back a DON-attested verdict:</p>
+<pre><code class="language-json">{
+  &quot;verdict&quot;: &quot;MALICIOUS&quot;,
+  &quot;abType&quot;: &quot;ADDRESS&quot;,
+  &quot;flavor&quot;: null,
+  &quot;confidence&quot;: 92,
+  &quot;severity&quot;: 88,
+  &quot;reasoning&quot;: &quot;calldata approves MAX_UINT256 to a known drainer address pattern&quot;,
+  &quot;marker&quot;: null
 }
 </code></pre>
-<p>Flagging a higher-severity threat, a protected blue-chip, or a young frontier address costs a larger bond. See <strong><a href="/concepts/sybil-resistance/">Sybil resistance</a></strong>.</p>
-<h2 id="per-type-seed-shapes"><a href="#per-type-seed-shapes" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Per-type seed shapes</h2>
-<p>The <code>seed</code> field is a discriminated union by <code>abType</code>. Full details in <strong><a href="/reference/matchers/">Matchers and seeds</a></strong>.</p>
-<pre><code class="language-ts">// ADDRESS
-seed: { abType: &quot;ADDRESS&quot;, chainId: 84532, target: &quot;0xBAD...&quot; }
-
-// CALL_PATTERN  (selector + raw-calldata args template; 0x for selector-only)
-seed: { abType: &quot;CALL_PATTERN&quot;, chainId: 84532, target: &quot;0xRouter...&quot;,
-        selector: &quot;0x095ea7b3&quot;, argsTemplate: &quot;0x&quot; }
-
-// BYTECODE  (keccak256 of the deployed runtime bytecode)
-seed: { abType: &quot;BYTECODE&quot;, bytecodeHash: &quot;0x...&quot; }
-
-// GRAPH  (order-independent tainted set + its taintSetId)
-seed: { abType: &quot;GRAPH&quot;, chainId: 84532,
-        taintedAddresses: [&quot;0xMixer1...&quot;, &quot;0xMixer2...&quot;],
-        taintSetId: computeTaintSetId({ chainId: 84532, taintedAddresses: [...] }) }
-
-// SEMANTIC  (flavor + a marker string or precomputed hash)
-seed: { abType: &quot;SEMANTIC&quot;, flavor: &quot;PROMPT_INJECTION&quot;,
-        pattern: { kind: &quot;marker&quot;, value: &quot;ignore previous instructions and&quot; } }
-</code></pre>
-<h2 id="verdict-confidence-severity-reason"><a href="#verdict-confidence-severity-reason" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Verdict, confidence, severity, reason</h2>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Range</th>
-<th>Meaning</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>verdict</code></td>
-<td><code>&quot;MALICIOUS&quot;</code> / <code>&quot;SUSPICIOUS&quot;</code></td>
-<td>your classification</td>
-</tr>
-<tr>
-<td><code>confidence</code></td>
-<td>0..100</td>
-<td>your confidence in the classification</td>
-</tr>
-<tr>
-<td><code>severity</code></td>
-<td>0..100</td>
-<td>damage potential; <strong>scales the bond</strong></td>
-</tr>
-<tr>
-<td><code>reasonSummary</code></td>
-<td>string</td>
-<td>short public summary on the evidence envelope</td>
-</tr>
-<tr>
-<td><code>context</code></td>
-<td>string (optional)</td>
-<td>sensitive detail, ECIES-encrypted to the CRE oracle</td>
-</tr>
-</tbody>
-</table>
-<h2 id="bond-and-rewards"><a href="#bond-and-rewards" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Bond and rewards</h2>
-<p>The bond is non-refundable while the antibody is enforced. Once the antibody matures (corroboration reaches <code>K</code>, or undisputed matched volume over time), the escrowed publisher fees release and you earn a share of the fee on every match. If the antibody is challenged and ruled invalid, the bond and escrowed fees are clawed back. A false antibody earns exactly zero. See <strong><a href="/concepts/settlement-and-fees/">Settlement and fees</a></strong>.</p>
-<h2 id="errors-to-handle"><a href="#errors-to-handle" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Errors to handle</h2>
-<table>
-<thead>
-<tr>
-<th>Error</th>
-<th>Code</th>
-<th>Meaning</th>
-<th>Fix</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>NotRegisteredError</code></td>
-<td><code>ERR_NOT_REGISTERED</code></td>
-<td>not a registered publisher</td>
-<td><code>registerPublisher()</code> first</td>
-</tr>
-<tr>
-<td><code>DuplicateAntibodyError</code></td>
-<td><code>ERR_DUPLICATE_ANTIBODY</code></td>
-<td>you already published this matcher</td>
-<td>catch and skip</td>
-</tr>
-<tr>
-<td><code>InsufficientBalanceError</code></td>
-<td><code>ERR_INSUFFICIENT_BALANCE</code></td>
-<td>balance below the bond</td>
-<td><code>deposit()</code></td>
-</tr>
-</tbody>
-</table>
-<p><code>DuplicateAntibodyError</code> carries the existing <code>keccakId</code>. If a <em>different</em> publisher already flagged the target, use <code>corroborate()</code> instead of <code>publish()</code> to strengthen the signal. See <strong><a href="/guides/corroborate-and-challenge/">Corroborate and challenge</a></strong>.</p>
+<p>The verdict is delivered on chain through the <code>KeystoneForwarder</code> (the receiver accepts reports <code>onlyForwarder</code> from a pinned workflow id and owner), and the SDK reads it back with the attestation commitment bound to the verdict fields.</p>
+<h2 id="what-happens-after"><a href="#what-happens-after" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>What happens after</h2>
+<ul>
+<li><strong>Confirmed threat</strong> (<code>MALICIOUS</code> over the block threshold). The SDK blocks the action. If you set <code>autoPublishConfirmedThreats</code> and your wallet is a registered publisher with balance for the bond, it also publishes the synthesized antibody (surfaced as <code>CheckResult.pendingWrite</code>), carrying the DON attestation. The next agent catches the same threat at Tier 1 or 2.</li>
+<li><strong>Escalate band.</strong> A <code>SUSPICIOUS</code> verdict in the escalate band invokes your <code>onEscalate</code> handler. See <strong><a href="/guides/operator-in-the-loop/">Operator in the loop</a></strong>.</li>
+<li><strong>Benign.</strong> The SDK returns <code>{ allowed: true, source: &quot;tee&quot; }</code>. No publish.</li>
+</ul>
+<p>The strict JSON parser never extracts free text into anything that becomes a matcher. Only the enum fields and bounded numerics are trusted; the <code>reasoning</code> string is carried into the public envelope as a summary but never used to derive a matcher.</p>
+<h2 id="what-attestation-actually-guarantees"><a href="#what-attestation-actually-guarantees" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>What attestation actually guarantees</h2>
+<p>This is where honesty matters. The CRE / DON attestation proves:</p>
+<ul>
+<li><strong>The verdict was produced and signed by the pinned Immunity CRE workflow.</strong> The on-chain receiver only accepts reports delivered by the <code>KeystoneForwarder</code> for a pinned <code>workflowId</code> and owner, so a third party cannot forge a verdict.</li>
+<li><strong>The context stayed confidential.</strong> It is encrypted to the oracle key and decrypted only inside the DON's confidential compute; the plaintext is never on chain or in the public envelope.</li>
+</ul>
+<p>It does <strong>not</strong> prove:</p>
+<ul>
+<li><strong>That a specific model ran in a hardware enclave you control.</strong> The LLM evaluation reaches a model provider (Claude / GPT / Gemini) over Confidential HTTP from inside the DON. The model itself is a centralized API.</li>
+<li><strong>That the verdict is unbiased.</strong> A single model can be wrong or steered. Tier-3 novel verification is one CRE verdict; the <em>challenge</em> jury hardens this by running three <strong>different</strong> model providers and requiring a 2/3 supermajority. See <strong><a href="/concepts/challenge-game-and-jury/">The challenge game and jury</a></strong>.</li>
+</ul>
+<p>Model diversity across centralized providers is the v1 defense against single-provider injection and bias; open-model and decentralized compute are on the roadmap.</p>
+<h2 id="what-it-costs"><a href="#what-it-costs" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>What it costs</h2>
+<p>A novel-threat round-trip draws the per-check fee from your prepaid balance (which funds the CRE compute) plus gas for the <code>requestVerification</code> call, and, if it auto-publishes, the publish bond. Cache hits and registry hits never reach Tier 3.</p>
+<h2 id="why-bother"><a href="#why-bother" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Why bother</h2>
+<p>A network without novel-threat verification cannot detect anything genuinely new; SDK matchers cover known threats only. Tier 3 is the <strong>bootstrap mechanism</strong> for the threat catalog: it lets a novel attack get classified once, attested, and published, so it never reaches Tier 3 again. As the catalog grows, the overwhelming majority of checks resolve at Tier 1 in microseconds.</p>
 <h2 id="see-also"><a href="#see-also" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>See also</h2>
 <ul>
-<li><strong><a href="/concepts/antibodies/">Concepts: Antibodies</a></strong>, the lifecycle.</li>
-<li><strong><a href="/concepts/settlement-and-fees/">Settlement and fees</a></strong>, the bond and reward math.</li>
-<li><strong><a href="/reference/immunity-class/">Reference: Immunity class</a></strong>, the full publish API.</li>
+<li><strong><a href="/concepts/three-tier-lookup/">Three-tier lookup</a></strong>, where this fits in the bigger picture.</li>
+<li><strong><a href="/concepts/challenge-game-and-jury/">The challenge game and jury</a></strong>, the diverse-model 2/3 jury that resolves disputes.</li>
+<li><strong><a href="/network/registry-on-base/">Network: Registry on Base</a></strong>, how to verify on-chain state yourself.</li>
 </ul>
 
     </div>
 
     <nav class="docs-pagination">
-        <a href="/guides/gate-a-transaction" class="pagination-link pagination-prev">
+        <a href="/concepts/challenge-game-and-jury" class="pagination-link pagination-prev">
             <span class="pagination-label">&larr; Previous</span>
-            <span class="pagination-title">Gate a transaction</span>
+            <span class="pagination-title">The challenge game and jury</span>
         </a>
 
-        <a href="/guides/corroborate-and-challenge" class="pagination-link pagination-next">
+        <a href="/concepts/settlement-and-fees" class="pagination-link pagination-next">
             <span class="pagination-label">Next &rarr;</span>
-            <span class="pagination-title">Corroborate and challenge</span>
+            <span class="pagination-title">Settlement and fees</span>
         </a>
     </nav>
 </article>
@@ -517,28 +426,22 @@ seed: { abType: &quot;SEMANTIC&quot;, flavor: &quot;PROMPT_INJECTION&quot;,
         <h4 class="toc-title">On this page</h4>
         <ul class="toc-links">
             <li class="toc-item">
-                <a href="#before-you-publish-register" class="toc-link">Before you publish: register</a>
+                <a href="#when-it-fires" class="toc-link">When it fires</a>
             </li>
             <li class="toc-item">
-                <a href="#when-to-publish" class="toc-link">When to publish</a>
+                <a href="#what-gets-verified" class="toc-link">What gets verified</a>
             </li>
             <li class="toc-item">
-                <a href="#the-minimal-call" class="toc-link">The minimal call</a>
+                <a href="#what-happens-after" class="toc-link">What happens after</a>
             </li>
             <li class="toc-item">
-                <a href="#required-prepaid-balance" class="toc-link">Required prepaid balance</a>
+                <a href="#what-attestation-actually-guarantees" class="toc-link">What attestation actually guarantees</a>
             </li>
             <li class="toc-item">
-                <a href="#per-type-seed-shapes" class="toc-link">Per-type seed shapes</a>
+                <a href="#what-it-costs" class="toc-link">What it costs</a>
             </li>
             <li class="toc-item">
-                <a href="#verdict-confidence-severity-reason" class="toc-link">Verdict, confidence, severity, reason</a>
-            </li>
-            <li class="toc-item">
-                <a href="#bond-and-rewards" class="toc-link">Bond and rewards</a>
-            </li>
-            <li class="toc-item">
-                <a href="#errors-to-handle" class="toc-link">Errors to handle</a>
+                <a href="#why-bother" class="toc-link">Why bother</a>
             </li>
             <li class="toc-item">
                 <a href="#see-also" class="toc-link">See also</a>

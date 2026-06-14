@@ -4,20 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="leaf-base-url" content="">
-<meta name="description" content="When the TEE fires, what it verifies, and the honest caveats about how decentralized that verification really is today.">
+<meta name="description" content="The on-chain core on Base is the source of truth. Anyone can read it without an SDK install. Live deployed addresses included.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://docs.immunity-protocol.com/">
 <meta property="og:type" content="article">
-<meta property="og:title" content="TEE verification · Immunity Docs">
-<meta property="og:description" content="When the TEE fires, what it verifies, and the honest caveats about how decentralized that verification really is today.">
+<meta property="og:title" content="Registry on Base · Immunity Docs">
+<meta property="og:description" content="The on-chain core on Base is the source of truth. Anyone can read it without an SDK install. Live deployed addresses included.">
 <meta property="og:site_name" content="Immunity Docs">
 <meta property="og:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Immunity Docs">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="TEE verification · Immunity Docs">
-<meta name="twitter:description" content="When the TEE fires, what it verifies, and the honest caveats about how decentralized that verification really is today.">
+<meta name="twitter:title" content="Registry on Base · Immunity Docs">
+<meta name="twitter:description" content="The on-chain core on Base is the source of truth. Anyone can read it without an SDK install. Live deployed addresses included.">
 <meta name="twitter:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -51,7 +51,7 @@ tailwind.config = {
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 <link rel="stylesheet" href="/assets/css/app.css">
 <script src="/assets/js/theme.js"></script>
-    <title>TEE verification · Immunity Docs</title>
+    <title>Registry on Base · Immunity Docs</title>
 </head>
 <body class="bg-deep text-body antialiased font-body">
 <header class="site-nav">
@@ -141,27 +141,57 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/concepts/two-speed-enforcement"
+                       class="sidebar-link">
+                        Two-speed enforcement
+                    </a>
+                </li>
+                <li>
                     <a href="/concepts/three-tier-lookup"
                        class="sidebar-link">
                         Three-tier lookup
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/tee-verification"
-                       class="sidebar-link active">
-                        TEE verification
+                    <a href="/concepts/corroboration-and-maturation"
+                       class="sidebar-link">
+                        Corroboration and maturation
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/settlement-and-tokenomics"
+                    <a href="/concepts/reputation-and-identity"
                        class="sidebar-link">
-                        Settlement and tokenomics
+                        Reputation and identity
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/cross-chain-mirror"
+                    <a href="/concepts/sybil-resistance"
                        class="sidebar-link">
-                        Cross-chain mirror
+                        Sybil resistance
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/challenge-game-and-jury"
+                       class="sidebar-link">
+                        The challenge game and jury
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/novel-threat-verification"
+                       class="sidebar-link">
+                        Novel-threat verification
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/settlement-and-fees"
+                       class="sidebar-link">
+                        Settlement and fees
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/the-mirror-and-consumers"
+                       class="sidebar-link">
+                        The mirror and on-chain consumers
                     </a>
                 </li>
             </ul>
@@ -182,9 +212,21 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/guides/corroborate-and-challenge"
+                       class="sidebar-link">
+                        Corroborate and challenge
+                    </a>
+                </li>
+                <li>
                     <a href="/guides/operator-in-the-loop"
                        class="sidebar-link">
                         Operator in the loop
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/run-a-reference-agent"
+                       class="sidebar-link">
+                        Run a reference agent
                     </a>
                 </li>
                 <li>
@@ -252,15 +294,21 @@ tailwind.config = {
                         Helpers
                     </a>
                 </li>
+                <li>
+                    <a href="/reference/matchers"
+                       class="sidebar-link">
+                        Matchers and seeds
+                    </a>
+                </li>
             </ul>
         </div>
         <div class="sidebar-group">
             <h3 class="sidebar-group-title">Network</h3>
             <ul class="sidebar-links">
                 <li>
-                    <a href="/network/registry-on-0g"
-                       class="sidebar-link">
-                        Registry on 0G
+                    <a href="/network/registry-on-base"
+                       class="sidebar-link active">
+                        Registry on Base
                     </a>
                 </li>
                 <li>
@@ -299,83 +347,142 @@ tailwind.config = {
         <main class="docs-main">
 <article class="docs-content">
     <div class="prose">
-        <h1>TEE verification</h1>
-<p>TEE verification is the third tier of <code>check()</code>. It only fires when the local cache misses <strong>and</strong> the on-chain Registry has no record of a matching antibody for the input. That combination defines a &quot;novel&quot; threat: nobody on the network has seen it before.</p>
-<h2 id="when-it-fires"><a href="#when-it-fires" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>When it fires</h2>
-<p>Three preconditions must all be true:</p>
-<ol>
-<li>The agent's <code>novelThreatPolicy</code> is <code>&quot;verify&quot;</code> (the SDK default).</li>
-<li>Tier 1 (cache) and Tier 2 (registry) both missed.</li>
-<li>The proposed action surfaced something the SDK can encode into a verifier prompt: a tx, scraped content, or counterparty data.</li>
-</ol>
-<p>Under <code>&quot;trust-cache&quot;</code> the SDK skips this tier entirely and returns <code>{ allowed: true, novel: true }</code>. Under <code>&quot;deny-novel&quot;</code> it blocks unconditionally. The TEE round-trip is the only way to actually classify a novel input as malicious or benign.</p>
-<h2 id="what-gets-verified"><a href="#what-gets-verified" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>What gets verified</h2>
-<p>The SDK builds a structured prompt from the agent's input:</p>
-<ul>
-<li>The proposed <code>tx</code> (decoded calldata where possible, raw bytes otherwise).</li>
-<li>The conversation context (recent turns plus relevant tool calls).</li>
-<li>The counterparty (address, ENS, any source attribution).</li>
-</ul>
-<p>Encrypted to the enclave's public key, posted to the 0G Compute provider running <code>qwen-2.5-7b-instruct</code>. The provider runs the inference inside a Trusted Execution Environment, signs the verdict with the enclave's private key, and returns a strict JSON envelope:</p>
-<pre><code class="language-json">{
-  &quot;decision&quot;: &quot;block&quot;,
-  &quot;verdict&quot;: &quot;MALICIOUS&quot;,
-  &quot;confidence&quot;: 92,
-  &quot;severity&quot;: 88,
-  &quot;reason&quot;: &quot;calldata approves MAX_UINT256 to a known drainer address pattern&quot;,
-  &quot;publishSeed&quot;: { &quot;abType&quot;: &quot;ADDRESS&quot;, &quot;chainId&quot;: 16602, &quot;target&quot;: &quot;0xCAFE...&quot; }
-}
+        <h1>Registry on Base</h1>
+<p>The on-chain core is the canonical source of truth for the Immunity network, deployed on <strong>Base</strong>. Every antibody, bond, fee settlement, corroboration, maturation, and challenge lives here. The cache is a derivative; the public feed is a derivative. <strong>The chain is the truth.</strong></p>
+<p>This page is the read-only reference for verifying anything you see in any other layer.</p>
+<h2 id="live-deployment-base-sepolia"><a href="#live-deployment-base-sepolia" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Live deployment (Base Sepolia)</h2>
+<p>The full core suite, as shipped in the SDK's <code>BASE_SEPOLIA</code> preset. Cross-reference any of these on <a href="https://sepolia.basescan.org">Basescan</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Contract</th>
+<th>Address</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Registry</td>
+<td><code>0x15F177B17884B991703300C2dcCBA790Dda33fbC</code></td>
+</tr>
+<tr>
+<td>Reputation</td>
+<td><code>0x436510F3382F67bDF1eE4B6c4b6f940Eb492b3c4</code></td>
+</tr>
+<tr>
+<td>Registrar</td>
+<td><code>0x55237bE657245A6bf223D4b721A72b8e1D2E8523</code></td>
+</tr>
+<tr>
+<td>ProtectedSet</td>
+<td><code>0x8b20aE052F9391e7b071A262aDa201F2189A1901</code></td>
+</tr>
+<tr>
+<td>ChallengeManager</td>
+<td><code>0xc05ffEA7657d9F2c8879342cDAa2bE0eF238F04d</code></td>
+</tr>
+<tr>
+<td>CRE receiver</td>
+<td><code>0xc4f843aac2C94ce2D349C166d1D8D58cb7049C66</code></td>
+</tr>
+<tr>
+<td>NovelVerification</td>
+<td><code>0x0f3733f4683029771E7730288339B460Eb377435</code></td>
+</tr>
+<tr>
+<td>USDC (testnet)</td>
+<td><code>0xe697EF7724453F239D8c0EB9295D87C344D9CE60</code></td>
+</tr>
+<tr>
+<td>L2Registry (ENS Durin)</td>
+<td><code>0xc647c0693ca93D2Ee5681C2eE7AF02d18C76F3B5</code></td>
+</tr>
+</tbody>
+</table>
+<p>Base mainnet is not yet deployed; it is an audit-gated push after the testnet system is proven. The SDK's <code>BASE_MAINNET</code> preset is a zeroed placeholder until then.</p>
+<h2 id="what-each-contract-owns"><a href="#what-each-contract-owns" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>What each contract owns</h2>
+<table>
+<thead>
+<tr>
+<th>Contract</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Registry</strong></td>
+<td>antibodies, bonds, fee escrow and release, corroboration sets, maturation, lifecycle, TTL</td>
+</tr>
+<tr>
+<td><strong>Reputation</strong></td>
+<td>on-chain publisher reputation; written only by Registry and ChallengeManager</td>
+</tr>
+<tr>
+<td><strong>Registrar</strong></td>
+<td><code>registerPublisher</code> -&gt; mints the contract-owned <code>*.immunity.eth</code> subname, locks the bond</td>
+</tr>
+<tr>
+<td><strong>ProtectedSet</strong></td>
+<td>the curated blue-chip list; read by Registry for bond scaling and by the hook</td>
+</tr>
+<tr>
+<td><strong>ChallengeManager</strong></td>
+<td>the challenge state machine; intakes the CRE verdict and settles slash/uphold</td>
+</tr>
+<tr>
+<td><strong>CRE receiver</strong></td>
+<td>accepts DON-attested verdicts <code>onlyForwarder</code> from the pinned workflow</td>
+</tr>
+<tr>
+<td><strong>NovelVerification</strong></td>
+<td>the Tier-3 trigger: <code>requestVerification</code> for a novel check</td>
+</tr>
+</tbody>
+</table>
+<h2 id="reading-the-chain"><a href="#reading-the-chain" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Reading the chain</h2>
+<p>You need no balance, no auth, and no SDK to read state. Use any RPC client. The fast path the SDK uses for Tier-2 lookups is <code>getAntibodyByMatcherHash(primaryMatcherHash)</code>: pass a type-specific matcher hash, get the antibody back.</p>
+<pre><code class="language-ts">import { Contract, JsonRpcProvider } from &quot;ethers&quot;;
+import { hashAddressMatcher, decodeAntibody } from &quot;@immunity-protocol/sdk&quot;;
+
+const provider = new JsonRpcProvider(&quot;https://sepolia.base.org&quot;);
+const registry = new Contract(
+  &quot;0x15F177B17884B991703300C2dcCBA790Dda33fbC&quot;,
+  REGISTRY_ABI,
+  provider,
+);
+
+const matcherHash = hashAddressMatcher({ chainId: 84532, target: &quot;0xCAFE...&quot; });
+const raw = await registry.getAntibodyByMatcherHash(matcherHash);
+const antibody = decodeAntibody(raw);
 </code></pre>
-<p>The SDK validates the JSON shape and the attestation signature before acting on it.</p>
-<h2 id="what-happens-after"><a href="#what-happens-after" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>What happens after</h2>
+<p>The SDK also re-exports higher-level readers you can use directly against the deployed contracts:</p>
 <ul>
-<li><code>decision: &quot;block&quot;</code> plus a recoverable <code>publishSeed</code>, the SDK auto-publishes a fresh antibody. The next agent catches the same threat at Tier 1 (or Tier 2 if its cache is cold).</li>
-<li><code>decision: &quot;block&quot;</code> without a recoverable seed, the SDK still blocks the current action but cannot mint. Most ADDRESS-shaped tx blocks recover a seed deterministically; SEMANTIC blocks recover only when <code>semanticAutoMint: true</code> and the model returned a valid marker substring.</li>
-<li><code>decision: &quot;allow&quot;</code>, the SDK returns <code>{ allowed: true, source: &quot;tee&quot;, novel: false }</code>. No publish. No further action.</li>
-<li><code>decision: &quot;escalate&quot;</code>, the SDK invokes the <code>onEscalate</code> handler if configured. See <strong><a href="/guides/operator-in-the-loop/">Operator in the loop</a></strong>.</li>
+<li><code>Tier2Lookup</code>, the on-chain matcher lookup,</li>
+<li><code>ReputationClient</code>, read a publisher's reputation,</li>
+<li><code>decodeAntibody</code> / <code>decodeEnforcementInputs</code>, turn raw structs into typed objects,</li>
+<li><code>classifyEnforcement</code>, derive advisory vs hard-block from those inputs.</li>
 </ul>
-<h2 id="what-attestation-actually-guarantees"><a href="#what-attestation-actually-guarantees" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>What attestation actually guarantees</h2>
-<p>This is where honesty matters. The 0G Compute attestation chain proves:</p>
-<ul>
-<li><strong>A specific TEE signed this output.</strong> You can verify the signature against an on-chain registry of acknowledged TEE signers.</li>
-<li><strong>The TEE was running inside a hardware enclave.</strong> The dstack verifier (currently v0.5.x) checks the platform attestation quote against Intel SGX or AMD SEV root keys.</li>
-</ul>
-<p>It does <strong>not</strong> prove:</p>
-<ul>
-<li><strong>Which model code ran.</strong> The attestation binds to the broker container, not the model container. Most providers' on-chain <code>additionalInfo.ImageDigest</code> is empty, meaning even the broker container is not pinned by digest.</li>
-<li><strong>That the model was loaded from a known weight set.</strong> Verifying weights would require a separate measurement; today providers do not publish one.</li>
-<li><strong>That the inference was done locally.</strong> Some providers register <code>verifiability: &quot;TeeML&quot;</code> (model-in-enclave) but self-declare <code>ProviderType: &quot;centralized&quot;</code> and <code>ProviderIdentity: &quot;aliyun&quot;</code> in the same struct, indicating the actual LLM call hits a centralized hosting plane behind a TEE-protected proxy. <strong>TeeTLS</strong> is the canonical name for that mode; some providers advertise TeeML but operate closer to TeeTLS in practice.</li>
-</ul>
-<p>You can verify each provider's claims yourself by reading the on-chain <code>Registry</code> for inference services. See <strong><a href="/network/registry-on-0g/">Registry on 0G</a></strong> for the exact contract calls.</p>
-<h2 id="what-it-costs"><a href="#what-it-costs" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>What it costs</h2>
-<p>Per call, on average:</p>
-<ul>
-<li><strong>Settlement gas</strong> for the on-chain <code>Registry.check()</code> settlement: ~49k gas, ~$0.0001 at typical 0G mainnet pricing.</li>
-<li><strong>0G Compute inference fee</strong>: ~$0.00015 per qwen-2.5-7b-instruct call at the current testnet rate. Mainnet rates vary by provider.</li>
-<li><strong>Auto-publish gas</strong> if the verdict mints a new antibody: ~248k gas for an ADDRESS antibody, ~$0.0005 at typical pricing. Plus the 1 USDC publisher stake (refundable).</li>
-</ul>
-<p>A typical novel-threat round-trip: ~$0.00025 if no auto-publish, ~$0.00075 plus stake if it does. Cache hits and registry hits both pay only the protocol fee ($0.002), no TEE cost.</p>
-<h2 id="why-bother"><a href="#why-bother" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Why bother</h2>
-<p>A network without TEE verification cannot detect anything genuinely new. SDK matchers cover known threats only. Without a verifiable inference loop, the network is static. With it, agents collectively learn faster than any single team could publish manually.</p>
-<p>The honest framing is: TEE verification is the <strong>bootstrap mechanism</strong> for the network's threat catalog. As the catalog grows, fewer checks reach Tier 3. After a year of operation, well over 99% of checks resolve at Tier 1 in microseconds. The TEE is what ever lets a novel attack get classified once, so it never reaches Tier 3 again.</p>
+<h2 id="verifying-any-claim"><a href="#verifying-any-claim" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Verifying any claim</h2>
+<p>Every claim made anywhere in the stack should reduce to an on-chain read. &quot;This antibody is real&quot; is <code>getAntibodyByMatcherHash</code> plus <code>decodeAntibody</code>. &quot;Is this address hard-blocked?&quot; is <code>decodeEnforcementInputs</code> plus <code>classifyEnforcement</code> (or a Mirror read, see <a href="/concepts/the-mirror-and-consumers/">The mirror and on-chain consumers</a>). &quot;What is this publisher's reputation?&quot; is <code>ReputationClient</code>.</p>
+<h2 id="why-this-matters"><a href="#why-this-matters" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Why this matters</h2>
+<p>A network you have to trust is a network that can quietly redefine itself. The core exposes every claim as a public read. Run your own RPC, your own cross-references, your own dashboards. No permission, no SDK, no account required.</p>
 <h2 id="see-also"><a href="#see-also" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>See also</h2>
 <ul>
-<li><strong><a href="/concepts/three-tier-lookup/">Three-tier lookup</a></strong>, where this fits in the bigger picture.</li>
-<li><strong><a href="/guides/operator-in-the-loop/">Operator in the loop</a></strong>, what to do with a SUSPICIOUS verdict.</li>
-<li><strong><a href="/network/registry-on-0g/">Registry on 0G</a></strong>, how to verify provider claims yourself.</li>
+<li><strong><a href="/network/economics/">Network: economics</a></strong>, the fee, bond, and treasury model.</li>
+<li><strong><a href="/network/the-public-feed/">Network: the public feed</a></strong>, the chain's derivative views.</li>
+<li><strong><a href="/reference/network-presets/">Reference: Network presets</a></strong>, these addresses as SDK constants.</li>
 </ul>
 
     </div>
 
     <nav class="docs-pagination">
-        <a href="/concepts/three-tier-lookup" class="pagination-link pagination-prev">
+        <a href="/reference/matchers" class="pagination-link pagination-prev">
             <span class="pagination-label">&larr; Previous</span>
-            <span class="pagination-title">Three-tier lookup</span>
+            <span class="pagination-title">Matchers and seeds</span>
         </a>
 
-        <a href="/concepts/settlement-and-tokenomics" class="pagination-link pagination-next">
+        <a href="/network/the-public-feed" class="pagination-link pagination-next">
             <span class="pagination-label">Next &rarr;</span>
-            <span class="pagination-title">Settlement and tokenomics</span>
+            <span class="pagination-title">The public feed</span>
         </a>
     </nav>
 </article>
@@ -385,22 +492,19 @@ tailwind.config = {
         <h4 class="toc-title">On this page</h4>
         <ul class="toc-links">
             <li class="toc-item">
-                <a href="#when-it-fires" class="toc-link">When it fires</a>
+                <a href="#live-deployment-base-sepolia" class="toc-link">Live deployment (Base Sepolia)</a>
             </li>
             <li class="toc-item">
-                <a href="#what-gets-verified" class="toc-link">What gets verified</a>
+                <a href="#what-each-contract-owns" class="toc-link">What each contract owns</a>
             </li>
             <li class="toc-item">
-                <a href="#what-happens-after" class="toc-link">What happens after</a>
+                <a href="#reading-the-chain" class="toc-link">Reading the chain</a>
             </li>
             <li class="toc-item">
-                <a href="#what-attestation-actually-guarantees" class="toc-link">What attestation actually guarantees</a>
+                <a href="#verifying-any-claim" class="toc-link">Verifying any claim</a>
             </li>
             <li class="toc-item">
-                <a href="#what-it-costs" class="toc-link">What it costs</a>
-            </li>
-            <li class="toc-item">
-                <a href="#why-bother" class="toc-link">Why bother</a>
+                <a href="#why-this-matters" class="toc-link">Why this matters</a>
             </li>
             <li class="toc-item">
                 <a href="#see-also" class="toc-link">See also</a>

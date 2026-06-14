@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="leaf-base-url" content="">
-<meta name="description" content="Install the Immunity SDK in a Node 20+ project. The peer-dep flag is required.">
+<meta name="description" content="Install the Immunity SDK in a Node 20+ project and fund a Base Sepolia wallet.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://docs.immunity-protocol.com/">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Install · Immunity Docs">
-<meta property="og:description" content="Install the Immunity SDK in a Node 20+ project. The peer-dep flag is required.">
+<meta property="og:description" content="Install the Immunity SDK in a Node 20+ project and fund a Base Sepolia wallet.">
 <meta property="og:site_name" content="Immunity Docs">
 <meta property="og:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <meta property="og:image:width" content="1200">
@@ -17,7 +17,7 @@
 <meta property="og:image:alt" content="Immunity Docs">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Install · Immunity Docs">
-<meta name="twitter:description" content="Install the Immunity SDK in a Node 20+ project. The peer-dep flag is required.">
+<meta name="twitter:description" content="Install the Immunity SDK in a Node 20+ project and fund a Base Sepolia wallet.">
 <meta name="twitter:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -141,27 +141,57 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/concepts/two-speed-enforcement"
+                       class="sidebar-link">
+                        Two-speed enforcement
+                    </a>
+                </li>
+                <li>
                     <a href="/concepts/three-tier-lookup"
                        class="sidebar-link">
                         Three-tier lookup
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/tee-verification"
+                    <a href="/concepts/corroboration-and-maturation"
                        class="sidebar-link">
-                        TEE verification
+                        Corroboration and maturation
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/settlement-and-tokenomics"
+                    <a href="/concepts/reputation-and-identity"
                        class="sidebar-link">
-                        Settlement and tokenomics
+                        Reputation and identity
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/cross-chain-mirror"
+                    <a href="/concepts/sybil-resistance"
                        class="sidebar-link">
-                        Cross-chain mirror
+                        Sybil resistance
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/challenge-game-and-jury"
+                       class="sidebar-link">
+                        The challenge game and jury
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/novel-threat-verification"
+                       class="sidebar-link">
+                        Novel-threat verification
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/settlement-and-fees"
+                       class="sidebar-link">
+                        Settlement and fees
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/the-mirror-and-consumers"
+                       class="sidebar-link">
+                        The mirror and on-chain consumers
                     </a>
                 </li>
             </ul>
@@ -182,9 +212,21 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/guides/corroborate-and-challenge"
+                       class="sidebar-link">
+                        Corroborate and challenge
+                    </a>
+                </li>
+                <li>
                     <a href="/guides/operator-in-the-loop"
                        class="sidebar-link">
                         Operator in the loop
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/run-a-reference-agent"
+                       class="sidebar-link">
+                        Run a reference agent
                     </a>
                 </li>
                 <li>
@@ -252,15 +294,21 @@ tailwind.config = {
                         Helpers
                     </a>
                 </li>
+                <li>
+                    <a href="/reference/matchers"
+                       class="sidebar-link">
+                        Matchers and seeds
+                    </a>
+                </li>
             </ul>
         </div>
         <div class="sidebar-group">
             <h3 class="sidebar-group-title">Network</h3>
             <ul class="sidebar-links">
                 <li>
-                    <a href="/network/registry-on-0g"
+                    <a href="/network/registry-on-base"
                        class="sidebar-link">
-                        Registry on 0G
+                        Registry on Base
                     </a>
                 </li>
                 <li>
@@ -304,45 +352,42 @@ tailwind.config = {
 <h2 id="one-command"><a href="#one-command" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>One command</h2>
 <pre><code class="language-bash">npm install @immunity-protocol/sdk ethers
 </code></pre>
-<p>If npm complains about a peer-dep conflict on <code>ethers</code> (rare, depends on your registry's resolution mode), pass <code>--legacy-peer-deps</code>. It is not required by default.</p>
+<p><code>ethers</code> is a peer dependency, so install it alongside the SDK. No Docker, no external daemon, no separate compute account: the SDK talks directly to the on-chain protocol on <strong>Base</strong> and to the Chainlink CRE jury through the chain.</p>
 <h2 id="confirm-the-install"><a href="#confirm-the-install" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Confirm the install</h2>
 <pre><code class="language-bash">node -e &quot;import('@immunity-protocol/sdk').then(m =&gt; console.log(Object.keys(m)))&quot;
 </code></pre>
-<p>You should see exports including <code>Immunity</code>, <code>TESTNET</code>, <code>parseUsdc</code>, plus the type and helper barrel.</p>
+<p>You should see exports including <code>Immunity</code>, <code>BASE_SEPOLIA</code>, <code>parseUsdc</code>, plus the type and helper barrel.</p>
 <h2 id="what-you-also-need"><a href="#what-you-also-need" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>What you also need</h2>
-<p>The SDK is the integration surface, not the whole stack. To run a real agent against testnet you also need:</p>
+<p>The SDK is the integration surface, not the whole stack. To run a real agent against the live testnet you also need:</p>
 <table>
 <thead>
 <tr>
 <th>Dependency</th>
 <th>Purpose</th>
-<th>Where it runs</th>
+<th>How to get it</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>A <strong>wallet</strong> with testnet OG</td>
-<td>gas for <code>Registry.check()</code></td>
-<td>your machine, env-loaded</td>
+<td>A <strong>wallet</strong> with Base Sepolia ETH</td>
+<td>gas for on-chain calls (<code>check</code> settlement, <code>publish</code>, <code>register</code>)</td>
+<td>a Base Sepolia faucet</td>
 </tr>
 <tr>
 <td>A <strong>prepaid USDC balance</strong> in the Registry</td>
-<td>settles the per-check protocol fee</td>
-<td>on chain, topped via <code>deposit()</code></td>
+<td>settles the per-check fee and funds CRE verification</td>
+<td><code>deposit()</code> testnet USDC</td>
 </tr>
 <tr>
-<td>An <strong>AXL daemon</strong></td>
-<td>gossip propagation</td>
-<td>local Docker, see infra/axl-mesh</td>
-</tr>
-<tr>
-<td>A <strong>0G Compute account</strong> (verify policy only)</td>
-<td>TEE inference for novel threats</td>
-<td>external, paid in OG</td>
+<td>A <strong>registration bond</strong> (publishers only)</td>
+<td>one-time bonded ENS identity, the sybil cost</td>
+<td><code>registerPublisher(label)</code></td>
 </tr>
 </tbody>
 </table>
-<p>The cheapest path is to start with <code>novelThreatPolicy: &quot;trust-cache&quot;</code>, which skips the TEE entirely and avoids the 0G Compute account requirement. Switch to <code>&quot;verify&quot;</code> once you have funded compute and want real novel-threat detection.</p>
+<p>Checkers (agents that only call <code>check()</code>) never need an identity. Only publishers register and post bonds.</p>
+<h2 id="pick-a-starting-policy"><a href="#pick-a-starting-policy" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Pick a starting policy</h2>
+<p>The cheapest path is <code>novelThreatPolicy: &quot;trust-cache&quot;</code>, which never reaches the CRE jury: on a cache and registry miss it allows the action and flags <code>novel: true</code> for later review, with no on-chain call. Switch to the default <code>&quot;verify&quot;</code> once your wallet is funded and you want the CRE jury to classify novel threats in real time.</p>
 <h2 id="next"><a href="#next" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Next</h2>
 <ul>
 <li><strong><a href="/getting-started/quickstart/">Quickstart</a></strong>, the 30-line example that proves the install end-to-end.</li>
@@ -374,6 +419,9 @@ tailwind.config = {
             </li>
             <li class="toc-item">
                 <a href="#what-you-also-need" class="toc-link">What you also need</a>
+            </li>
+            <li class="toc-item">
+                <a href="#pick-a-starting-policy" class="toc-link">Pick a starting policy</a>
             </li>
             <li class="toc-item">
                 <a href="#next" class="toc-link">Next</a>

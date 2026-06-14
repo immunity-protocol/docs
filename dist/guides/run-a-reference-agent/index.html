@@ -4,20 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="leaf-base-url" content="">
-<meta name="description" content="ADDRESS antibodies on 0G Chain mirror to Ethereum and L2s so Uniswap v4 hooks can block flagged tokens at the pool level.">
+<meta name="description" content="The open-source template agent operators run to join the network: pick a role, bring a funded Base Sepolia wallet, docker run.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://docs.immunity-protocol.com/">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Cross-chain mirror · Immunity Docs">
-<meta property="og:description" content="ADDRESS antibodies on 0G Chain mirror to Ethereum and L2s so Uniswap v4 hooks can block flagged tokens at the pool level.">
+<meta property="og:title" content="Run a reference agent · Immunity Docs">
+<meta property="og:description" content="The open-source template agent operators run to join the network: pick a role, bring a funded Base Sepolia wallet, docker run.">
 <meta property="og:site_name" content="Immunity Docs">
 <meta property="og:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Immunity Docs">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Cross-chain mirror · Immunity Docs">
-<meta name="twitter:description" content="ADDRESS antibodies on 0G Chain mirror to Ethereum and L2s so Uniswap v4 hooks can block flagged tokens at the pool level.">
+<meta name="twitter:title" content="Run a reference agent · Immunity Docs">
+<meta name="twitter:description" content="The open-source template agent operators run to join the network: pick a role, bring a funded Base Sepolia wallet, docker run.">
 <meta name="twitter:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -51,7 +51,7 @@ tailwind.config = {
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 <link rel="stylesheet" href="/assets/css/app.css">
 <script src="/assets/js/theme.js"></script>
-    <title>Cross-chain mirror · Immunity Docs</title>
+    <title>Run a reference agent · Immunity Docs</title>
 </head>
 <body class="bg-deep text-body antialiased font-body">
 <header class="site-nav">
@@ -141,27 +141,57 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/concepts/two-speed-enforcement"
+                       class="sidebar-link">
+                        Two-speed enforcement
+                    </a>
+                </li>
+                <li>
                     <a href="/concepts/three-tier-lookup"
                        class="sidebar-link">
                         Three-tier lookup
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/tee-verification"
+                    <a href="/concepts/corroboration-and-maturation"
                        class="sidebar-link">
-                        TEE verification
+                        Corroboration and maturation
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/settlement-and-tokenomics"
+                    <a href="/concepts/reputation-and-identity"
                        class="sidebar-link">
-                        Settlement and tokenomics
+                        Reputation and identity
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/cross-chain-mirror"
-                       class="sidebar-link active">
-                        Cross-chain mirror
+                    <a href="/concepts/sybil-resistance"
+                       class="sidebar-link">
+                        Sybil resistance
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/challenge-game-and-jury"
+                       class="sidebar-link">
+                        The challenge game and jury
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/novel-threat-verification"
+                       class="sidebar-link">
+                        Novel-threat verification
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/settlement-and-fees"
+                       class="sidebar-link">
+                        Settlement and fees
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/the-mirror-and-consumers"
+                       class="sidebar-link">
+                        The mirror and on-chain consumers
                     </a>
                 </li>
             </ul>
@@ -182,9 +212,21 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/guides/corroborate-and-challenge"
+                       class="sidebar-link">
+                        Corroborate and challenge
+                    </a>
+                </li>
+                <li>
                     <a href="/guides/operator-in-the-loop"
                        class="sidebar-link">
                         Operator in the loop
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/run-a-reference-agent"
+                       class="sidebar-link active">
+                        Run a reference agent
                     </a>
                 </li>
                 <li>
@@ -252,15 +294,21 @@ tailwind.config = {
                         Helpers
                     </a>
                 </li>
+                <li>
+                    <a href="/reference/matchers"
+                       class="sidebar-link">
+                        Matchers and seeds
+                    </a>
+                </li>
             </ul>
         </div>
         <div class="sidebar-group">
             <h3 class="sidebar-group-title">Network</h3>
             <ul class="sidebar-links">
                 <li>
-                    <a href="/network/registry-on-0g"
+                    <a href="/network/registry-on-base"
                        class="sidebar-link">
-                        Registry on 0G
+                        Registry on Base
                     </a>
                 </li>
                 <li>
@@ -299,109 +347,123 @@ tailwind.config = {
         <main class="docs-main">
 <article class="docs-content">
     <div class="prose">
-        <h1>Cross-chain mirror</h1>
-<p>The Registry lives on 0G Chain. That is where antibodies mint, where the publisher economics settle, where the canonical record exists. But the actual <em>use</em> of an ADDRESS antibody often happens on a different chain entirely: a Uniswap v4 pool on Sepolia checks an inbound swap's token against the network's blocklist. The pool cannot read 0G Chain natively. The cross-chain <strong>mirror</strong> bridges that gap.</p>
-<h2 id="what-gets-mirrored"><a href="#what-gets-mirrored" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>What gets mirrored</h2>
-<p>Only <strong>ADDRESS</strong> antibodies. The other four types (CALL_PATTERN, BYTECODE, GRAPH, SEMANTIC) live in the cache and are queried at SDK level. ADDRESS antibodies, by contrast, need to be queried by an on-chain hook in the swap path itself, with no off-chain SDK in the loop.</p>
-<p>The mirror is a one-way push: 0G Chain (source of truth) to N target chains (consumers).</p>
-<h2 id="how-it-works"><a href="#how-it-works" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>How it works</h2>
-<pre><code>0G Chain (Galileo)               relayer process            target chain (Sepolia)
-                                                            
-  Registry.publish()                                        
-        │                                                   
-        │ AntibodyMinted event                              
-        ▼                                                   
-  event log indexed                                         
-        │                                                   
-        │ relayer reads log,                                
-        │ verifies signature,                               
-        │ computes target tx                                
-        ▼                                                   
-                              Mirror.replicate(             
-                                keccakId, target,           
-                                chainId, signature)          
-                                       │                    
-                                       ▼                    
-                              MirrorRegistry contract        
-                              stores keccakId -&gt; target      
-                                       │                    
-                                       ▼                    
-                              Uniswap v4 hook reads          
-                              MirrorRegistry on swap         
-                              and reverts if flagged         
-</code></pre>
-<p>The relayer is a permissionless process. Anyone can run one; the protocol publishes a reference implementation. The relayer pays target-chain gas to push events; in exchange, when a hook-protected swap reverts, the relayer that posted the matching antibody to that chain earns a small bounty.</p>
-<h2 id="supported-chains-today"><a href="#supported-chains-today" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Supported chains today</h2>
+        <h1>Run a reference agent</h1>
+<p>The protocol's security depends on agents actually publishing, corroborating, and challenging. To make that turnkey, Immunity ships an open-source <strong>template agent</strong>, <code>@immunity-protocol/agent</code>: one container image, role-selected by env. It is built on the real SDK, so running it doubles as live coverage of the network.</p>
+<h2 id="the-roles"><a href="#the-roles" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>The roles</h2>
+<p>One skeleton (SDK init, a check-decide-act loop, heartbeat reporting), with a swappable role strategy:</p>
 <table>
 <thead>
 <tr>
-<th>Chain</th>
-<th>Status</th>
-<th>Mirror address</th>
+<th>Role</th>
+<th>What it does</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Ethereum mainnet</td>
-<td>Roadmap, post-mainnet-launch</td>
-<td>n/a</td>
+<td><code>publisher</code></td>
+<td>Classifies candidate threats from a feed and <code>publish()</code>es them as antibodies, staking the bond. Needs a registered, funded wallet.</td>
 </tr>
 <tr>
-<td>Sepolia</td>
-<td>Live, demo only</td>
-<td>published in the SDK constants</td>
+<td><code>hunter</code></td>
+<td>Watches recently published <strong>advisory</strong> antibodies and <code>challenge()</code>s the ones it judges false, only when confident. A lost challenge is slashed, so accuracy is its edge.</td>
 </tr>
 <tr>
-<td>Base</td>
-<td>Roadmap</td>
-<td>n/a</td>
-</tr>
-<tr>
-<td>Arbitrum One</td>
-<td>Roadmap</td>
-<td>n/a</td>
+<td><code>corroborator</code></td>
+<td><code>check()</code>s sample actions and, on a hit it deems real, <code>corroborate()</code>s it to drive maturation. Needs a registered, funded wallet.</td>
 </tr>
 </tbody>
 </table>
-<p>The Sepolia mirror powers the live Uniswap v4 hook demo at <a href="https://immunity-protocol.com/dex">immunity-protocol.com/dex</a>. Try a swap against a flagged token; the pool reverts on chain with the friendly hook error.</p>
-<h2 id="what-you-can-verify"><a href="#what-you-can-verify" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>What you can verify</h2>
-<p>Anyone can read the Sepolia mirror state without an SDK install:</p>
-<pre><code>contract MirrorRegistry {
-    function isMirrored(bytes32 keccakId) external view returns (bool);
-    function targetOf(bytes32 keccakId) external view returns (address);
-    function lastReplicatedAt(bytes32 keccakId) external view returns (uint256);
-}
+<p>These three are the load-bearing behaviors: hunters and corroborators are the two directions of the immune response from <strong><a href="/guides/corroborate-and-challenge/">Corroborate and challenge</a></strong>. A staked verifier-juror role belongs to the Layer-2 jury, which is deferred to v2 (the <code>VerifierPool</code> stays dormant for now). See <strong><a href="/concepts/challenge-game-and-jury/">The challenge game and jury</a></strong>.</p>
+<h2 id="quickstart"><a href="#quickstart" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Quickstart</h2>
+<pre><code class="language-sh">docker run \
+  -e AGENT_ROLE=hunter \
+  -e AGENT_WALLET_KEY=0xYOUR_FUNDED_BASE_SEPOLIA_KEY \
+  -e AGENT_LABEL=my-hunter \
+  -e IMMUNITY_API_URL=https://api.immunity-protocol.com \
+  ghcr.io/immunity-protocol/agent
 </code></pre>
-<p>Cross-reference any ADDRESS antibody on the 0G Registry against the Sepolia mirror to confirm propagation. Latency is typically under one block on the target chain after the source-chain event indexes.</p>
-<h2 id="trust-model"><a href="#trust-model" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Trust model</h2>
-<p>The mirror is <strong>observation-only</strong>. It cannot mint new antibodies; it only replicates already-minted ones from 0G to the target chain. The risk surface is &quot;delayed propagation&quot; not &quot;false propagation&quot;:</p>
+<p>That is the whole download. The source is public so you can read and fork it.</p>
+<h2 id="env-reference"><a href="#env-reference" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Env reference</h2>
+<table>
+<thead>
+<tr>
+<th>Var</th>
+<th>Required</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AGENT_ROLE</code></td>
+<td>yes</td>
+<td></td>
+<td><code>publisher</code> | <code>hunter</code> | <code>corroborator</code></td>
+</tr>
+<tr>
+<td><code>AGENT_WALLET_KEY</code></td>
+<td>yes</td>
+<td></td>
+<td>funded Base Sepolia private key (<code>0x</code> + 64 hex)</td>
+</tr>
+<tr>
+<td><code>AGENT_LABEL</code></td>
+<td></td>
+<td><code>&lt;role&gt;-&lt;keyprefix&gt;</code></td>
+<td>roster display name and publisher registration label</td>
+</tr>
+<tr>
+<td><code>AGENT_TICK_MS</code></td>
+<td></td>
+<td><code>30000</code></td>
+<td>strategy tick cadence</td>
+</tr>
+<tr>
+<td><code>AGENT_THREAT_FEED</code></td>
+<td></td>
+<td>built-in sample</td>
+<td>(publisher/corroborator) path to a JSON threat feed</td>
+</tr>
+<tr>
+<td><code>AGENT_HUNTER_CONFIDENCE_FLOOR</code></td>
+<td></td>
+<td><code>40</code></td>
+<td>(hunter) only challenge advisories below this stated confidence</td>
+</tr>
+<tr>
+<td><code>IMMUNITY_API_URL</code></td>
+<td></td>
+<td>none</td>
+<td>heartbeat/activity reporting endpoint; omit to run silent</td>
+</tr>
+</tbody>
+</table>
+<p>A publisher or corroborator needs a wallet that is registered (<code>registerPublisher</code>) and has a deposited balance to cover bonds; the agent handles registration on first run.</p>
+<h2 id="securing-an-operator-agent-recommended"><a href="#securing-an-operator-agent-recommended" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Securing an operator agent (recommended)</h2>
+<p>The template uses a raw wallet key for simplicity. For a production deployment that signs real value, harden the operator side. The protocol never <em>requires</em> this, but it is the recommended posture:</p>
 <ul>
-<li>Relayer downtime, antibodies mint on 0G but do not appear on Sepolia until a relayer comes back.</li>
-<li>Network partition between 0G and the target chain, same effect.</li>
-<li>Relayer fork at the source-chain level, ambiguous, the relayer must wait for finality on 0G before pushing.</li>
+<li><strong>1claw Intents API</strong> for guardrailed signing: the key lives in an HSM/TEE and the agent submits intents that are signed only within a contract and function allowlist with value caps. A compromised agent cannot drain its own wallet.</li>
+<li><strong>Shroud</strong> as a TEE LLM-proxy for injection and exfiltration defense on the agent's model calls. The hunter and corroborator read attacker-authored evidence, so this matters.</li>
 </ul>
-<p>A malicious relayer cannot inject antibodies that do not exist on 0G; the target-chain <code>Mirror.replicate()</code> verifies the source-chain signature before storing. A malicious target-chain operator cannot delete antibodies from the mirror without the same signature dance.</p>
-<h2 id="why-this-matters-for-uniswap"><a href="#why-this-matters-for-uniswap" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Why this matters for Uniswap</h2>
-<p>Uniswap v4 hooks let a pool deployer install logic that runs on every swap. The Immunity hook reads the mirror for the input/output tokens of the swap and reverts the swap if either is flagged. This is <strong>collective LP protection</strong>, the LP does not need to install an SDK; the hook protects every swapper automatically.</p>
-<p>See <strong><a href="/guides/uniswap-v4-hook/">Guides: Uniswap v4 hook</a></strong> for installation and a runnable example.</p>
+<p>These are distinct from the CRE jury's in-enclave inference keys, which live in the Chainlink Vault DON; there is no overlap.</p>
 <h2 id="see-also"><a href="#see-also" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>See also</h2>
 <ul>
-<li><strong><a href="/concepts/antibodies/">Antibodies</a></strong>, the lifecycle of a single antibody.</li>
-<li><strong><a href="/guides/uniswap-v4-hook/">Guides: Uniswap v4 hook</a></strong>, the canonical mirror consumer.</li>
-<li>The live cross-chain demo, <a href="https://immunity-protocol.com/dex">immunity-protocol.com/dex</a>.</li>
+<li><strong><a href="/guides/corroborate-and-challenge/">Corroborate and challenge</a></strong>, the SDK calls these roles drive.</li>
+<li><strong><a href="/concepts/sybil-resistance/">Sybil resistance</a></strong>, why hunters and bonds keep the network honest.</li>
+<li><strong><a href="/guides/publish-an-antibody/">Publish an antibody</a></strong>, the publisher role's core call.</li>
 </ul>
 
     </div>
 
     <nav class="docs-pagination">
-        <a href="/concepts/settlement-and-tokenomics" class="pagination-link pagination-prev">
+        <a href="/guides/operator-in-the-loop" class="pagination-link pagination-prev">
             <span class="pagination-label">&larr; Previous</span>
-            <span class="pagination-title">Settlement and tokenomics</span>
+            <span class="pagination-title">Operator in the loop</span>
         </a>
 
-        <a href="/guides/gate-a-transaction" class="pagination-link pagination-next">
+        <a href="/guides/uniswap-v4-hook" class="pagination-link pagination-next">
             <span class="pagination-label">Next &rarr;</span>
-            <span class="pagination-title">Gate a transaction</span>
+            <span class="pagination-title">Uniswap v4 hook</span>
         </a>
     </nav>
 </article>
@@ -411,22 +473,16 @@ tailwind.config = {
         <h4 class="toc-title">On this page</h4>
         <ul class="toc-links">
             <li class="toc-item">
-                <a href="#what-gets-mirrored" class="toc-link">What gets mirrored</a>
+                <a href="#the-roles" class="toc-link">The roles</a>
             </li>
             <li class="toc-item">
-                <a href="#how-it-works" class="toc-link">How it works</a>
+                <a href="#quickstart" class="toc-link">Quickstart</a>
             </li>
             <li class="toc-item">
-                <a href="#supported-chains-today" class="toc-link">Supported chains today</a>
+                <a href="#env-reference" class="toc-link">Env reference</a>
             </li>
             <li class="toc-item">
-                <a href="#what-you-can-verify" class="toc-link">What you can verify</a>
-            </li>
-            <li class="toc-item">
-                <a href="#trust-model" class="toc-link">Trust model</a>
-            </li>
-            <li class="toc-item">
-                <a href="#why-this-matters-for-uniswap" class="toc-link">Why this matters for Uniswap</a>
+                <a href="#securing-an-operator-agent-recommended" class="toc-link">Securing an operator agent (recommended)</a>
             </li>
             <li class="toc-item">
                 <a href="#see-also" class="toc-link">See also</a>

@@ -141,27 +141,57 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/concepts/two-speed-enforcement"
+                       class="sidebar-link">
+                        Two-speed enforcement
+                    </a>
+                </li>
+                <li>
                     <a href="/concepts/three-tier-lookup"
                        class="sidebar-link">
                         Three-tier lookup
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/tee-verification"
+                    <a href="/concepts/corroboration-and-maturation"
                        class="sidebar-link">
-                        TEE verification
+                        Corroboration and maturation
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/settlement-and-tokenomics"
+                    <a href="/concepts/reputation-and-identity"
                        class="sidebar-link">
-                        Settlement and tokenomics
+                        Reputation and identity
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/cross-chain-mirror"
+                    <a href="/concepts/sybil-resistance"
                        class="sidebar-link">
-                        Cross-chain mirror
+                        Sybil resistance
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/challenge-game-and-jury"
+                       class="sidebar-link">
+                        The challenge game and jury
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/novel-threat-verification"
+                       class="sidebar-link">
+                        Novel-threat verification
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/settlement-and-fees"
+                       class="sidebar-link">
+                        Settlement and fees
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/the-mirror-and-consumers"
+                       class="sidebar-link">
+                        The mirror and on-chain consumers
                     </a>
                 </li>
             </ul>
@@ -182,9 +212,21 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/guides/corroborate-and-challenge"
+                       class="sidebar-link">
+                        Corroborate and challenge
+                    </a>
+                </li>
+                <li>
                     <a href="/guides/operator-in-the-loop"
                        class="sidebar-link">
                         Operator in the loop
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/run-a-reference-agent"
+                       class="sidebar-link">
+                        Run a reference agent
                     </a>
                 </li>
                 <li>
@@ -252,15 +294,21 @@ tailwind.config = {
                         Helpers
                     </a>
                 </li>
+                <li>
+                    <a href="/reference/matchers"
+                       class="sidebar-link">
+                        Matchers and seeds
+                    </a>
+                </li>
             </ul>
         </div>
         <div class="sidebar-group">
             <h3 class="sidebar-group-title">Network</h3>
             <ul class="sidebar-links">
                 <li>
-                    <a href="/network/registry-on-0g"
+                    <a href="/network/registry-on-base"
                        class="sidebar-link">
-                        Registry on 0G
+                        Registry on Base
                     </a>
                 </li>
                 <li>
@@ -377,7 +425,7 @@ tailwind.config = {
         &quot;status&quot;: &quot;ACTIVE&quot;,
         &quot;publisher&quot;: &quot;0x...&quot;,
         &quot;createdAt&quot;: 1714478400,
-        &quot;primaryMatcher&quot;: { &quot;kind&quot;: &quot;address&quot;, &quot;chainId&quot;: 16602, &quot;target&quot;: &quot;0x...&quot; }
+        &quot;primaryMatcher&quot;: { &quot;kind&quot;: &quot;address&quot;, &quot;chainId&quot;: 84532, &quot;target&quot;: &quot;0x...&quot; }
       }
     }
   ]
@@ -420,7 +468,7 @@ X-Immunity-Event: antibody.minted
 <li><code>?type=ADDRESS,SEMANTIC</code>, only certain types.</li>
 <li><code>?verdict=MALICIOUS</code>, only MALICIOUS verdicts (skip SUSPICIOUS).</li>
 <li><code>?status=ACTIVE</code>, only currently-active antibodies (default).</li>
-<li><code>?chainId=16602</code>, only antibodies for a specific chain (ADDRESS antibodies carry their chain).</li>
+<li><code>?chainId=84532</code>, only antibodies for a specific chain (ADDRESS antibodies carry their chain).</li>
 </ul>
 <p>Combine freely:</p>
 <pre><code>https://immunity-protocol.com/feed/antibodies.json?type=ADDRESS&amp;verdict=MALICIOUS&amp;chainId=1
@@ -431,14 +479,11 @@ X-Immunity-Event: antibody.minted
 <li><strong>Webhooks</strong>, no rate limit on delivery, but if your endpoint returns 5xx the indexer retries with exponential backoff for ~24 hours then drops.</li>
 </ul>
 <h2 id="provenance-and-trust"><a href="#provenance-and-trust" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Provenance and trust</h2>
-<p>The feed is a <strong>derivative view</strong>. The on-chain Registry is the canonical source. Anything in the feed is verifiable by reading the Registry directly:</p>
-<pre><code class="language-ts">const antibody = await registry.getAntibody(keccakId);
-</code></pre>
-<p>If the feed and the Registry ever disagree, trust the Registry. The feed indexer is best-effort and can lag during chain reorgs (rare on 0G but not impossible).</p>
+<p>The feed is a <strong>derivative view</strong>. The on-chain Registry on Base is the canonical source. Anything in the feed is verifiable by reading the Registry directly (decode a raw read with the SDK's <code>decodeAntibody</code> helper). If the feed and the Registry ever disagree, trust the Registry. The feed indexer is best-effort and can lag during chain reorgs (rare on Base but not impossible).</p>
 <h2 id="see-also"><a href="#see-also" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>See also</h2>
 <ul>
 <li><strong><a href="/concepts/antibodies/">Concepts: Antibodies</a></strong>, the lifecycle of what you're consuming.</li>
-<li><strong><a href="/network/registry-on-0g/">Network: Registry on 0G</a></strong>, how to verify feed data against the on-chain truth.</li>
+<li><strong><a href="/network/registry-on-base/">Network: Registry on Base</a></strong>, how to verify feed data against the on-chain truth.</li>
 </ul>
 
     </div>

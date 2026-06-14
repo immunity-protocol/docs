@@ -141,27 +141,57 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/concepts/two-speed-enforcement"
+                       class="sidebar-link">
+                        Two-speed enforcement
+                    </a>
+                </li>
+                <li>
                     <a href="/concepts/three-tier-lookup"
                        class="sidebar-link">
                         Three-tier lookup
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/tee-verification"
+                    <a href="/concepts/corroboration-and-maturation"
                        class="sidebar-link">
-                        TEE verification
+                        Corroboration and maturation
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/settlement-and-tokenomics"
+                    <a href="/concepts/reputation-and-identity"
                        class="sidebar-link">
-                        Settlement and tokenomics
+                        Reputation and identity
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/cross-chain-mirror"
+                    <a href="/concepts/sybil-resistance"
                        class="sidebar-link">
-                        Cross-chain mirror
+                        Sybil resistance
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/challenge-game-and-jury"
+                       class="sidebar-link">
+                        The challenge game and jury
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/novel-threat-verification"
+                       class="sidebar-link">
+                        Novel-threat verification
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/settlement-and-fees"
+                       class="sidebar-link">
+                        Settlement and fees
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/the-mirror-and-consumers"
+                       class="sidebar-link">
+                        The mirror and on-chain consumers
                     </a>
                 </li>
             </ul>
@@ -182,9 +212,21 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/guides/corroborate-and-challenge"
+                       class="sidebar-link">
+                        Corroborate and challenge
+                    </a>
+                </li>
+                <li>
                     <a href="/guides/operator-in-the-loop"
                        class="sidebar-link">
                         Operator in the loop
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/run-a-reference-agent"
+                       class="sidebar-link">
+                        Run a reference agent
                     </a>
                 </li>
                 <li>
@@ -252,15 +294,21 @@ tailwind.config = {
                         Helpers
                     </a>
                 </li>
+                <li>
+                    <a href="/reference/matchers"
+                       class="sidebar-link">
+                        Matchers and seeds
+                    </a>
+                </li>
             </ul>
         </div>
         <div class="sidebar-group">
             <h3 class="sidebar-group-title">Network</h3>
             <ul class="sidebar-links">
                 <li>
-                    <a href="/network/registry-on-0g"
+                    <a href="/network/registry-on-base"
                        class="sidebar-link">
-                        Registry on 0G
+                        Registry on Base
                     </a>
                 </li>
                 <li>
@@ -319,9 +367,19 @@ tailwind.config = {
 <td>new feed entry</td>
 </tr>
 <tr>
+<td><code>AntibodyCorroborated</code></td>
+<td>yes</td>
+<td>corroboration-count change</td>
+</tr>
+<tr>
+<td><code>AntibodyMatured</code></td>
+<td>yes</td>
+<td>status change to ACTIVE</td>
+</tr>
+<tr>
 <td><code>AntibodyMatched</code></td>
 <td>yes</td>
-<td>match event with <code>valueProtectedUsd</code></td>
+<td>match event with value-at-risk</td>
 </tr>
 <tr>
 <td><code>AntibodyChallenged</code></td>
@@ -335,8 +393,8 @@ tailwind.config = {
 </tr>
 <tr>
 <td><code>AntibodyExpired</code></td>
-<td>reserved (v2)</td>
-<td>n/a</td>
+<td>yes</td>
+<td>status change in feed</td>
 </tr>
 <tr>
 <td><code>CheckSettled</code> (per-check telemetry)</td>
@@ -344,7 +402,7 @@ tailwind.config = {
 <td>feeds the dashboard, not the antibody feed</td>
 </tr>
 <tr>
-<td><code>PublisherStakeWithdrawn</code></td>
+<td>reputation updates</td>
 <td>yes</td>
 <td>publisher dashboard updates</td>
 </tr>
@@ -366,15 +424,15 @@ tailwind.config = {
 </ul>
 <h3 id="what-the-feed-does-not-guarantee"><a href="#what-the-feed-does-not-guarantee" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>What the feed does NOT guarantee</h3>
 <ul>
-<li><strong>Cryptographic equivalence with the Registry.</strong> The feed is a derivative; cross-reference with <code>getAntibody(keccakId)</code> for trust-critical decisions.</li>
+<li><strong>Cryptographic equivalence with the Registry.</strong> The feed is a derivative; read the Registry directly for trust-critical decisions.</li>
 <li><strong>Order across types.</strong> RSS items are ordered by <code>createdAt</code>; webhooks are ordered by event id within a single subscription. Cross-event ordering across types is best-effort.</li>
 <li><strong>Historical replay.</strong> Feeds carry the most recent N items by default. Full history requires reading the Registry directly or using the REST API at <code>https://api.immunity-protocol.com/antibodies?since=...</code>.</li>
 </ul>
 <h2 id="trust-model"><a href="#trust-model" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Trust model</h2>
 <p>The feed is operated by the Ophelios indexer cluster. The signature on webhook deliveries proves the indexer signed the payload, <strong>not</strong> that the underlying data is correct. To verify the data:</p>
 <ol>
-<li>Take the <code>keccakId</code> from the feed item.</li>
-<li>Call <code>Registry.getAntibody(keccakId)</code> from your own RPC.</li>
+<li>Take the <code>keccakId</code> (or matcher hash) from the feed item.</li>
+<li>Read the antibody from the Registry on your own RPC and decode it with <code>decodeAntibody</code>.</li>
 <li>Compare the <code>verdict</code>, <code>confidence</code>, <code>publisher</code>, and <code>createdAt</code> fields.</li>
 </ol>
 <p>If they do not match, trust the Registry. The feed is a convenience layer.</p>
@@ -385,7 +443,7 @@ tailwind.config = {
 <li><strong>Custom event filters</strong> (e.g., only ADDRESS antibodies for a single chain).</li>
 <li><strong>Sovereign infrastructure</strong> (you do not want to depend on Ophelios's uptime).</li>
 </ul>
-<p>The indexer is a Zephyrus PHP app reading from 0G Chain via JSON-RPC, writing to Postgres, exposing the same RSS / JSON Feed / webhook interface. Deploy it anywhere that can run PHP 8.4 + Postgres.</p>
+<p>The indexer is a Zephyrus PHP app reading from Base via JSON-RPC, writing to Postgres, exposing the same RSS / JSON Feed / webhook interface. Deploy it anywhere that can run PHP 8.4 + Postgres.</p>
 <h2 id="future-enhancements"><a href="#future-enhancements" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Future enhancements</h2>
 <p>Roadmapped (not shipped):</p>
 <ul>
@@ -397,15 +455,15 @@ tailwind.config = {
 <h2 id="see-also"><a href="#see-also" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>See also</h2>
 <ul>
 <li><strong><a href="/guides/the-public-feed/">Guides: the public feed</a></strong>, developer-facing how-to.</li>
-<li><strong><a href="/network/registry-on-0g/">Network: Registry on 0G</a></strong>, the canonical source of truth.</li>
+<li><strong><a href="/network/registry-on-base/">Network: Registry on Base</a></strong>, the canonical source of truth.</li>
 </ul>
 
     </div>
 
     <nav class="docs-pagination">
-        <a href="/network/registry-on-0g" class="pagination-link pagination-prev">
+        <a href="/network/registry-on-base" class="pagination-link pagination-prev">
             <span class="pagination-label">&larr; Previous</span>
-            <span class="pagination-title">Registry on 0G</span>
+            <span class="pagination-title">Registry on Base</span>
         </a>
 
         <a href="/network/economics" class="pagination-link pagination-next">

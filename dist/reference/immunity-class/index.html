@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="leaf-base-url" content="">
-<meta name="description" content="Every public method on the Immunity facade. Construction, lifecycle, the hot path, settlement, and admin.">
+<meta name="description" content="Every public method on the Immunity facade: construction, lifecycle, the hot path, publishing, the challenge game, identity, and money.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://docs.immunity-protocol.com/">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Immunity class · Immunity Docs">
-<meta property="og:description" content="Every public method on the Immunity facade. Construction, lifecycle, the hot path, settlement, and admin.">
+<meta property="og:description" content="Every public method on the Immunity facade: construction, lifecycle, the hot path, publishing, the challenge game, identity, and money.">
 <meta property="og:site_name" content="Immunity Docs">
 <meta property="og:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <meta property="og:image:width" content="1200">
@@ -17,7 +17,7 @@
 <meta property="og:image:alt" content="Immunity Docs">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Immunity class · Immunity Docs">
-<meta name="twitter:description" content="Every public method on the Immunity facade. Construction, lifecycle, the hot path, settlement, and admin.">
+<meta name="twitter:description" content="Every public method on the Immunity facade: construction, lifecycle, the hot path, publishing, the challenge game, identity, and money.">
 <meta name="twitter:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -141,27 +141,57 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/concepts/two-speed-enforcement"
+                       class="sidebar-link">
+                        Two-speed enforcement
+                    </a>
+                </li>
+                <li>
                     <a href="/concepts/three-tier-lookup"
                        class="sidebar-link">
                         Three-tier lookup
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/tee-verification"
+                    <a href="/concepts/corroboration-and-maturation"
                        class="sidebar-link">
-                        TEE verification
+                        Corroboration and maturation
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/settlement-and-tokenomics"
+                    <a href="/concepts/reputation-and-identity"
                        class="sidebar-link">
-                        Settlement and tokenomics
+                        Reputation and identity
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/cross-chain-mirror"
+                    <a href="/concepts/sybil-resistance"
                        class="sidebar-link">
-                        Cross-chain mirror
+                        Sybil resistance
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/challenge-game-and-jury"
+                       class="sidebar-link">
+                        The challenge game and jury
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/novel-threat-verification"
+                       class="sidebar-link">
+                        Novel-threat verification
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/settlement-and-fees"
+                       class="sidebar-link">
+                        Settlement and fees
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/the-mirror-and-consumers"
+                       class="sidebar-link">
+                        The mirror and on-chain consumers
                     </a>
                 </li>
             </ul>
@@ -182,9 +212,21 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/guides/corroborate-and-challenge"
+                       class="sidebar-link">
+                        Corroborate and challenge
+                    </a>
+                </li>
+                <li>
                     <a href="/guides/operator-in-the-loop"
                        class="sidebar-link">
                         Operator in the loop
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/run-a-reference-agent"
+                       class="sidebar-link">
+                        Run a reference agent
                     </a>
                 </li>
                 <li>
@@ -252,15 +294,21 @@ tailwind.config = {
                         Helpers
                     </a>
                 </li>
+                <li>
+                    <a href="/reference/matchers"
+                       class="sidebar-link">
+                        Matchers and seeds
+                    </a>
+                </li>
             </ul>
         </div>
         <div class="sidebar-group">
             <h3 class="sidebar-group-title">Network</h3>
             <ul class="sidebar-links">
                 <li>
-                    <a href="/network/registry-on-0g"
+                    <a href="/network/registry-on-base"
                        class="sidebar-link">
-                        Registry on 0G
+                        Registry on Base
                     </a>
                 </li>
                 <li>
@@ -300,29 +348,50 @@ tailwind.config = {
 <article class="docs-content">
     <div class="prose">
         <h1><code>Immunity</code> class</h1>
-<p>The facade. One instance per agent. Construction is non-mutating; lifecycle starts on <code>start()</code>. All public methods are async unless noted.</p>
+<p>The facade. One instance per agent. Construction is non-mutating; lifecycle starts on <code>start()</code>. All methods below are async unless noted.</p>
 <h2 id="new-immunityconfig"><a href="#new-immunityconfig" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>new Immunity(config)</code></h2>
 <pre><code class="language-ts">import { Immunity } from &quot;@immunity-protocol/sdk&quot;;
 
 const immunity = new Immunity({
   wallet,
-  network: &quot;testnet&quot;,
-  axlUrl: &quot;http://localhost:9002&quot;,
+  network: &quot;base-sepolia&quot;,
   novelThreatPolicy: &quot;verify&quot;,
 });
 </code></pre>
-<p>Throws <code>MissingConfigError</code> if <code>wallet</code> or <code>axlUrl</code> is missing. No network calls during construction. See <a href="/reference/immunityconfig/"><code>ImmunityConfig</code></a> for every option.</p>
+<p>Throws <code>MissingConfigError</code> if <code>wallet</code> is missing. No network calls during construction. <code>network</code> defaults to <code>&quot;base-sepolia&quot;</code>. See <a href="/reference/immunityconfig/"><code>ImmunityConfig</code></a> for every option.</p>
 <h2 id="lifecycle"><a href="#lifecycle" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Lifecycle</h2>
 <h3 id="start-promisevoid"><a href="#start-promisevoid" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>start(): Promise&lt;void&gt;</code></h3>
-<p>Connects the signer to a provider, instantiates the Registry and USDC clients, attaches the five matchers, opens the AXL gossip subscription. Idempotent: a second call is a no-op.</p>
-<p>Throws on:</p>
-<ul>
-<li>Missing wallet provider (must be ethers v6 <code>Signer</code>).</li>
-<li>AXL daemon unreachable at <code>axlUrl</code>.</li>
-<li>Registry contract not found at the configured network address.</li>
-</ul>
+<p>Resolves the signer to the network RPC, binds the Base core contracts, constructs the storage client and (unless you injected one) the CRE verifier, builds the five matchers and the enforcement pipeline, and, when <code>bootstrapCacheOnStart</code> is true, hydrates the local cache from the Registry. Idempotent: a second call is a no-op.</p>
 <h3 id="stop-promisevoid"><a href="#stop-promisevoid" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>stop(): Promise&lt;void&gt;</code></h3>
-<p>Closes the gossip subscription, drains AXL polling. Idempotent. Always call on shutdown to avoid leaking file handles.</p>
+<p>Marks the instance stopped. Idempotent. Call on shutdown.</p>
+<h2 id="accessors"><a href="#accessors" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Accessors</h2>
+<table>
+<thead>
+<tr>
+<th>Getter</th>
+<th>Returns</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>network</code></td>
+<td><code>NetworkConfig</code></td>
+<td>the resolved network config</td>
+</tr>
+<tr>
+<td><code>wallet</code></td>
+<td><code>Address</code></td>
+<td>the connected address; throws <code>NotStartedError</code> before <code>start()</code></td>
+</tr>
+<tr>
+<td><code>contracts</code></td>
+<td><code>CoreContracts</code></td>
+<td>live read/write bindings to the deployed Base contracts; throws <code>NotStartedError</code> before <code>start()</code></td>
+</tr>
+</tbody>
+</table>
+<p>Use <code>contracts.registry</code> with <code>decodeAntibody</code> (a re-exported helper) to read antibodies directly when you need raw on-chain data.</p>
 <h2 id="the-hot-path"><a href="#the-hot-path" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>The hot path</h2>
 <h3 id="checktx-context-options-promisecheckresult"><a href="#checktx-context-options-promisecheckresult" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>check(tx, context, options?): Promise&lt;CheckResult&gt;</code></h3>
 <p>The method 99% of agent code calls.</p>
@@ -330,73 +399,52 @@ const immunity = new Immunity({
 </code></pre>
 <p>Arguments:</p>
 <ul>
-<li><code>tx: ProposedTx | null</code>, EVM action <code>{ to, value?, data?, chainId? }</code> or <code>null</code> for non-EVM agent actions.</li>
-<li><code>context: CheckContext</code>, conversation, tools, sources, counterparty, metadata. All optional.</li>
-<li><code>options.policy?: NovelThreatPolicy</code>, override the configured <code>novelThreatPolicy</code> for this call.</li>
+<li><code>tx: ProposedTx | null</code>, an EVM action <code>{ to, value?, data?, chainId? }</code>, or <code>null</code> for non-EVM agent actions.</li>
+<li><code>context: CheckContext</code>, conversation, tool trace, sources, counterparty, metadata. All fields optional.</li>
+<li><code>options?: CheckOptions</code>, currently <code>{ policy? }</code> to override <code>novelThreatPolicy</code> for this call.</li>
 </ul>
-<p>Returns a <a href="/reference/checkresult/"><code>CheckResult</code></a>. Walks the <a href="/concepts/three-tier-lookup/">three tiers</a> in order; first hit wins.</p>
+<p>Returns a <a href="/reference/checkresult/"><code>CheckResult</code></a>. Walks the <a href="/concepts/three-tier-lookup/">three tiers</a>, then applies the enforcement and policy decision.</p>
 <p>Errors:</p>
 <ul>
 <li><code>NotStartedError</code> if called before <code>start()</code>.</li>
-<li><code>InsufficientBalanceError</code> if prepaid balance is below the 0.002 USDC fee.</li>
+<li><code>InsufficientBalanceError</code> if the prepaid balance cannot cover a settled fee.</li>
 <li><code>EscalationError</code> family if a SUSPICIOUS verdict timed out or was denied by the operator.</li>
-<li><code>BlockError</code> is <strong>not</strong> thrown for ordinary blocks; check <code>result.allowed</code> instead. <code>BlockError</code> is reserved for hard policy violations (e.g., <code>deny-novel</code> block where the SDK refuses to even round-trip).</li>
+<li>Ordinary blocks are <strong>not</strong> thrown; check <code>result.allowed</code>.</li>
 </ul>
-<h2 id="publishing"><a href="#publishing" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Publishing</h2>
+<h2 id="publishing-and-the-immune-response"><a href="#publishing-and-the-immune-response" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Publishing and the immune response</h2>
 <h3 id="publishinput-promisepublishresult"><a href="#publishinput-promisepublishresult" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>publish(input): Promise&lt;PublishResult&gt;</code></h3>
 <pre><code class="language-ts">const result = await immunity.publish({
-  seed: { abType: &quot;ADDRESS&quot;, chainId: 16602, target: &quot;0xBAD...&quot; },
+  seed: { abType: &quot;ADDRESS&quot;, chainId: 84532, target: &quot;0xBAD...&quot; },
   verdict: &quot;MALICIOUS&quot;,
   confidence: 95,
   severity: 90,
+  reasonSummary: &quot;Known drainer contract&quot;,
 });
 </code></pre>
-<p>Locks 1 USDC of stake for 72 hours. Returns:</p>
-<pre><code class="language-ts">{
-  keccakId: Hex32;
-  immSeq: number;
-  immId: string;
-  txHash: Hex32;
-  stakeAmount: bigint;
-}
+<p>Uploads the evidence envelope to storage, then locks a bond sized by severity and target prominence. Returns:</p>
+<pre><code class="language-ts">{ keccakId, immSeq, immId, evidenceCid, contextHash?, txHash }
 </code></pre>
-<p>Errors: <code>DuplicateAntibodyError</code> if the matcher already exists, <code>InsufficientBalanceError</code> if the prepaid balance is below stake + gas.</p>
-<p>See <a href="/guides/publish-an-antibody/">Publish an antibody</a> for the full pattern.</p>
-<h3 id="getantibodyidorseq-promiseantibody"><a href="#getantibodyidorseq-promiseantibody" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>getAntibody(idOrSeq): Promise&lt;Antibody&gt;</code></h3>
-<p>Read an antibody by <code>keccakId</code> or <code>immSeq</code>. The SDK routes the right contract call:</p>
-<ul>
-<li><code>Hex32</code> resolves via <code>getAntibody(keccakId)</code>.</li>
-<li><code>number</code> resolves via <code>getAntibodyByImmSeq(seq)</code>.</li>
-</ul>
-<p>Throws <code>AntibodyNotFoundError</code> if the id does not exist.</p>
+<p>Requires a registered publisher (<code>registerPublisher</code> first) and a balance that covers the bond. Errors: <code>NotRegisteredError</code>, <code>DuplicateAntibodyError</code> (with the existing <code>keccakId</code>), <code>InsufficientBalanceError</code>. See <a href="/guides/publish-an-antibody/">Publish an antibody</a>.</p>
+<h3 id="corroborateinput-promisepublishresult"><a href="#corroborateinput-promisepublishresult" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>corroborate(input): Promise&lt;PublishResult&gt;</code></h3>
+<p>Same input and output as <code>publish()</code>. Publishes a second antibody under your identity against the same matcher, incrementing the distinct-publisher count toward hard-block. See <a href="/concepts/corroboration-and-maturation/">Corroboration and maturation</a>.</p>
+<h3 id="challengeantibodyid-promise-bond-txhash-"><a href="#challengeantibodyid-promise-bond-txhash-" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>challenge(antibodyId): Promise&lt;{ bond, txHash }&gt;</code></h3>
+<p>Posts a challenge bond and moves the antibody to <code>CHALLENGED</code>. A probationary antibody drops to advisory; a matured one keeps enforcing.</p>
+<h3 id="matureantibodyid-promise-txhash-"><a href="#matureantibodyid-promise-txhash-" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>mature(antibodyId): Promise&lt;{ txHash }&gt;</code></h3>
+<p>Permissionless poke that promotes a probation antibody to <code>ACTIVE</code> once its maturation rule is satisfied (corroboration reaches <code>K</code>, or undisputed volume over time).</p>
+<h2 id="identity"><a href="#identity" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Identity</h2>
+<h3 id="registerpublisherlabel-promise-txhash-bond-"><a href="#registerpublisherlabel-promise-txhash-bond-" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>registerPublisher(label): Promise&lt;{ txHash, bond }&gt;</code></h3>
+<p>Mints the contract-owned <code>label.immunity.eth</code> subname, locks the registration bond, and initializes reputation to zero. Required before <code>publish()</code>. Errors: <code>AlreadyRegisteredError</code>.</p>
+<h3 id="deregister-promise-txhash-"><a href="#deregister-promise-txhash-" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>deregister(): Promise&lt;{ txHash }&gt;</code></h3>
+<p>Releases the registration and refunds the bond.</p>
+<h3 id="isregistered-promiseboolean"><a href="#isregistered-promiseboolean" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>isRegistered(): Promise&lt;boolean&gt;</code></h3>
+<p>True if the connected wallet is a registered publisher.</p>
 <h2 id="money"><a href="#money" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Money</h2>
-<h3 id="balance-promisebigint"><a href="#balance-promisebigint" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>balance(): Promise&lt;bigint&gt;</code></h3>
-<p>Current prepaid USDC balance held by the Registry on your behalf. 6-decimal base units (multiply by <code>10^-6</code> for human USDC).</p>
-<h3 id="depositamount-approvemode-promisehex32"><a href="#depositamount-approvemode-promisehex32" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>deposit(amount, approveMode?): Promise&lt;Hex32&gt;</code></h3>
-<p>Top up the prepaid balance. Auto-approves the allowance:</p>
-<ul>
-<li><code>&quot;exact&quot;</code> (default), approves exactly <code>amount</code>. Fewer approvals to fund subsequent deposits.</li>
-<li><code>&quot;max&quot;</code>, approves <code>MaxUint256</code>. One-time setup; subsequent deposits skip approval.</li>
-</ul>
-<pre><code class="language-ts">await immunity.deposit(parseUsdc(&quot;1.5&quot;));
-</code></pre>
-<h3 id="withdrawamount-promisehex32"><a href="#withdrawamount-promisehex32" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>withdraw(amount): Promise&lt;Hex32&gt;</code></h3>
-<p>Pull USDC out of the Registry back to the wallet. Subject to stake-lock if <code>amount</code> overlaps locked stake.</p>
-<p>Throws <code>StakeLockedError</code> if the requested amount overlaps locked stake.</p>
-<h3 id="minttestusdcamount-promisehex32"><a href="#minttestusdcamount-promisehex32" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>mintTestUsdc(amount): Promise&lt;Hex32&gt;</code></h3>
-<p><strong>Testnet only.</strong> Calls MockUSDC's public <code>mint(to, amount)</code>. Throws on real-USDC contracts.</p>
-<pre><code class="language-ts">await immunity.mintTestUsdc(parseUsdc(&quot;1&quot;));
-</code></pre>
-<h2 id="stats-and-admin"><a href="#stats-and-admin" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Stats and admin</h2>
-<h3 id="publisherstats-promisepublisherstats"><a href="#publisherstats-promisepublisherstats" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>publisherStats(): Promise&lt;PublisherStats&gt;</code></h3>
-<pre><code class="language-ts">const stats = await immunity.publisherStats();
-// { totalStaked, totalEarned, publishedCount, slashedCount }
-</code></pre>
-<p>All amounts are in USDC base units (6 decimals).</p>
-<h3 id="dropfromcachekeccakid-boolean"><a href="#dropfromcachekeccakid-boolean" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>dropFromCache(keccakId): boolean</code></h3>
-<p>Local-only operation. Removes an antibody from the in-memory cache without touching the chain. Useful for muting a known-bad antibody locally when the on-chain <code>slash()</code> is not reachable. Returns <code>true</code> if the entry was present.</p>
-<h3 id="sweep-promisesweepresult"><a href="#sweep-promisesweepresult" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>sweep(): Promise&lt;SweepResult&gt;</code></h3>
-<p>Standalone call to opportunistically release any expired stakes you own. The same sweep runs implicitly inside <code>check()</code>, so most users never need this. The reward is paid in USDC and is small (<code>SWEEP_BOUNTY</code> per release, ~$0.0001).</p>
+<h3 id="balanceof-promisebigint"><a href="#balanceof-promisebigint" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>balanceOf(): Promise&lt;bigint&gt;</code></h3>
+<p>Current prepaid USDC balance held by the Registry for your wallet, in 6-decimal base units.</p>
+<h3 id="depositamount-promise-txhash-"><a href="#depositamount-promise-txhash-" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>deposit(amount): Promise&lt;{ txHash }&gt;</code></h3>
+<p>Top up the prepaid balance. <code>amount</code> is in USDC base units; use <code>parseUsdc(&quot;1.5&quot;)</code>.</p>
+<h3 id="withdrawamount-promise-txhash-"><a href="#withdrawamount-promise-txhash-" class="heading-permalink" aria-hidden="true" title="Permalink">#</a><code>withdraw(amount): Promise&lt;{ txHash }&gt;</code></h3>
+<p>Pull USDC back to the wallet. Throws <code>StakeLockedError</code> if the amount overlaps a locked bond.</p>
 <h2 id="see-also"><a href="#see-also" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>See also</h2>
 <ul>
 <li><strong><a href="/reference/immunityconfig/">ImmunityConfig</a></strong>, every constructor option.</li>
@@ -436,46 +484,52 @@ const immunity = new Immunity({
                 <a href="#stop-promisevoid" class="toc-link">stop(): Promise&lt;void&gt;</a>
             </li>
             <li class="toc-item">
+                <a href="#accessors" class="toc-link">Accessors</a>
+            </li>
+            <li class="toc-item">
                 <a href="#the-hot-path" class="toc-link">The hot path</a>
             </li>
             <li class="toc-item toc-item-sub">
                 <a href="#checktx-context-options-promisecheckresult" class="toc-link">check(tx, context, options?): Promise&lt;CheckResult&gt;</a>
             </li>
             <li class="toc-item">
-                <a href="#publishing" class="toc-link">Publishing</a>
+                <a href="#publishing-and-the-immune-response" class="toc-link">Publishing and the immune response</a>
             </li>
             <li class="toc-item toc-item-sub">
                 <a href="#publishinput-promisepublishresult" class="toc-link">publish(input): Promise&lt;PublishResult&gt;</a>
             </li>
             <li class="toc-item toc-item-sub">
-                <a href="#getantibodyidorseq-promiseantibody" class="toc-link">getAntibody(idOrSeq): Promise&lt;Antibody&gt;</a>
+                <a href="#corroborateinput-promisepublishresult" class="toc-link">corroborate(input): Promise&lt;PublishResult&gt;</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#challengeantibodyid-promise-bond-txhash-" class="toc-link">challenge(antibodyId): Promise&lt;&#123; bond, txHash }&gt;</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#matureantibodyid-promise-txhash-" class="toc-link">mature(antibodyId): Promise&lt;&#123; txHash }&gt;</a>
+            </li>
+            <li class="toc-item">
+                <a href="#identity" class="toc-link">Identity</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#registerpublisherlabel-promise-txhash-bond-" class="toc-link">registerPublisher(label): Promise&lt;&#123; txHash, bond }&gt;</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#deregister-promise-txhash-" class="toc-link">deregister(): Promise&lt;&#123; txHash }&gt;</a>
+            </li>
+            <li class="toc-item toc-item-sub">
+                <a href="#isregistered-promiseboolean" class="toc-link">isRegistered(): Promise&lt;boolean&gt;</a>
             </li>
             <li class="toc-item">
                 <a href="#money" class="toc-link">Money</a>
             </li>
             <li class="toc-item toc-item-sub">
-                <a href="#balance-promisebigint" class="toc-link">balance(): Promise&lt;bigint&gt;</a>
+                <a href="#balanceof-promisebigint" class="toc-link">balanceOf(): Promise&lt;bigint&gt;</a>
             </li>
             <li class="toc-item toc-item-sub">
-                <a href="#depositamount-approvemode-promisehex32" class="toc-link">deposit(amount, approveMode?): Promise&lt;Hex32&gt;</a>
+                <a href="#depositamount-promise-txhash-" class="toc-link">deposit(amount): Promise&lt;&#123; txHash }&gt;</a>
             </li>
             <li class="toc-item toc-item-sub">
-                <a href="#withdrawamount-promisehex32" class="toc-link">withdraw(amount): Promise&lt;Hex32&gt;</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#minttestusdcamount-promisehex32" class="toc-link">mintTestUsdc(amount): Promise&lt;Hex32&gt;</a>
-            </li>
-            <li class="toc-item">
-                <a href="#stats-and-admin" class="toc-link">Stats and admin</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#publisherstats-promisepublisherstats" class="toc-link">publisherStats(): Promise&lt;PublisherStats&gt;</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#dropfromcachekeccakid-boolean" class="toc-link">dropFromCache(keccakId): boolean</a>
-            </li>
-            <li class="toc-item toc-item-sub">
-                <a href="#sweep-promisesweepresult" class="toc-link">sweep(): Promise&lt;SweepResult&gt;</a>
+                <a href="#withdrawamount-promise-txhash-" class="toc-link">withdraw(amount): Promise&lt;&#123; txHash }&gt;</a>
             </li>
             <li class="toc-item">
                 <a href="#see-also" class="toc-link">See also</a>

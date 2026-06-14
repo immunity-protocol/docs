@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="leaf-base-url" content="">
-<meta name="description" content="What an antibody is, how it lives on chain, and the lifecycle from publish through expiry or slash.">
+<meta name="description" content="What an antibody is, how it lives on chain, and the lifecycle from publish through maturation, expiry, or slash.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://docs.immunity-protocol.com/">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Antibodies · Immunity Docs">
-<meta property="og:description" content="What an antibody is, how it lives on chain, and the lifecycle from publish through expiry or slash.">
+<meta property="og:description" content="What an antibody is, how it lives on chain, and the lifecycle from publish through maturation, expiry, or slash.">
 <meta property="og:site_name" content="Immunity Docs">
 <meta property="og:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <meta property="og:image:width" content="1200">
@@ -17,7 +17,7 @@
 <meta property="og:image:alt" content="Immunity Docs">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Antibodies · Immunity Docs">
-<meta name="twitter:description" content="What an antibody is, how it lives on chain, and the lifecycle from publish through expiry or slash.">
+<meta name="twitter:description" content="What an antibody is, how it lives on chain, and the lifecycle from publish through maturation, expiry, or slash.">
 <meta name="twitter:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -141,27 +141,57 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/concepts/two-speed-enforcement"
+                       class="sidebar-link">
+                        Two-speed enforcement
+                    </a>
+                </li>
+                <li>
                     <a href="/concepts/three-tier-lookup"
                        class="sidebar-link">
                         Three-tier lookup
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/tee-verification"
+                    <a href="/concepts/corroboration-and-maturation"
                        class="sidebar-link">
-                        TEE verification
+                        Corroboration and maturation
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/settlement-and-tokenomics"
+                    <a href="/concepts/reputation-and-identity"
                        class="sidebar-link">
-                        Settlement and tokenomics
+                        Reputation and identity
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/cross-chain-mirror"
+                    <a href="/concepts/sybil-resistance"
                        class="sidebar-link">
-                        Cross-chain mirror
+                        Sybil resistance
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/challenge-game-and-jury"
+                       class="sidebar-link">
+                        The challenge game and jury
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/novel-threat-verification"
+                       class="sidebar-link">
+                        Novel-threat verification
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/settlement-and-fees"
+                       class="sidebar-link">
+                        Settlement and fees
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/the-mirror-and-consumers"
+                       class="sidebar-link">
+                        The mirror and on-chain consumers
                     </a>
                 </li>
             </ul>
@@ -182,9 +212,21 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/guides/corroborate-and-challenge"
+                       class="sidebar-link">
+                        Corroborate and challenge
+                    </a>
+                </li>
+                <li>
                     <a href="/guides/operator-in-the-loop"
                        class="sidebar-link">
                         Operator in the loop
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/run-a-reference-agent"
+                       class="sidebar-link">
+                        Run a reference agent
                     </a>
                 </li>
                 <li>
@@ -252,15 +294,21 @@ tailwind.config = {
                         Helpers
                     </a>
                 </li>
+                <li>
+                    <a href="/reference/matchers"
+                       class="sidebar-link">
+                        Matchers and seeds
+                    </a>
+                </li>
             </ul>
         </div>
         <div class="sidebar-group">
             <h3 class="sidebar-group-title">Network</h3>
             <ul class="sidebar-links">
                 <li>
-                    <a href="/network/registry-on-0g"
+                    <a href="/network/registry-on-base"
                        class="sidebar-link">
-                        Registry on 0G
+                        Registry on Base
                     </a>
                 </li>
                 <li>
@@ -300,15 +348,15 @@ tailwind.config = {
 <article class="docs-content">
     <div class="prose">
         <h1>Antibodies</h1>
-<p>An <strong>antibody</strong> is the network's atomic unit of threat intelligence. One antibody corresponds to one specific thing the network has decided is dangerous. Every published antibody lives on the on-chain Registry on 0G Chain. The Registry is the canonical source of truth; every other layer (cache, gossip, off-chain feeds) is a derivative view.</p>
+<p>An <strong>antibody</strong> is the network's atomic unit of threat intelligence. One antibody corresponds to one specific thing the network has decided is dangerous. Every published antibody lives on the on-chain Registry on <strong>Base</strong>. The Registry is the canonical source of truth; every other layer (the local cache, off-chain feeds) is a derivative view.</p>
 <h2 id="identity"><a href="#identity" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Identity</h2>
 <p>Each antibody has three identifiers:</p>
 <ul>
 <li><strong><code>keccakId</code></strong>, a 32-byte hex string. The on-chain primary key. Computed from <code>(abType, flavor, primaryMatcherHash, publisher)</code>.</li>
-<li><strong><code>immSeq</code></strong>, a sequential <code>uint64</code> integer assigned at publish time. Monotonic across the whole Registry.</li>
+<li><strong><code>immSeq</code></strong>, a sequential integer assigned at publish time. Monotonic across the whole Registry.</li>
 <li><strong><code>immId</code></strong>, the human-readable form, <code>IMM-YYYY-NNNN</code> (year + four-digit pad). Derived from <code>immSeq</code> and <code>createdAt</code>. Stable for life.</li>
 </ul>
-<p>You read by either form. The SDK exposes <code>getAntibody(keccakId | immSeq)</code> and <code>getAntibodyByImmSeq(seq)</code>.</p>
+<p>Because the <code>keccakId</code> includes the publisher, two different publishers who flag the <strong>same</strong> target produce two different antibodies that share one <code>primaryMatcherHash</code>. That is corroboration, and it is what drives an antibody toward hard-block. See <strong><a href="/concepts/corroboration-and-maturation/">Corroboration and maturation</a></strong>.</p>
 <h2 id="on-chain-shape"><a href="#on-chain-shape" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>On-chain shape</h2>
 <p>The full envelope:</p>
 <pre><code class="language-ts">interface Antibody {
@@ -316,82 +364,72 @@ tailwind.config = {
   immSeq:             number;
   immId:              string;          // &quot;IMM-2026-0042&quot;
   abType:             AntibodyType;    // ADDRESS | CALL_PATTERN | BYTECODE | GRAPH | SEMANTIC
-  flavor:             number;          // type-specific subtype
+  flavor:             number;          // type-specific subtype (SEMANTIC only)
   verdict:            Verdict;         // MALICIOUS | SUSPICIOUS
-  status:             Status;          // ACTIVE | CHALLENGED | SLASHED | EXPIRED
+  status:             Status;          // PROBATION | ACTIVE | CHALLENGED | SLASHED | EXPIRED
   confidence:         number;          // 0..100
-  severity:           number;          // 0..100
+  severity:           number;          // 0..100, scales the bond
   primaryMatcherHash: Hex32;
-  evidenceCid:        Hex32;           // 0G Storage pointer for the evidence bundle
-  contextHash:        Hex32;
+  evidenceCid:        Hex32;           // IPFS content hash (Lighthouse) for the evidence bundle
+  contextHash:        Hex32;           // IPFS hash of the ECIES-encrypted context
   embeddingHash:      Hex32;
-  attestation:        Hex32;           // TEE attestation, when applicable
+  attestation:        Hex32;           // CRE attestation, when published from a verdict
   publisher:          Address;
   reviewer:           Address;
-  stakeAmount:        bigint;          // 1 USDC by default, in 6-decimal base units
-  stakeLockUntil:     bigint;          // unix timestamp
-  expiresAt:          bigint;          // 0 in v1 (treated as permanent)
+  bondAmount:         bigint;          // non-refundable bond, locked while enforced (USDC, 6dp)
+  escrowedFees:       bigint;          // publisher fees held until maturation (USDC, 6dp)
+  maturedAt:          bigint;          // unix seconds the antibody became ACTIVE; 0 if not matured
+  expiresAt:          bigint;          // unix seconds TTL; 0 = permanent
   createdAt:          bigint;
-  isSeeded:           boolean;
+  isSeeded:           boolean;         // genesis-seeded corpus entry
+  prominenceTier:     number;          // 0 normal, &gt;= 1 protected target
   seed?:              AntibodySeed;    // off-chain matcher seed for cache reconstruction
 }
 </code></pre>
-<p>Most fields are derived. The interesting ones at read time are <code>abType</code>, <code>verdict</code>, <code>status</code>, <code>confidence</code>, and <code>immId</code>.</p>
+<p>The interesting fields at read time are <code>abType</code>, <code>verdict</code>, <code>status</code>, <code>confidence</code>, <code>prominenceTier</code>, and <code>immId</code>.</p>
 <h2 id="lifecycle"><a href="#lifecycle" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Lifecycle</h2>
-<pre><code>   Publisher mints
-        │
-        ▼
-    ┌─ ACTIVE ─────────────────────────────────────┐
-    │                                              │
-    │  1. Stake locked 72h.                        │
-    │  2. Eligible to match check() calls.         │
-    │  3. Match earns publisher 80% of fee.        │
-    │                                              │
-    │  Anyone can challenge in this window.        │
-    └──────────────────────────────────────────────┘
-                         │
-                         │ (challenge filed)
-                         ▼
-                    CHALLENGED
-                         │
-            ┌────────────┴────────────┐
-            │                         │
-        challenge wins            challenge loses
-            │                         │
-            ▼                         ▼
-         SLASHED                    ACTIVE
-        (stake forfeit)          (challenger forfeits)
-                                     │
-                                     │ (72h pass without challenge,
-                                     │  or after a successful match)
-                                     ▼
-                                  ACTIVE permanently,
-                                  stake unlocked,
-                                  withdrawable.
+<p>A published antibody starts on probation and earns its way to enforcement. It never starts out trusted.</p>
+<pre><code>  publish
+     │   (bond locked, fees escrowed)
+     ▼
+  PROBATION ──────────────── advisory only; warns, never hard-blocks
+     │
+     │  matures with positive signal:
+     │  corroboration &gt;= K, OR undisputed matched volume + time
+     ▼
+   ACTIVE ───────────────── enforcement strength per the two-speed rule;
+     │                        escrowed fees release to the publisher
+     │
+     │  anyone may challenge at any point
+     ▼
+  CHALLENGED ────────────── probationary drops to advisory;
+     │                        a matured antibody KEEPS enforcing
+     ├─ invalid → SLASHED   bond + escrow clawed back to challenger; matcher slot freed
+     └─ valid   → ACTIVE    challenger's bond goes to the publisher; matures faster
 </code></pre>
-<p><code>EXPIRED</code> is reserved for v2. v1 treats every antibody as permanent (<code>expiresAt = 0</code> always). The contract exposes the field so the SDK can flip a flag in v2 without a redeploy.</p>
-<h2 id="verdicts"><a href="#verdicts" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Verdicts</h2>
-<p><code>verdict</code> is the publisher's classification. Two values:</p>
+<p><code>EXPIRED</code> is reached when <code>expiresAt</code> passes. An antibody with <code>expiresAt = 0</code> is permanent. Maturation and challenge resolution are covered in <strong><a href="/concepts/corroboration-and-maturation/">Corroboration and maturation</a></strong> and <strong><a href="/concepts/challenge-game-and-jury/">The challenge game and jury</a></strong>.</p>
+<h2 id="verdicts-vs-status"><a href="#verdicts-vs-status" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Verdicts vs status</h2>
+<p><code>verdict</code> is the publisher's classification:</p>
 <ul>
-<li><strong><code>MALICIOUS</code></strong>, the action should always block.</li>
+<li><strong><code>MALICIOUS</code></strong>, the action should block when this antibody is enforcing.</li>
 <li><strong><code>SUSPICIOUS</code></strong>, the action <em>might</em> be bad. The SDK invokes the operator-in-the-loop <code>onEscalate</code> handler when matched antibodies are SUSPICIOUS and confidence falls in the escalate band.</li>
 </ul>
-<p><code>status</code> is what's currently true on chain. ACTIVE means the antibody is matching live. SLASHED, EXPIRED, and CHALLENGED hide the antibody from match-time lookups but it stays addressable for audit.</p>
+<p><code>status</code> is what is currently true on chain. <code>PROBATION</code> and <code>ACTIVE</code> are live (they surface from lookups so the read-side can classify them advisory or hard-block). <code>SLASHED</code> and <code>EXPIRED</code> are dead and never match. <code>CHALLENGED</code> still surfaces but with reduced authority.</p>
 <h2 id="confidence-and-severity"><a href="#confidence-and-severity" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Confidence and severity</h2>
-<p>Both 0-100 integers, both publisher-asserted at publish time. Confidence drives the SDK's escalate logic via <code>confidenceThresholds</code> (defaults: block at 85, escalate at 60). Severity is informational, used by UIs and feeds to surface the worst threats first.</p>
-<h2 id="why-every-antibody-has-a-stake"><a href="#why-every-antibody-has-a-stake" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Why every antibody has a stake</h2>
-<p>The stake is the protocol's economic skin in the game. A publisher who mints a false-positive ADDRESS antibody for a legitimate exchange wallet gets challenged, loses the stake, and forfeits future match rewards from that antibody. A publisher who mints accurate antibodies earns 80% of the fee on every match across the network for the life of the antibody.</p>
-<p>The 1 USDC default is small enough that good-faith publishers can mint dozens, large enough to deter low-quality spam. Governance can adjust per-type defaults later.</p>
+<p>Both are 0-100 integers, publisher-asserted at publish time. Confidence drives the SDK's escalate logic via <code>confidenceThresholds</code> (defaults: block at 85, escalate at 60). <strong>Severity scales the bond</strong>: a higher claimed severity costs the publisher a larger non-refundable bond, so over-claiming is expensive.</p>
+<h2 id="why-every-antibody-has-a-bond"><a href="#why-every-antibody-has-a-bond" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Why every antibody has a bond</h2>
+<p>The bond is the protocol's economic skin in the game, and it is <strong>non-refundable while the antibody is enforced</strong>. A publisher who flags a legitimate exchange wallet gets challenged, loses the bond and the escrowed fees, and earns nothing. A publisher who flags accurate threats earns a share of the fee on every match for the life of the antibody, released once the antibody matures.</p>
+<p>The bond scales with claimed severity and the target's prominence, so flagging a blue-chip address (or any young, low-volume address on the frontier) costs more. This is the core of <strong><a href="/concepts/sybil-resistance/">sybil resistance</a></strong>.</p>
 <h2 id="off-chain-enrichment"><a href="#off-chain-enrichment" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Off-chain enrichment</h2>
 <p>Two off-chain pieces complete the picture:</p>
 <ul>
-<li><strong><code>evidenceCid</code></strong> points at a 0G Storage blob carrying the evidence bundle (the original tx, the marker text, the chain log, whatever the publisher chose to seal). Public envelope by default; encryptable for sensitive seeds.</li>
-<li><strong><code>seed</code></strong> (optional) is the matcher reconstruction seed: the data subscribers need to rebuild a type-specific lookup locally without re-reading the chain. Gossiped alongside the antibody when the publisher includes it.</li>
+<li><strong><code>evidenceCid</code></strong> points at a Lighthouse (Filecoin/IPFS) object carrying the public evidence envelope (the matcher summary, the reason, the attestation). Anchored on-chain as a content hash so anyone can fetch and verify it. Sensitive context is uploaded separately as an ECIES-encrypted blob keyed by <code>contextHash</code>.</li>
+<li><strong><code>seed</code></strong> (optional) is the matcher reconstruction seed: the data subscribers need to rebuild a type-specific lookup locally without re-reading the chain.</li>
 </ul>
 <h2 id="see-also"><a href="#see-also" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>See also</h2>
 <ul>
+<li><strong><a href="/concepts/two-speed-enforcement/">Two-speed enforcement</a></strong>, how a matched antibody becomes advisory or hard-block.</li>
 <li><strong><a href="/concepts/three-tier-lookup/">Three-tier lookup</a></strong>, how an antibody actually gets matched.</li>
-<li><strong><a href="/concepts/settlement-and-tokenomics/">Settlement and tokenomics</a></strong>, the publish + check + reward flow.</li>
 <li><strong><a href="/reference/antibody/">Reference: Antibody</a></strong>, every field with its on-chain mapping.</li>
 </ul>
 
@@ -403,9 +441,9 @@ tailwind.config = {
             <span class="pagination-title">Skill for AI assistants</span>
         </a>
 
-        <a href="/concepts/three-tier-lookup" class="pagination-link pagination-next">
+        <a href="/concepts/two-speed-enforcement" class="pagination-link pagination-next">
             <span class="pagination-label">Next &rarr;</span>
-            <span class="pagination-title">Three-tier lookup</span>
+            <span class="pagination-title">Two-speed enforcement</span>
         </a>
     </nav>
 </article>
@@ -424,13 +462,13 @@ tailwind.config = {
                 <a href="#lifecycle" class="toc-link">Lifecycle</a>
             </li>
             <li class="toc-item">
-                <a href="#verdicts" class="toc-link">Verdicts</a>
+                <a href="#verdicts-vs-status" class="toc-link">Verdicts vs status</a>
             </li>
             <li class="toc-item">
                 <a href="#confidence-and-severity" class="toc-link">Confidence and severity</a>
             </li>
             <li class="toc-item">
-                <a href="#why-every-antibody-has-a-stake" class="toc-link">Why every antibody has a stake</a>
+                <a href="#why-every-antibody-has-a-bond" class="toc-link">Why every antibody has a bond</a>
             </li>
             <li class="toc-item">
                 <a href="#off-chain-enrichment" class="toc-link">Off-chain enrichment</a>

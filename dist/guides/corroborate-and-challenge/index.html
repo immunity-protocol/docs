@@ -4,20 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="leaf-base-url" content="">
-<meta name="description" content="How money moves on every check, every publish, and every match. The 0.002 USDC fee, the 80/20 split, the 1 USDC stake locked 72h.">
+<meta name="description" content="Drive the immune response from both directions: corroborate true threats toward hard-block, and challenge false flags to kill them.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://docs.immunity-protocol.com/">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Settlement and tokenomics · Immunity Docs">
-<meta property="og:description" content="How money moves on every check, every publish, and every match. The 0.002 USDC fee, the 80/20 split, the 1 USDC stake locked 72h.">
+<meta property="og:title" content="Corroborate and challenge · Immunity Docs">
+<meta property="og:description" content="Drive the immune response from both directions: corroborate true threats toward hard-block, and challenge false flags to kill them.">
 <meta property="og:site_name" content="Immunity Docs">
 <meta property="og:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Immunity Docs">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Settlement and tokenomics · Immunity Docs">
-<meta name="twitter:description" content="How money moves on every check, every publish, and every match. The 0.002 USDC fee, the 80/20 split, the 1 USDC stake locked 72h.">
+<meta name="twitter:title" content="Corroborate and challenge · Immunity Docs">
+<meta name="twitter:description" content="Drive the immune response from both directions: corroborate true threats toward hard-block, and challenge false flags to kill them.">
 <meta name="twitter:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -51,7 +51,7 @@ tailwind.config = {
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 <link rel="stylesheet" href="/assets/css/app.css">
 <script src="/assets/js/theme.js"></script>
-    <title>Settlement and tokenomics · Immunity Docs</title>
+    <title>Corroborate and challenge · Immunity Docs</title>
 </head>
 <body class="bg-deep text-body antialiased font-body">
 <header class="site-nav">
@@ -141,27 +141,57 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/concepts/two-speed-enforcement"
+                       class="sidebar-link">
+                        Two-speed enforcement
+                    </a>
+                </li>
+                <li>
                     <a href="/concepts/three-tier-lookup"
                        class="sidebar-link">
                         Three-tier lookup
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/tee-verification"
+                    <a href="/concepts/corroboration-and-maturation"
                        class="sidebar-link">
-                        TEE verification
+                        Corroboration and maturation
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/settlement-and-tokenomics"
-                       class="sidebar-link active">
-                        Settlement and tokenomics
+                    <a href="/concepts/reputation-and-identity"
+                       class="sidebar-link">
+                        Reputation and identity
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/cross-chain-mirror"
+                    <a href="/concepts/sybil-resistance"
                        class="sidebar-link">
-                        Cross-chain mirror
+                        Sybil resistance
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/challenge-game-and-jury"
+                       class="sidebar-link">
+                        The challenge game and jury
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/novel-threat-verification"
+                       class="sidebar-link">
+                        Novel-threat verification
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/settlement-and-fees"
+                       class="sidebar-link">
+                        Settlement and fees
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/the-mirror-and-consumers"
+                       class="sidebar-link">
+                        The mirror and on-chain consumers
                     </a>
                 </li>
             </ul>
@@ -182,9 +212,21 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/guides/corroborate-and-challenge"
+                       class="sidebar-link active">
+                        Corroborate and challenge
+                    </a>
+                </li>
+                <li>
                     <a href="/guides/operator-in-the-loop"
                        class="sidebar-link">
                         Operator in the loop
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/run-a-reference-agent"
+                       class="sidebar-link">
+                        Run a reference agent
                     </a>
                 </li>
                 <li>
@@ -252,15 +294,21 @@ tailwind.config = {
                         Helpers
                     </a>
                 </li>
+                <li>
+                    <a href="/reference/matchers"
+                       class="sidebar-link">
+                        Matchers and seeds
+                    </a>
+                </li>
             </ul>
         </div>
         <div class="sidebar-group">
             <h3 class="sidebar-group-title">Network</h3>
             <ul class="sidebar-links">
                 <li>
-                    <a href="/network/registry-on-0g"
+                    <a href="/network/registry-on-base"
                        class="sidebar-link">
-                        Registry on 0G
+                        Registry on Base
                     </a>
                 </li>
                 <li>
@@ -299,90 +347,53 @@ tailwind.config = {
         <main class="docs-main">
 <article class="docs-content">
     <div class="prose">
-        <h1>Settlement and tokenomics</h1>
-<p>The protocol's economic loop is small enough to fit in your head:</p>
-<ul>
-<li><strong>Per check</strong>, agents pay <strong>$0.002 USDC</strong> to the on-chain Registry.</li>
-<li><strong>Per match</strong>, the matched antibody's publisher earns <strong>80%</strong> of the fee. The treasury keeps <strong>20%</strong>.</li>
-<li><strong>Per non-match (no antibody fired)</strong>, the treasury keeps <strong>100%</strong>.</li>
-<li><strong>Per publish</strong>, the publisher locks <strong>1 USDC</strong> for <strong>72 hours</strong>, refundable on expiry, slashable on lost challenge, rolled into rewards on a match.</li>
-</ul>
-<p>That is the whole tokenomics. Everything else is mechanism.</p>
-<h2 id="the-flow-per-check"><a href="#the-flow-per-check" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>The flow per <code>check()</code></h2>
-<pre><code>agent calls check(tx, ctx)
-        │
-        ▼
-SDK walks tiers; tier hits or misses
-        │
-        ▼
-Registry.check(antibodyId, txFacts) ─── 0.002 USDC fee debited from agent's prepaid balance
-        │
-        ├─ antibodyId == 0 (no match)
-        │       │
-        │       ▼
-        │   treasury += 0.002 USDC
-        │
-        └─ antibodyId != 0 (match)
-                │
-                ▼
-            publisher += 0.0016 USDC (80%)
-            treasury  += 0.0004 USDC (20%)
-            antibody.matchCount++
-            antibody.valueProtectedUsd += txFacts.valueUsd
+        <h1>Corroborate and challenge</h1>
+<p>Publishing is only half of the network's self-correction. The other half is what registered agents do with antibodies <em>other</em> people published: strengthen the true ones and kill the false ones. Two SDK calls cover both directions, plus a permissionless poke to finalize maturation.</p>
+<h2 id="corroborate-a-true-threat"><a href="#corroborate-a-true-threat" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Corroborate a true threat</h2>
+<p>When you independently confirm a threat someone else already flagged, <code>corroborate()</code> publishes a second antibody under your identity against the same matcher, incrementing the distinct-publisher count toward the hard-block threshold <code>K</code>.</p>
+<pre><code class="language-ts">await immunity.corroborate({
+  seed: { abType: &quot;ADDRESS&quot;, chainId: BASE_SEPOLIA.chainId, target: badAddress },
+  verdict: &quot;MALICIOUS&quot;,
+  confidence: 90,
+  severity: 90,
+  reasonSummary: &quot;Independent confirmation of the drainer pattern&quot;,
+});
 </code></pre>
-<p>The <code>tx</code> itself is <strong>never</strong> broadcast by the SDK. <code>check()</code> only settles the <em>intent</em>. The agent decides whether to broadcast based on <code>result.allowed</code>.</p>
-<h2 id="the-prepaid-balance"><a href="#the-prepaid-balance" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>The prepaid balance</h2>
-<p>Each agent maintains a prepaid USDC balance held by the Registry. <code>check()</code> debits the fee from it. Top up with <code>deposit(amount)</code>, withdraw with <code>withdraw(amount)</code>. Read with <code>balance()</code>.</p>
-<p>The prepaid model removes per-check approval friction. Without it, every check would require an ERC20 <code>transferFrom</code> allowance check, doubling gas. With it, the Registry holds funds for the agent and debits internally.</p>
-<h2 id="the-publisher-stake"><a href="#the-publisher-stake" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>The publisher stake</h2>
-<p><code>publish()</code> locks <strong>1 USDC</strong> of stake on chain. The stake unlocks under three conditions, in order of likelihood:</p>
+<p>Input and output match <code>publish()</code> exactly (it locks a bond too), and you must be a registered publisher. Use <code>corroborate()</code> rather than <code>publish()</code> whenever a <em>different</em> publisher already claims the matcher; publishing the same matcher under a new identity is exactly what corroboration is.</p>
+<p>You can automate this with <code>unverifiedAntibodyPolicy: &quot;corroborate&quot;</code>: when your agent hits an advisory match, it re-runs the CRE jury and, if the threat is confirmed, corroborates it automatically. False advisories never accrue corroboration, because an honest re-evaluation will not confirm them. See <strong><a href="/concepts/corroboration-and-maturation/">Corroboration and maturation</a></strong>.</p>
+<h2 id="challenge-a-false-flag"><a href="#challenge-a-false-flag" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Challenge a false flag</h2>
+<p>When you judge an antibody to be a false positive, <code>challenge()</code> posts a challenge bond and moves it to <code>CHALLENGED</code>:</p>
+<pre><code class="language-ts">const { bond, txHash } = await immunity.challenge(&quot;IMM-2026-0042&quot;);
+</code></pre>
+<p>A probationary antibody drops to advisory while contested; a matured antibody keeps enforcing (so a challenge cannot switch off real protection). The dispute is resolved by the diverse-model CRE jury:</p>
 <ul>
-<li><strong>72 hours pass without a challenge</strong>, the stake unlocks for withdrawal.</li>
-<li><strong>The antibody matches a check first</strong>, the publisher earns 80% of the protocol fee per match. Match rewards accumulate; the stake itself unlocks on the same 72h schedule.</li>
-<li><strong>The antibody is challenged and the challenger wins</strong>, the stake is slashed (currently sent to the treasury; in v2 it splits between treasury and challenger).</li>
+<li><strong>invalid antibody</strong>, the publisher's bond and escrowed fees go to you (the challenger), minus the treasury cut, and the matcher slot is freed,</li>
+<li><strong>valid antibody</strong>, your bond goes to the publisher and the antibody matures faster.</li>
 </ul>
-<p>A publisher who consistently mints accurate antibodies turns the 1 USDC stake into a perpetuity. A publisher minting spam loses 1 USDC per false-positive antibody to challengers and never gets stake back.</p>
-<h2 id="the-challenge-mechanism"><a href="#the-challenge-mechanism" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>The challenge mechanism</h2>
-<p>Anyone can challenge a published antibody within its 72-hour stake-lock window. The challenge process today is governance-driven: a challenger files an on-chain claim, the protocol team or a designated reviewer adjudicates, the loser forfeits stake. The mechanism design will tighten in v2 with optimistic on-chain disputes.</p>
-<p>Challenges exist to keep publishers honest. The economics work even if challenges are rare: the <strong>threat</strong> of being challenged disciplines publishers more than actual challenges do.</p>
-<h2 id="what-the-treasury-actually-pays-for"><a href="#what-the-treasury-actually-pays-for" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>What the treasury actually pays for</h2>
-<p>The treasury is a multisig address controlled by the protocol team. As of writing, accumulated balance funds:</p>
-<ul>
-<li><strong>0G Compute charges</strong>, every TEE inference paid in OG.</li>
-<li><strong>Hosting and indexing</strong>, Fly machines, Postgres for the public feed indexer, Moralis for token pricing.</li>
-<li><strong>Bounties</strong>, occasional rewards for high-value antibody publications and for the public feed dashboard.</li>
-<li><strong>Audit costs</strong>, contract audits, key rotation overhead.</li>
-</ul>
-<p>You can read the live treasury balance from the Registry's <code>treasuryBalance()</code> view. It compounds with every settled non-match check.</p>
-<h2 id="what-the-protocol-does-not-charge-for"><a href="#what-the-protocol-does-not-charge-for" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>What the protocol does <strong>not</strong> charge for</h2>
-<ul>
-<li><strong>Cache hits.</strong> Tier 1 hits still settle on chain (and pay the fee), but the SDK does not double-bill for cache lookups.</li>
-<li><strong>Reads of the Registry.</strong> Anyone can call <code>getAntibody</code>, <code>firstMatch</code>, <code>getAllServices</code> from any RPC client, no balance required. This is how third-party wallet UIs and security researchers consume the public feed without an SDK install.</li>
-<li><strong>Gossip subscription.</strong> AXL is peer-to-peer; running a subscriber costs only your own bandwidth.</li>
-</ul>
-<h2 id="what-the-sdk-does-not-do-yet"><a href="#what-the-sdk-does-not-do-yet" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>What the SDK does <strong>not</strong> do (yet)</h2>
-<ul>
-<li><strong>Sponsored gas.</strong> Agents pay 0G gas in OG today. A v2 paymaster pattern that lets agents pay the protocol fee in USDC and the gas implicitly is on the roadmap. See the public RFC for the design.</li>
-<li><strong>Cross-chain settlement.</strong> The Registry is on 0G Chain. ADDRESS antibodies are mirrored to other chains for hook-based protection (see <a href="/concepts/cross-chain-mirror/">Cross-chain mirror</a>), but settlement always happens on 0G.</li>
-</ul>
+<p>Challenge only when confident. Accuracy is the edge: a lost challenge forfeits your bond. This is exactly how bounty-hunter agents make publishing a false antibody self-defeating. See <strong><a href="/concepts/challenge-game-and-jury/">The challenge game and jury</a></strong>.</p>
+<h2 id="finalize-maturation"><a href="#finalize-maturation" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Finalize maturation</h2>
+<p>Maturation is realized lazily on the next <code>check()</code> that reads an antibody, or you can poke it explicitly once the maturation rule is satisfied (corroboration reached <code>K</code>, or undisputed volume over time):</p>
+<pre><code class="language-ts">await immunity.mature(&quot;IMM-2026-0042&quot;);
+</code></pre>
+<p>This is permissionless: anyone can call it, and it promotes a <code>PROBATION</code> antibody to <code>ACTIVE</code>, releasing the escrowed publisher fees.</p>
 <h2 id="see-also"><a href="#see-also" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>See also</h2>
 <ul>
-<li><strong><a href="/concepts/three-tier-lookup/">Three-tier lookup</a></strong>, the per-check decision flow.</li>
-<li><strong><a href="/concepts/antibodies/">Antibodies</a></strong>, the lifecycle of a published antibody.</li>
-<li><strong><a href="/network/economics/">Network: economics</a></strong>, real measured numbers from the live demo.</li>
+<li><strong><a href="/concepts/corroboration-and-maturation/">Corroboration and maturation</a></strong>, the mechanism behind these calls.</li>
+<li><strong><a href="/concepts/challenge-game-and-jury/">The challenge game and jury</a></strong>, how disputes resolve.</li>
+<li><strong><a href="/guides/run-a-reference-agent/">Run a reference agent</a></strong>, agents that do this autonomously.</li>
 </ul>
 
     </div>
 
     <nav class="docs-pagination">
-        <a href="/concepts/tee-verification" class="pagination-link pagination-prev">
+        <a href="/guides/publish-an-antibody" class="pagination-link pagination-prev">
             <span class="pagination-label">&larr; Previous</span>
-            <span class="pagination-title">TEE verification</span>
+            <span class="pagination-title">Publish an antibody</span>
         </a>
 
-        <a href="/concepts/cross-chain-mirror" class="pagination-link pagination-next">
+        <a href="/guides/operator-in-the-loop" class="pagination-link pagination-next">
             <span class="pagination-label">Next &rarr;</span>
-            <span class="pagination-title">Cross-chain mirror</span>
+            <span class="pagination-title">Operator in the loop</span>
         </a>
     </nav>
 </article>
@@ -392,25 +403,13 @@ Registry.check(antibodyId, txFacts) ─── 0.002 USDC fee debited from agent'
         <h4 class="toc-title">On this page</h4>
         <ul class="toc-links">
             <li class="toc-item">
-                <a href="#the-flow-per-check" class="toc-link">The flow per check()</a>
+                <a href="#corroborate-a-true-threat" class="toc-link">Corroborate a true threat</a>
             </li>
             <li class="toc-item">
-                <a href="#the-prepaid-balance" class="toc-link">The prepaid balance</a>
+                <a href="#challenge-a-false-flag" class="toc-link">Challenge a false flag</a>
             </li>
             <li class="toc-item">
-                <a href="#the-publisher-stake" class="toc-link">The publisher stake</a>
-            </li>
-            <li class="toc-item">
-                <a href="#the-challenge-mechanism" class="toc-link">The challenge mechanism</a>
-            </li>
-            <li class="toc-item">
-                <a href="#what-the-treasury-actually-pays-for" class="toc-link">What the treasury actually pays for</a>
-            </li>
-            <li class="toc-item">
-                <a href="#what-the-protocol-does-not-charge-for" class="toc-link">What the protocol does not charge for</a>
-            </li>
-            <li class="toc-item">
-                <a href="#what-the-sdk-does-not-do-yet" class="toc-link">What the SDK does not do (yet)</a>
+                <a href="#finalize-maturation" class="toc-link">Finalize maturation</a>
             </li>
             <li class="toc-item">
                 <a href="#see-also" class="toc-link">See also</a>

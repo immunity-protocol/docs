@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="leaf-base-url" content="">
-<meta name="description" content="Every check walks three tiers, cheapest first. The chain is the source of truth, the cache is a shortcut, the TEE only fires for genuinely novel threats.">
+<meta name="description" content="Every check walks three tiers, cheapest first. The chain is the source of truth, the cache is a shortcut, the CRE jury only fires for genuinely novel threats.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://docs.immunity-protocol.com/">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Three-tier lookup · Immunity Docs">
-<meta property="og:description" content="Every check walks three tiers, cheapest first. The chain is the source of truth, the cache is a shortcut, the TEE only fires for genuinely novel threats.">
+<meta property="og:description" content="Every check walks three tiers, cheapest first. The chain is the source of truth, the cache is a shortcut, the CRE jury only fires for genuinely novel threats.">
 <meta property="og:site_name" content="Immunity Docs">
 <meta property="og:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <meta property="og:image:width" content="1200">
@@ -17,7 +17,7 @@
 <meta property="og:image:alt" content="Immunity Docs">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Three-tier lookup · Immunity Docs">
-<meta name="twitter:description" content="Every check walks three tiers, cheapest first. The chain is the source of truth, the cache is a shortcut, the TEE only fires for genuinely novel threats.">
+<meta name="twitter:description" content="Every check walks three tiers, cheapest first. The chain is the source of truth, the cache is a shortcut, the CRE jury only fires for genuinely novel threats.">
 <meta name="twitter:image" content="https://docs.immunity-protocol.com/assets/og/og-default.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -141,27 +141,57 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/concepts/two-speed-enforcement"
+                       class="sidebar-link">
+                        Two-speed enforcement
+                    </a>
+                </li>
+                <li>
                     <a href="/concepts/three-tier-lookup"
                        class="sidebar-link active">
                         Three-tier lookup
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/tee-verification"
+                    <a href="/concepts/corroboration-and-maturation"
                        class="sidebar-link">
-                        TEE verification
+                        Corroboration and maturation
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/settlement-and-tokenomics"
+                    <a href="/concepts/reputation-and-identity"
                        class="sidebar-link">
-                        Settlement and tokenomics
+                        Reputation and identity
                     </a>
                 </li>
                 <li>
-                    <a href="/concepts/cross-chain-mirror"
+                    <a href="/concepts/sybil-resistance"
                        class="sidebar-link">
-                        Cross-chain mirror
+                        Sybil resistance
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/challenge-game-and-jury"
+                       class="sidebar-link">
+                        The challenge game and jury
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/novel-threat-verification"
+                       class="sidebar-link">
+                        Novel-threat verification
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/settlement-and-fees"
+                       class="sidebar-link">
+                        Settlement and fees
+                    </a>
+                </li>
+                <li>
+                    <a href="/concepts/the-mirror-and-consumers"
+                       class="sidebar-link">
+                        The mirror and on-chain consumers
                     </a>
                 </li>
             </ul>
@@ -182,9 +212,21 @@ tailwind.config = {
                     </a>
                 </li>
                 <li>
+                    <a href="/guides/corroborate-and-challenge"
+                       class="sidebar-link">
+                        Corroborate and challenge
+                    </a>
+                </li>
+                <li>
                     <a href="/guides/operator-in-the-loop"
                        class="sidebar-link">
                         Operator in the loop
+                    </a>
+                </li>
+                <li>
+                    <a href="/guides/run-a-reference-agent"
+                       class="sidebar-link">
+                        Run a reference agent
                     </a>
                 </li>
                 <li>
@@ -252,15 +294,21 @@ tailwind.config = {
                         Helpers
                     </a>
                 </li>
+                <li>
+                    <a href="/reference/matchers"
+                       class="sidebar-link">
+                        Matchers and seeds
+                    </a>
+                </li>
             </ul>
         </div>
         <div class="sidebar-group">
             <h3 class="sidebar-group-title">Network</h3>
             <ul class="sidebar-links">
                 <li>
-                    <a href="/network/registry-on-0g"
+                    <a href="/network/registry-on-base"
                        class="sidebar-link">
-                        Registry on 0G
+                        Registry on Base
                     </a>
                 </li>
                 <li>
@@ -300,34 +348,29 @@ tailwind.config = {
 <article class="docs-content">
     <div class="prose">
         <h1>Three-tier lookup</h1>
-<p>Every <code>check()</code> walks three tiers in order. Each tier resolves a different question (do I already know this threat?) at progressively higher cost. The chain is the source of truth; the cache is a performance shortcut on top of it; TEE detection only fires when neither has seen the threat before.</p>
+<p>Every <code>check()</code> walks three tiers in order. Each tier answers the same question (do we already know this threat?) at progressively higher cost. The chain is the source of truth; the local cache is a performance shortcut on top of it; the CRE jury only fires when neither has seen the threat before.</p>
 <pre><code>┌────────────────────────────────────────────────────────────────┐
-│  Tier 1, local cache                  ~1 ms                    │
-│  in-memory matchers indexed by (chainId, address), selector,   │
-│  bytecode hash, taint set, marker substring                    │
-│                                                                │
-│  miss ↓                                                        │
-│                                                                │
-│  Tier 2, registry RPC                 ~200 ms                  │
-│  on-chain matcherIndex(primaryMatcherHash) -&gt; keccakId         │
-│  populates Tier 1 on hit so the next check resolves locally    │
-│                                                                │
-│  miss ↓                                                        │
-│                                                                │
-│  Tier 3, TEE detection                ~3 s                     │
-│  0G Compute (qwen-2.5-7b) inference + structured verdict       │
-│  fires only for genuinely novel threats; auto-publishes the    │
-│  resulting antibody so the next agent's Tier 1 catches it      │
+│  Tier 1, local cache                  ~1 ms                     │
+│  in-memory matchers indexed by (chainId, address), selector,    │
+│  bytecode hash, taint set, semantic marker                      │
+│                                                                 │
+│  miss ↓                                                         │
+│                                                                 │
+│  Tier 2, Base registry RPC            ~200 ms                   │
+│  getAntibodyByMatcherHash(primaryMatcherHash) on Base           │
+│  populates Tier 1 on hit so the next check resolves locally     │
+│                                                                 │
+│  miss ↓                                                         │
+│                                                                 │
+│  Tier 3, CRE jury                     seconds                   │
+│  requestVerification on chain -&gt; diverse-model CRE verdict      │
+│  fires only for genuinely novel threats; can auto-publish the   │
+│  resulting antibody so the next agent's Tier 1 catches it       │
 └────────────────────────────────────────────────────────────────┘
 </code></pre>
+<p>Lookup finds a <em>matching</em> antibody. A separate read-side step then decides whether that match <strong>hard-blocks or only warns</strong>. See <strong><a href="/concepts/two-speed-enforcement/">Two-speed enforcement</a></strong>.</p>
 <h2 id="why-three-tiers"><a href="#why-three-tiers" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Why three tiers</h2>
-<p>Without Tier 2, an agent with a cold cache re-detects and re-publishes any antibody the network has already minted. Three problems:</p>
-<ul>
-<li><strong>Duplicate antibodies.</strong> The same threat gets multiple <code>keccakId</code>s, each with their own divided economic claim.</li>
-<li><strong>Wasted TEE calls.</strong> Every cold-cache agent burns a 0G Compute inference on threats the chain already knew about.</li>
-<li><strong>Broken publisher economics.</strong> The first publisher's stake competes for matches against subsequent publishers' duplicates.</li>
-</ul>
-<p>Tier 2 closes the gap by making the chain (not the cache) the canonical record. The contract enforces uniqueness via <code>matcherIndex</code> and reverts second-publisher attempts with <code>AntibodyAlreadyExistsForMatcher(existingKeccakId)</code>. The SDK preflights the same lookup so the common case never reaches the chain reverted.</p>
+<p>Without Tier 2, an agent with a cold cache re-detects threats the network has already minted, wasting CRE calls and fragmenting the corroboration signal across duplicate antibodies. Tier 2 makes the chain (not the cache) the canonical record: a cold-cache agent finds the existing antibody on chain and pulls it into its cache instead of re-deriving it.</p>
 <h2 id="what-gets-probed-at-each-tier"><a href="#what-gets-probed-at-each-tier" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>What gets probed at each tier</h2>
 <h3 id="tier-1-local-cache"><a href="#tier-1-local-cache" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Tier 1, local cache</h3>
 <p>Five matchers run cheap-first; first hit wins.</p>
@@ -362,20 +405,18 @@ tailwind.config = {
 </tr>
 <tr>
 <td>SEMANTIC</td>
-<td>flavor + marker substring</td>
-<td>linear scan over markers</td>
+<td>flavor + marker</td>
+<td>scan over markers</td>
 </tr>
 </tbody>
 </table>
-<h3 id="tier-2-registry-rpc"><a href="#tier-2-registry-rpc" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Tier 2, registry RPC</h3>
-<p>When Tier 1 misses, the SDK builds a list of candidate primary matcher hashes from the tx and context, then queries <code>Registry.getAntibodyByMatcherHash(hash)</code> for each one until it finds a hit (or exhausts the candidates).</p>
-<p>Today the candidate set covers ADDRESS-shaped lookups: <code>tx.to</code> and <code>context.counterparty.id</code> if either parses as a hex address. SEMANTIC and BYTECODE are richer matchers handled by Tier 1 already, so Tier 2 skips them.</p>
-<p>A short <strong>negative cache</strong> (5 min TTL, evicted on incoming gossip) prevents repeated RPC traffic for the same legitimate-but-uncommon counterparty. AXL gossip evicts the entry as soon as a freshly-published antibody arrives, so a freshly-minted threat is visible within one gossip round-trip. The 5-minute TTL is the worst-case fallback.</p>
-<p>The lookup reuses the existing <code>RegistryClient.contract</code> provider, no new connection. On hit, the antibody is decoded once and pushed into the local cache so the next check serves it locally.</p>
-<h3 id="tier-3-tee-detection"><a href="#tier-3-tee-detection" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Tier 3, TEE detection</h3>
-<p>When the cache and the chain are both empty for a given input, <code>novelThreatPolicy: &quot;verify&quot;</code> triggers a 0G Compute inference against the <code>qwen-2.5-7b-instruct</code> provider. Verdicts come back as strict JSON. On <code>block</code>, the SDK auto-publishes the synthesized antibody so subsequent agents catch the same threat at Tier 1 (or 2, after the chain mints).</p>
-<p><code>trust-cache</code> skips Tier 3 and allows the action with <code>novel: true</code> flagged on the result. <code>deny-novel</code> blocks unconditionally on a Tier 1 + Tier 2 miss.</p>
-<p>See <strong><a href="/concepts/tee-verification/">TEE verification</a></strong> for the full attestation story and the limits.</p>
+<h3 id="tier-2-base-registry-rpc"><a href="#tier-2-base-registry-rpc" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Tier 2, Base registry RPC</h3>
+<p>When Tier 1 misses, the SDK builds candidate primary-matcher hashes from the tx and context, then queries the Registry on Base for each one until it finds a hit (or exhausts the candidates). On a hit the antibody is decoded once and pushed into the local cache so the next check serves it locally.</p>
+<p>A short-lived <strong>negative cache</strong> suppresses repeated RPC traffic for the same legitimate-but-uncommon counterparty. Entries carry a TTL, so a freshly minted threat becomes visible after at most that window even without a cache reset.</p>
+<h3 id="tier-3-cre-jury"><a href="#tier-3-cre-jury" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Tier 3, CRE jury</h3>
+<p>When the cache and the chain are both empty for a given input and <code>novelThreatPolicy: &quot;verify&quot;</code> is set, the SDK posts the distilled, ECIES-encrypted context to the chain via <code>requestVerification</code> (the agent's wallet pays the check fee) and awaits the Chainlink CRE jury's DON-attested verdict. On a confirmed threat, if you opted into <code>autoPublishConfirmedThreats</code>, the SDK publishes the synthesized antibody so subsequent agents catch the same threat at Tier 1 or 2.</p>
+<p><code>trust-cache</code> skips Tier 3 and allows the action with <code>novel: true</code>. <code>deny-novel</code> blocks unconditionally on a Tier 1 + Tier 2 miss. If no verifier is available, the <code>verify</code> path fails <strong>closed</strong>: a novel input is never silently allowed.</p>
+<p>See <strong><a href="/concepts/novel-threat-verification/">Novel-threat verification</a></strong> for the full CRE attestation story and its limits.</p>
 <h2 id="decision-source"><a href="#decision-source" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Decision source</h2>
 <p>The <code>source</code> field on a returned <code>CheckResult</code> tells you which tier resolved:</p>
 <table>
@@ -396,7 +437,7 @@ tailwind.config = {
 </tr>
 <tr>
 <td><code>&quot;tee&quot;</code></td>
-<td>Tier 3 hit (TEE inference + auto-publish)</td>
+<td>Tier 3 hit (CRE verdict, possibly auto-published)</td>
 </tr>
 <tr>
 <td><code>&quot;policy&quot;</code></td>
@@ -407,28 +448,28 @@ tailwind.config = {
 <p>The <code>novel</code> flag is true only for <code>&quot;policy&quot;</code>-sourced allows under <code>trust-cache</code>.</p>
 <h2 id="failure-modes"><a href="#failure-modes" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>Failure modes</h2>
 <ul>
-<li><strong>RPC unavailable.</strong> <code>Tier2LookupClient</code> swallows fetch errors and falls through to the policy fork. The SDK degrades to two-tier behavior; cache hits still work, novel threats still go to TEE under <code>verify</code>.</li>
-<li><strong>Race on publish.</strong> Two SDK instances publishing the same matcher hash within a block: the SDK preflight catches the common case; the contract revert (<code>AntibodyAlreadyExistsForMatcher</code>) covers the race. Both surface as a typed <code>MatcherAlreadyClaimedError</code> carrying the existing <code>keccakId</code>.</li>
-<li><strong>Stale negative cache.</strong> AXL gossip evicts entries on incoming antibodies, so a freshly-minted threat is visible within one gossip round-trip. The 5-minute TTL is the worst-case fallback.</li>
+<li><strong>RPC unavailable.</strong> The Tier-2 lookup swallows fetch errors and falls through to the policy fork. The SDK degrades to two-tier behavior; cache hits still work, novel threats still reach CRE under <code>verify</code>.</li>
+<li><strong>No verifier configured.</strong> Under <code>verify</code>, a missing verifier fails closed (the novel input is not silently allowed).</li>
+<li><strong>Stale negative cache.</strong> Entries expire on a TTL, so a freshly minted threat surfaces after at most one window.</li>
 </ul>
 <h2 id="see-also"><a href="#see-also" class="heading-permalink" aria-hidden="true" title="Permalink">#</a>See also</h2>
 <ul>
-<li><strong><a href="/concepts/tee-verification/">TEE verification</a></strong>, what Tier 3 actually does.</li>
-<li><strong><a href="/concepts/settlement-and-tokenomics/">Settlement and tokenomics</a></strong>, why the fee is paid every settled tier.</li>
+<li><strong><a href="/concepts/two-speed-enforcement/">Two-speed enforcement</a></strong>, how a matched antibody becomes advisory or hard-block.</li>
+<li><strong><a href="/concepts/novel-threat-verification/">Novel-threat verification</a></strong>, what Tier 3 actually does.</li>
 <li><strong><a href="/reference/checkresult/">Reference: CheckResult</a></strong>, every field on the returned object.</li>
 </ul>
 
     </div>
 
     <nav class="docs-pagination">
-        <a href="/concepts/antibodies" class="pagination-link pagination-prev">
+        <a href="/concepts/two-speed-enforcement" class="pagination-link pagination-prev">
             <span class="pagination-label">&larr; Previous</span>
-            <span class="pagination-title">Antibodies</span>
+            <span class="pagination-title">Two-speed enforcement</span>
         </a>
 
-        <a href="/concepts/tee-verification" class="pagination-link pagination-next">
+        <a href="/concepts/corroboration-and-maturation" class="pagination-link pagination-next">
             <span class="pagination-label">Next &rarr;</span>
-            <span class="pagination-title">TEE verification</span>
+            <span class="pagination-title">Corroboration and maturation</span>
         </a>
     </nav>
 </article>
@@ -447,10 +488,10 @@ tailwind.config = {
                 <a href="#tier-1-local-cache" class="toc-link">Tier 1, local cache</a>
             </li>
             <li class="toc-item toc-item-sub">
-                <a href="#tier-2-registry-rpc" class="toc-link">Tier 2, registry RPC</a>
+                <a href="#tier-2-base-registry-rpc" class="toc-link">Tier 2, Base registry RPC</a>
             </li>
             <li class="toc-item toc-item-sub">
-                <a href="#tier-3-tee-detection" class="toc-link">Tier 3, TEE detection</a>
+                <a href="#tier-3-cre-jury" class="toc-link">Tier 3, CRE jury</a>
             </li>
             <li class="toc-item">
                 <a href="#decision-source" class="toc-link">Decision source</a>
