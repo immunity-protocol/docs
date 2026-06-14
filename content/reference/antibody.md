@@ -1,12 +1,12 @@
 ---
 title: "Antibody"
 order: 4
-description: "Every field on the on-chain Antibody envelope. The contract-aligned shape plus the off-chain seed for cache reconstruction."
+description: "Every field on the on-chain Antibody envelope, the contract-aligned shape plus the off-chain seed for cache reconstruction."
 ---
 
 # `Antibody`
 
-The contract-aligned envelope for a published threat. One per `keccakId`. Read via `getAntibody(idOrSeq)`. Returned in `CheckResult.antibodies` on a match.
+The contract-aligned envelope for a published threat. One per `keccakId`. Returned in `CheckResult.antibodies` on a match, and decodable from the Registry with the `decodeAntibody` helper.
 
 ## Full shape
 
@@ -28,11 +28,13 @@ interface Antibody {
   attestation:        Hex32;
   publisher:          Address;
   reviewer:           Address;
-  stakeAmount:        bigint;
-  stakeLockUntil:     bigint;
+  bondAmount:         bigint;
+  escrowedFees:       bigint;
+  maturedAt:          bigint;
   expiresAt:          bigint;
   createdAt:          bigint;
   isSeeded:           boolean;
+  prominenceTier:     number;
   seed?:              AntibodySeed;
 }
 ```
@@ -41,149 +43,99 @@ interface Antibody {
 
 ### `keccakId`
 
-Type: `Hex32`. The on-chain primary key. Computed off-chain by:
+Type: `Hex32`. The on-chain primary key:
 
 ```
 keccakId = keccak256(abi.encode(abType, flavor, primaryMatcherHash, publisher))
 ```
 
-Used as the contract's mapping key for the antibody storage slot. Stable for life.
+Because it includes the publisher, two publishers flagging the same target produce two `keccakId`s sharing one `primaryMatcherHash`. Compute it with `computeKeccakId`.
 
 ### `immSeq`
 
-Type: `number`. Sequential `uint64` assigned at publish time, monotonic across the whole Registry.
+Type: `number`. Sequential, monotonic across the Registry.
 
 ### `immId`
 
-Type: `string`. Format `IMM-YYYY-NNNN` (year + four-digit pad). Derived from `immSeq` and `createdAt`. The human-readable form. Used in URLs (`/antibody/IMM-2026-0042`), in logs, in the public feed.
+Type: `string`. Format `IMM-YYYY-NNNN`. The human-readable form, used in URLs, logs, and the public feed. Build it with `formatImmId(year, immSeq)`.
 
 ## Classification
 
 ### `abType`
 
-Type: `AntibodyType` enum. One of:
-- `"ADDRESS"`, specific wallets and contracts.
-- `"CALL_PATTERN"`, function shapes (selector + args).
-- `"BYTECODE"`, runtime hash matching.
-- `"GRAPH"`, multi-hop taint topology.
-- `"SEMANTIC"`, manipulation patterns and prompt injection.
+Type: `AntibodyType`. `"ADDRESS" | "CALL_PATTERN" | "BYTECODE" | "GRAPH" | "SEMANTIC"`. Numeric codes are in `AntibodyTypeValue`.
 
 ### `flavor`
 
-Type: `number` (uint8). Type-specific subtype.
-
-For SEMANTIC, `flavor` corresponds to a family in the incident catalog (1 = ignore-instructions, 2 = system-tag-spoof, etc.). For other types, currently unused (defaults to 0).
+Type: `number`. Type-specific subtype. For SEMANTIC it is a `SemanticFlavor` code (`COUNTERPARTY=0`, `MANIPULATION=1`, `PROMPT_INJECTION=2`); `0` for other types.
 
 ### `verdict`
 
-Type: `Verdict` enum. `"MALICIOUS"` (always block) or `"SUSPICIOUS"` (escalate band).
+Type: `Verdict`. `"MALICIOUS"` (block when enforcing) or `"SUSPICIOUS"` (escalate band).
 
 ### `status`
 
-Type: `Status` enum. Current on-chain state:
+Type: `Status`. Current on-chain state:
 
-- `"ACTIVE"`, eligible to match. Stake locked or earning. Default after `publish()`.
-- `"CHALLENGED"`, a challenge is pending. Match-time lookups skip CHALLENGED antibodies until the challenge resolves.
-- `"SLASHED"`, challenge succeeded; antibody disabled, stake forfeited.
-- `"EXPIRED"`, v2 only. v1 treats every antibody as permanent.
+- `"PROBATION"`, freshly published; advisory-only, fees escrowed.
+- `"ACTIVE"`, matured; enforcement strength per the two-speed rule, escrow released.
+- `"CHALLENGED"`, a challenge is pending; probationary suspends to advisory, matured keeps enforcing.
+- `"SLASHED"`, challenge succeeded; disabled, bond forfeited.
+- `"EXPIRED"`, past its TTL; disabled.
 
-### `confidence`
+`PROBATION` and `ACTIVE` are *live* and surface from lookups; `SLASHED` and `EXPIRED` never match. Use `isLiveAntibody(ab, nowSec)` to test liveness.
 
-Type: `number`, range 0..100. Publisher-asserted confidence in the verdict.
+### `confidence` / `severity`
 
-### `severity`
-
-Type: `number`, range 0..100. Publisher-asserted damage potential. Informational; no protocol behavior depends on it.
+Type: `number`, 0..100. Publisher-asserted. Confidence drives escalate logic; **severity scales the bond**.
 
 ## Matcher data
 
 ### `primaryMatcherHash`
 
-Type: `Hex32`. The keccak256 of the type-specific matcher tuple. Used as the index for fast on-chain lookups (`Registry.getAntibodyByMatcherHash`). Computed by:
-
-- ADDRESS, `keccak256(abi.encode(chainId, target))`.
-- CALL_PATTERN, `keccak256(abi.encode(chainId, target, selector, argsTemplateHash))`.
-- BYTECODE, `keccak256(runtimeBytecode)`.
-- GRAPH, `keccak256(abi.encode(chainId, sortedAddresses))`.
-- SEMANTIC, `keccak256(abi.encode(flavor, marker))`.
-
-The SDK exports per-type helpers: `hashAddressMatcher()`, `hashCallPatternMatcher()`, etc. See [Helpers](/reference/helpers/).
+Type: `Hex32`. The keccak256 of the type-specific matcher tuple, used as the on-chain lookup index. Computed by the per-type helpers, each taking a typed input object. See [Matchers and seeds](/reference/matchers/).
 
 ### `evidenceCid`
 
-Type: `Hex32`. 0G Storage pointer to the evidence bundle (the original tx, the marker text, the chain log). Public envelope by default; encryptable for sensitive seeds.
-
-Resolve via `fetchPublicEnvelope(cid)` or directly through the 0G Storage indexer.
+Type: `Hex32`. The IPFS content hash (pinned to Lighthouse) of the public evidence envelope, stored on chain as a 32-byte digest. Convert to a CID string with `hex32ToCid`, fetch with `fetchPublicEnvelope`.
 
 ### `contextHash`
 
-Type: `Hex32`. Hash of the context the publisher used when minting. Matches the `contextHash` the SDK includes in `Registry.check()` settlement so the indexer can correlate publishes with checks.
+Type: `Hex32`. IPFS hash of the ECIES-encrypted sensitive context, when the publisher supplied one. Decryptable only by the CRE oracle.
 
 ### `embeddingHash`
 
-Type: `Hex32`. SEMANTIC-only. Hash of the embedding vector for ANN-based similarity search (deferred to v2). Zero for non-SEMANTIC antibodies.
+Type: `Hex32`. SEMANTIC-only; reserved for similarity search. Zero otherwise.
 
 ### `attestation`
 
-Type: `Hex32`. TEE attestation when the antibody was published from a TEE verdict. Zero for human/manual publishes.
+Type: `Hex32`. The CRE/DON attestation commitment when the antibody was published from a verdict. Zero for manual publishes.
 
-## Provenance
+## Provenance and economics
 
-### `publisher`
-
-Type: `Address`. The wallet that called `publish()`. Earns 80% of the protocol fee on each match for the life of the antibody.
-
-### `reviewer`
-
-Type: `Address`. Reserved for v2 governance review. Currently always zero.
-
-### `stakeAmount`
-
-Type: `bigint`. The staked USDC, in 6-decimal base units. Default `1_000_000n` (1 USDC).
-
-### `stakeLockUntil`
-
-Type: `bigint`. Unix timestamp when stake unlocks. `createdAt + 72 hours` typical.
-
-### `expiresAt`
-
-Type: `bigint`. Unix timestamp of expiry. **`0` in v1** (treated as permanent). Reserved for v2.
-
-### `createdAt`
-
-Type: `bigint`. Unix timestamp of the publish tx.
+| Field | Type | Meaning |
+|---|---|---|
+| `publisher` | `Address` | the registered identity that published |
+| `reviewer` | `Address` | optional designated reviewer; defaults to the publisher |
+| `bondAmount` | `bigint` | the non-refundable bond locked while enforced (USDC, 6dp) |
+| `escrowedFees` | `bigint` | publisher fees held until maturation (USDC, 6dp) |
+| `maturedAt` | `bigint` | unix seconds the antibody matured; `0` if not matured |
+| `expiresAt` | `bigint` | unix seconds TTL; `0` = permanent |
+| `createdAt` | `bigint` | unix seconds of the publish tx |
+| `prominenceTier` | `number` | `0` normal, `>= 1` protected target |
 
 ## Off-chain enrichment
 
 ### `isSeeded`
 
-Type: `boolean`. `true` if the antibody was published with an off-chain seed payload (gossiped alongside for cache reconstruction). `false` for chain-only publishes.
+Type: `boolean`. `true` for genesis-seeded corpus entries, which hard-block without waiting for corroboration.
 
 ### `seed`
 
-Type: `AntibodySeed` (discriminated union by `abType`). Optional. The matcher reconstruction seed: data subscribers need to rebuild a type-specific lookup locally without re-reading the chain.
-
-For ADDRESS antibodies: `{ abType: "ADDRESS", chainId, target }`.
-For CALL_PATTERN: `{ abType: "CALL_PATTERN", chainId, target, selector, argsTemplate }`.
-And so on per type.
-
-## Reading antibodies
-
-```ts
-const ab = await immunity.getAntibody("IMM-2026-0042");
-console.log({
-  immId: ab.immId,
-  type: ab.abType,
-  verdict: ab.verdict,
-  status: ab.status,
-  confidence: ab.confidence,
-  publisher: ab.publisher,
-  stakeUnlock: new Date(Number(ab.stakeLockUntil) * 1000),
-});
-```
+Type: `AntibodySeed` (discriminated union by `abType`). Optional. The matcher reconstruction seed subscribers use to rebuild a type-specific lookup without re-reading the chain. Absent on antibodies hydrated directly from chain reads. See [Matchers and seeds](/reference/matchers/).
 
 ## See also
 
 - **[Concepts: Antibodies](/concepts/antibodies/)**, the lifecycle picture.
-- **[Helpers](/reference/helpers/)**, the per-type matcher hash helpers.
+- **[Matchers and seeds](/reference/matchers/)**, the seed shapes and matcher-hash helpers.
 - **[The public feed](/guides/the-public-feed/)**, antibody data without the SDK.

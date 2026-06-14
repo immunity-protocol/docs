@@ -1,126 +1,106 @@
 ---
 title: "Network presets"
 order: 6
-description: "TESTNET constants and how to configure a custom NetworkConfig for mainnet or a private deployment."
+description: "BASE_SEPOLIA and BASE_MAINNET presets, the NetworkConfig shape, and resolveNetwork."
 ---
 
 # Network presets
 
-The SDK ships one network preset (`TESTNET`) and accepts a custom `NetworkConfig` for everything else.
+The SDK ships two presets and accepts a custom `NetworkConfig` for self-hosted deployments. Reference them by string (`"base-sepolia"`, `"base-mainnet"`) in `ImmunityConfig.network`, or import the objects directly.
 
-## `TESTNET`
+## `BASE_SEPOLIA`
+
+The live Immunity network.
 
 ```ts
-import { TESTNET } from "@immunity-protocol/sdk";
+import { BASE_SEPOLIA } from "@immunity-protocol/sdk";
 
-console.log(TESTNET);
 // {
-//   name: "testnet",
-//   chainId: 16602,
-//   rpcUrl: "https://evmrpc-testnet.0g.ai",
-//   registryAddress: "0xbbD14Ff50480085cA3071314ca0AA73768569679",
-//   usdcAddress: "0x39D484EaBd1e6be837f9dbbb1DE540d425A70061",
-//   blockExplorerUrl: "https://chainscan-galileo.0g.ai",
-//   computeProvider: "0xa48f01287233509FD694a22Bf840225062E67836",
-//   storageIndexerUrl: "https://indexer-storage-testnet-turbo.0g.ai",
+//   name: "base-sepolia",
+//   chainId: 84532,
+//   rpcUrl: "https://sepolia.base.org",
+//   blockExplorerUrl: "https://sepolia.basescan.org",
+//   lighthouseGateway: "https://gateway.lighthouse.storage/ipfs/",
+//   storageGatewayUrl: "https://immunity-gateway.fly.dev",
+//   creOraclePublicKey: "0x0286bb5ddb6912da9d9c7c0d3df9664ac3d6440c1ab0929ae02423d1ce60fe35e5",
+//   addresses: {
+//     registry:          "0x15F177B17884B991703300C2dcCBA790Dda33fbC",
+//     reputation:        "0x436510F3382F67bDF1eE4B6c4b6f940Eb492b3c4",
+//     registrar:         "0x55237bE657245A6bf223D4b721A72b8e1D2E8523",
+//     protectedSet:      "0x8b20aE052F9391e7b071A262aDa201F2189A1901",
+//     challengeManager:  "0xc05ffEA7657d9F2c8879342cDAa2bE0eF238F04d",
+//     creReceiver:       "0xc4f843aac2C94ce2D349C166d1D8D58cb7049C66",
+//     novelVerification: "0x0f3733f4683029771E7730288339B460Eb377435",
+//     usdc:              "0xe697EF7724453F239D8c0EB9295D87C344D9CE60",
+//     l2registry:        "0xc647c0693ca93D2Ee5681C2eE7AF02d18C76F3B5",
+//   },
 // }
 ```
 
-Use it directly:
-
 ```ts
-import { Immunity, TESTNET } from "@immunity-protocol/sdk";
+import { Immunity } from "@immunity-protocol/sdk";
 import { JsonRpcProvider, Wallet } from "ethers";
 
-const provider = new JsonRpcProvider(TESTNET.rpcUrl);
+const provider = new JsonRpcProvider(BASE_SEPOLIA.rpcUrl);
 const immunity = new Immunity({
   wallet: new Wallet(privateKey, provider),
-  network: "testnet",   // or pass TESTNET directly
-  axlUrl: "http://localhost:9002",
+  network: "base-sepolia",   // or pass BASE_SEPOLIA directly
 });
 ```
 
+## `BASE_MAINNET`
+
+A placeholder until the audited mainnet deploy. Its addresses are all zero and its CRE oracle key is a placeholder, so do not point production at it yet.
+
 ## `NetworkConfig`
 
-For mainnet (when published) or a private deployment:
+For a self-hosted deployment, pass a full object.
 
 ```ts
 import { Immunity, type NetworkConfig } from "@immunity-protocol/sdk";
 
 const myNetwork: NetworkConfig = {
-  name: "my-private-deployment",
-  chainId: 16601,
+  name: "my-deployment",
+  chainId: 84532,
   rpcUrl: "https://rpc.example.internal",
-  registryAddress: "0xYourRegistry...",
-  usdcAddress: "0xYourMockUsdc...",
   blockExplorerUrl: "https://explorer.example.internal",
-  computeProvider: "0xYourTeeProvider...",
-  storageIndexerUrl: "https://storage-indexer.example.internal",
+  lighthouseGateway: "https://gateway.lighthouse.storage/ipfs/",
+  storageGatewayUrl: "https://my-gateway.example.internal",
+  creOraclePublicKey: "0x02...",
+  addresses: {
+    registry: "0x...", reputation: "0x...", registrar: "0x...",
+    protectedSet: "0x...", challengeManager: "0x...", creReceiver: "0x...",
+    novelVerification: "0x...", usdc: "0x...", l2registry: "0x...",
+  },
 };
 
-const immunity = new Immunity({
-  wallet,
-  network: myNetwork,
-  axlUrl: "http://localhost:9002",
-});
+const immunity = new Immunity({ wallet, network: myNetwork });
 ```
 
 ## Field reference
 
-### `name`
+| Field | Type | Purpose |
+|---|---|---|
+| `name` | `string` | display name, surfaced in logs |
+| `chainId` | `number` | EVM chain id; used in matcher hash construction |
+| `rpcUrl` | `string` | JSON-RPC endpoint (standard `eth_call`/`eth_getCode`/`eth_getLogs`) |
+| `blockExplorerUrl` | `string` | explorer base, for log links (Basescan) |
+| `lighthouseGateway` | `string` | keyless IPFS READ base (with trailing `/ipfs/`) |
+| `storageGatewayUrl` | `string` | signed-POST WRITE target; the gateway holds the Lighthouse key and pins |
+| `creOraclePublicKey` | `Hex` | compressed secp256k1 pubkey of the CRE oracle; evidence context is ECIES-encrypted to it |
+| `addresses` | `CoreAddresses` | the deployed core contract addresses |
 
-Type: `string`. Display name. Surfaced in logs and error messages.
+`CoreAddresses` carries `registry`, `reputation`, `registrar`, `protectedSet`, `challengeManager`, `creReceiver`, `novelVerification`, `usdc`, and `l2registry`.
 
-### `chainId`
+## `resolveNetwork(input)`
 
-Type: `number`. EVM chain id. Used for matcher hash construction (ADDRESS, CALL_PATTERN, GRAPH all hash with chainId).
-
-### `rpcUrl`
-
-Type: `string`. JSON-RPC endpoint. Must support EVM standard methods plus `eth_call`, `eth_getCode`, `eth_getLogs`. The SDK does **not** require `debug_*` or `trace_*` methods.
-
-### `registryAddress`
-
-Type: `Address`. The on-chain Registry contract. The SDK calls `check`, `publish`, `getAntibody` against this address.
-
-### `usdcAddress`
-
-Type: `Address`. The USDC (or MockUSDC on testnet) ERC20 contract. The SDK uses it for fee debits, deposits, and withdrawals.
-
-### `blockExplorerUrl`
-
-Type: `string`. Block explorer base URL. Used for log links in operator UIs (e.g., `${blockExplorerUrl}/tx/${checkId}`).
-
-### `computeProvider`
-
-Type: `Address`. The 0G Compute provider address registered in the on-chain inference services list. Used for TEE inference under `novelThreatPolicy: "verify"`.
-
-Optional: omit if you use a custom `teeVerifier` that does not need 0G Compute.
-
-### `storageIndexerUrl`
-
-Type: `string`. The 0G Storage indexer endpoint. Used by `publish()` to upload evidence bundles and by `fetchPublicEnvelope(cid)` to retrieve them.
-
-Optional: omit if your deployment does not use 0G Storage and your `teeVerifier` handles evidence differently.
+Resolves a preset name or config object to a concrete `NetworkConfig`. `undefined` and `"base-sepolia"` return `BASE_SEPOLIA`; `"base-mainnet"` returns `BASE_MAINNET`; `"custom"` throws (pass a `NetworkConfig` object instead); a `NetworkConfig` is returned as-is.
 
 ## Switching networks
 
-Pass the right config at construction. The SDK does not support hot-swapping networks on a live `Immunity` instance.
-
-To switch networks at runtime: stop the current instance, construct a new one against the target network, start it.
-
-```ts
-await immunity.stop();
-
-const next = new Immunity({
-  wallet,
-  network: { ...newNetworkConfig },
-  axlUrl,
-});
-await next.start();
-```
+Construction picks the network; there is no hot-swap. Stop the instance, construct a new one against the target network, start it.
 
 ## See also
 
 - **[ImmunityConfig](/reference/immunityconfig/)**, the wrapping config.
-- **[Network: Registry on 0G](/network/registry-on-0g/)**, how to verify the Registry address yourself.
+- **[Network: Registry on Base](/network/registry-on-base/)**, how to verify these addresses yourself.

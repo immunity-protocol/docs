@@ -1,196 +1,119 @@
 ---
 title: "Helpers"
 order: 7
-description: "Hash, USDC, address, and storage helpers re-exported from the SDK. Useful for tooling and mirror-contract integrations."
+description: "USDC, address, enforcement, storage, and crypto helpers re-exported from the SDK for tooling and integrations."
 ---
 
 # Helpers
 
-The SDK re-exports a small set of utility functions that match the on-chain canonicalization byte-for-byte. Use them when you need to compute matcher hashes off chain (e.g., for a relayer, a mirror contract, or a testing harness).
+The SDK re-exports a set of utilities that match the on-chain canonicalization and the read-side enforcement logic. Use them in relayers, indexers, tests, and custom verifiers. The matcher-hash helpers and seed shapes have their own page: see [Matchers and seeds](/reference/matchers/).
 
-## Hash helpers
-
-All match the on-chain Solidity computation exactly. Verified by the SDK's integration test `keccak-parity.test.ts`.
+## Identity
 
 ### `computeKeccakId(abType, flavor, primaryMatcherHash, publisher)`
 
-Reproduces the contract's `keccakId` derivation:
+Reproduces the contract's id derivation, `keccak256(abi.encode(abType, flavor, primaryMatcherHash, publisher))`. Useful to predict an antibody's id before publishing.
 
-```
-keccakId = keccak256(abi.encode(abType, flavor, primaryMatcherHash, publisher))
-```
+### `formatImmId(year, immSeq)`
 
-```ts
-import { computeKeccakId, hashAddressMatcher } from "@immunity-protocol/sdk";
+Formats `IMM-YYYY-NNNN` from a year and sequence number.
 
-const matcherHash = hashAddressMatcher(16602, "0xCAFE...");
-const id = computeKeccakId("ADDRESS", 0, matcherHash, publisherAddr);
-```
+## Enforcement
 
-Useful for predicting an antibody's id before publishing (to dedupe locally) or for a relayer that needs to verify a mirrored antibody's id matches the source-chain id.
+### `classifyEnforcement(inputs, k, nowSec)`
 
-### `hashAddressMatcher(chainId, target)`
+Returns the read-side enforcement tier for an antibody: `"hard-block"`, `"advisory"`, or `"none"`. `k` is the corroboration threshold (from the Registry), `nowSec` is the current unix time as a `bigint`. This is the function behind the two-speed decision.
 
-```
-keccak256(abi.encode(chainId, target))
-```
+- `"none"`, the antibody is SLASHED, EXPIRED, or past its TTL.
+- `"hard-block"`, `(corroboration >= k or isSeeded)` and the target is not protected.
+- `"advisory"`, eligible but `corroboration < k`, or the target is protected.
 
-### `hashCallPatternMatcher(chainId, target, selector, argsTemplate)`
+### `EnforcementResolver`
 
-```
-keccak256(abi.encode(chainId, target, selector, keccak256(argsTemplateBytes)))
-```
+Combines Tier-1 matchers and the Tier-2 RPC lookup into a single enforcement resolution for a proposed tx and context. The `Immunity` facade builds one internally; instantiate it directly only for custom pipelines.
 
-`argsTemplate` is the partial args object; the helper canonicalizes it to bytes before hashing.
+### `isLiveAntibody(ab, nowSec)`
 
-### `hashBytecodeMatcher(runtimeBytecode)`
+`true` if the antibody can surface from a lookup at all (not SLASHED, not EXPIRED, not past TTL). Says nothing about advisory vs hard-block, that is `classifyEnforcement`.
 
-```
-keccak256(runtimeBytecode)
-```
+### `decodeAntibody(raw)` / `decodeEnforcementInputs(raw)`
 
-The runtime bytecode (not the deployment bytecode). Fetch via `eth_getCode(address, "latest")`.
+Decode a raw on-chain struct into an `Antibody`, or into the inputs `classifyEnforcement` consumes. Use with `contracts.registry` to read antibodies directly.
 
-### `hashGraphMatcher(chainId, taintedAddresses)`
-
-```
-keccak256(abi.encode(chainId, sortedAddresses))
-```
-
-Addresses are sorted ASCII-lowercase before hashing. Order does not matter at the input layer.
-
-### `hashSemanticMatcher(flavor, marker)`
-
-```
-keccak256(abi.encode(flavor, lowercase(marker)))
-```
-
-Markers are lowercased and trimmed before hashing.
-
-### `computeTaintSetId(addresses)`
-
-For the GRAPH auxiliary event indexer:
-
-```
-keccak256(abi.encode(sortedAddresses))
-```
-
-A type alias for the chain-agnostic taint identifier.
-
-## USDC helpers
-
-### `parseUsdc(amount)`
-
-String to base units. Always returns `bigint`.
+## USDC math (6 decimals)
 
 ```ts
-parseUsdc("1.5")      // 1_500_000n
-parseUsdc("0.0001")   // 100n
-parseUsdc("0.00001")  // throws RangeError (below the 6-decimal precision)
-```
+import { parseUsdc, formatUsdc, USDC_DECIMALS } from "@immunity-protocol/sdk";
 
-### `formatUsdc(amount)`
+parseUsdc("1")          // 1_000_000n
+parseUsdc("0.002")      // 2_000n
+parseUsdc("0.0000001")  // throws (more than 6 decimals)
 
-Base units to human-readable string. Always 6 decimals.
+formatUsdc(1_000_000n)  // "1"
+formatUsdc(2_000n)      // "0.002"
 
-```ts
-formatUsdc(1_500_000n)   // "1.500000"
-formatUsdc(100n)         // "0.000100"
-```
-
-### `USDC_DECIMALS`
-
-```ts
-import { USDC_DECIMALS } from "@immunity-protocol/sdk";
-console.log(USDC_DECIMALS);  // 6
+USDC_DECIMALS           // 6
 ```
 
 ## Address helpers
 
-### `normalizeAddress(addr)`
-
-Lowercases, validates length (40 hex chars), validates 0x prefix. Returns the normalized address or throws.
-
 ```ts
-normalizeAddress("0xCAFE...000")   // "0xcafe...000"
-normalizeAddress("CAFE...000")      // throws (no 0x)
-normalizeAddress("0xCAFE...0001")   // throws (41 chars)
+import { normalizeAddress, isAddress, chainAddressKey } from "@immunity-protocol/sdk";
+
+normalizeAddress("0xABC...")        // lowercased, validated; throws on bad input
+isAddress("0xABC...")               // boolean predicate
+chainAddressKey(84532, "0xABC...")  // "84532:0xabc..." scope key
 ```
 
-### `isAddress(value)`
-
-Predicate. Returns `true` for any valid 0x-prefixed 20-byte hex.
-
-```ts
-isAddress("0xCAFE...000")  // true
-isAddress("0xCAFE...0001") // false
-isAddress(null)             // false
-```
-
-### `chainAddressKey(chainId, address)`
-
-Stable join key for `(chainId, address)` pairs. Used internally by the cache for ADDRESS lookups.
-
-```ts
-chainAddressKey(16602, "0xCAFE...000")  // "16602:0xcafe...000"
-```
-
-## Storage helpers
-
-### `createStorageClient(indexerUrl)`
-
-Returns a `StorageClient` that talks to a 0G Storage indexer.
-
-```ts
-const storage = createStorageClient("https://indexer-storage-testnet-turbo.0g.ai");
-```
-
-### `uploadPublicEnvelope(client, payload)`
-
-Uploads a JSON payload as a public (unencrypted) envelope. Returns the `cid` (a 0G Storage hash).
-
-```ts
-const cid = await uploadPublicEnvelope(storage, { reason: "...", chainTx: "0x..." });
-```
-
-### `fetchPublicEnvelope(client, cid)`
-
-Reads a public envelope back. Returns the parsed JSON payload.
-
-```ts
-const payload = await fetchPublicEnvelope(storage, cid);
-```
-
-### `uploadEncryptedContext(client, payload, recipientPubkey)`
-
-Uploads a JSON payload encrypted to a recipient's public key (e.g., the TEE's pubkey). Used internally by the TEE flow; rare in user code.
-
-## Tx fact extraction
+## Transaction facts
 
 ### `extractFacts(tx)`
 
-Parses a `ProposedTx` and returns a `TxFacts` struct. Used internally by `check()` to populate `result.txFacts`. Exposed for tooling that needs the same parse without going through the full SDK:
+Parses a `ProposedTx` into `TxFacts` `{ tokenAddress, tokenAmount, originChainId }`. Detects ERC20 transfers, common swaps, and native transfers. Returns all-zero for unrecognized calldata (normal, not an error). Used internally by `check()`; exposed for tooling.
+
+## Storage (Lighthouse / IPFS)
+
+### `StorageClient`
+
+Signs and POSTs evidence to the protocol storage gateway (which holds the Lighthouse key and pins to IPFS), and reads public envelopes back from the keyless IPFS gateway.
 
 ```ts
-import { extractFacts } from "@immunity-protocol/sdk";
+import { StorageClient } from "@immunity-protocol/sdk";
 
-const facts = extractFacts({ to: "0x...", data: "0xa9059cbb...", chainId: 1 });
-// { tokenAddress: "0x...", tokenAmount: 1000n, originChainId: 1n }
+const storage = new StorageClient({
+  storageGatewayUrl: network.storageGatewayUrl,
+  lighthouseGateway: network.lighthouseGateway,
+  signer,
+});
 ```
 
-Returns all-zero facts when the calldata cannot be decoded as a known transfer or swap pattern.
+### `uploadPublicEnvelope` / `fetchPublicEnvelope`
 
-## TEE prompt builders
+Upload a `PublicEnvelopeV1` and read it back. `cidToHex32` / `hex32ToCid` convert between the CID string form and the 32-byte on-chain digest. `canonicalJson` produces the deterministic serialization the gateway signs over.
 
-Lower-level than most users need. Expose the prompt-building primitives so tooling can replicate the TEE input format without going through `Immunity`:
+## Encryption (ECIES)
 
-- `buildVerdictPrompt(tx, ctx)`, returns the structured prompt the SDK posts to the TEE.
-- `distillBundle(tx, ctx)`, distills the input into the compact JSON form the TEE expects.
-- `parseVerdict(rawJson)`, parses a TEE response and validates the schema.
+```ts
+import { encryptContext, decryptContext, getPublicKeyFromPrivate } from "@immunity-protocol/sdk";
 
-Use only if you are building an alternative `teeVerifier` or a testing harness.
+const bundle = await encryptContext("sensitive notes", network.creOraclePublicKey);
+// only the CRE oracle's private key can decryptContext(bundle, key)
+```
+
+Context is ECIES-encrypted to the CRE oracle so only the DON's confidential compute can read it. `getPublicKeyFromPrivate` derives the compressed pubkey from a private key.
+
+## Reputation and lookup (advanced)
+
+- `ReputationClient`, read publisher reputation (`PublisherReputation`).
+- `Tier2Lookup`, the on-chain matcher lookup used by Tier 2.
+- `NegativeMatcherCache`, the TTL negative cache.
+
+## CRE verifier (advanced)
+
+- `CreNovelVerifier`, the Tier-3 CRE verifier; `verdictCommitment`, its attestation commitment.
+- `buildVerdictPrompt`, `distillBundle`, `parseVerdict`, the prompt/parse primitives, for building a custom `NovelVerifier`.
 
 ## See also
 
-- **[Immunity class](/reference/immunity-class/)**, the high-level API that uses these helpers internally.
-- **[Antibody](/reference/antibody/)**, the on-chain shape these helpers compute hashes for.
+- **[Matchers and seeds](/reference/matchers/)**, the per-type matcher-hash helpers.
+- **[Immunity class](/reference/immunity-class/)**, the high-level API that uses these internally.

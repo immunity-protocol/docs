@@ -6,83 +6,33 @@ description: "Every option on the constructor config object. Defaults, constrain
 
 # `ImmunityConfig`
 
-The argument to `new Immunity(config)`. All fields except `wallet` and `axlUrl` are optional with sensible defaults.
+The argument to `new Immunity(config)`. Only `wallet` is required; everything else has a sensible default.
 
 ## Required
 
 ### `wallet`
 
-Type: `Signer | string`
+Type: `Signer | string`.
 
-ethers v6 `Signer` instance, or a 0x-prefixed private-key string. The SDK normalizes both. Used to sign every on-chain settlement and publish.
+An ethers v6 `Signer`, or a 0x-prefixed 64-hex-char private-key string. A private key (or an unconnected signer) is connected to the network's RPC at `start()`. Used to sign every on-chain call.
 
 ```ts
 import { Wallet } from "ethers";
 const wallet = new Wallet(process.env.PRIVATE_KEY!);
 ```
 
-If you pass a private-key string, the SDK constructs a wallet against the configured network's RPC. If you pass a `Signer`, the SDK uses it as-is (the signer must already be connected to a provider).
-
-Throws `MissingConfigError` on construction if absent.
-
-### `axlUrl`
-
-Type: `string`
-
-External Gensyn AXL daemon HTTP endpoint. The SDK does not embed AXL.
-
-```ts
-axlUrl: "http://localhost:9002"
-```
-
-For Docker-Compose contexts, the daemon must bind to `0.0.0.0` (not the default `127.0.0.1`) or it is unreachable from the host. See `infra/axl-mesh/` in the SDK repo for a 2-node mesh template.
-
-Throws `MissingConfigError` on construction if absent.
+Throws `MissingConfigError` if absent or malformed.
 
 ## Network
 
 ### `network`
 
-Type: `"testnet" | NetworkConfig`. Default: `"testnet"`.
+Type: `"base-sepolia" | "base-mainnet" | NetworkConfig`. Default: `"base-sepolia"`.
 
-Pick the on-chain Registry to target.
-
-```ts
-network: "testnet"
-```
-
-For mainnet (when published), pass a custom `NetworkConfig`:
+Pick the on-chain network. `"base-sepolia"` is the live network; `"base-mainnet"` is a placeholder until the audited mainnet deploy. Pass a [`NetworkConfig`](/reference/network-presets/) object for a self-hosted deployment.
 
 ```ts
-network: {
-  name: "mainnet",
-  chainId: 16600,
-  rpcUrl: "https://evmrpc.0g.ai",
-  registryAddress: "0x...",
-  usdcAddress: "0x...",
-  blockExplorerUrl: "https://chainscan.0g.ai",
-  computeProvider: "0x...",
-  storageIndexerUrl: "https://indexer-storage.0g.ai",
-}
-```
-
-### `axlIdentityPath`
-
-Type: `string`. Default: ephemeral.
-
-Path to an ed25519 PEM file used as the agent's persistent peer identity in the AXL mesh. Without it, the SDK generates a fresh identity at every start and your AXL pubkey rotates, which means subscribers lose you.
-
-Generate one with:
-
-```bash
-openssl genpkey -algorithm ed25519 -out agent.pem
-chmod 600 agent.pem
-```
-
-Pass the path:
-
-```ts
-axlIdentityPath: "/var/lib/myagent/agent.pem"
+network: "base-sepolia"
 ```
 
 ## Decision policy
@@ -95,113 +45,80 @@ What `check()` does when both Tier 1 (cache) and Tier 2 (registry) miss.
 
 | Value | Behavior | Cost |
 |---|---|---|
-| `"verify"` | Fires TEE inference, auto-publishes if block | ~3 s, ~$0.0001 0G Compute |
-| `"trust-cache"` | Allows, returns `novel: true` | $0 |
-| `"deny-novel"` | Blocks unconditionally | $0 |
+| `"verify"` | requests a CRE jury verdict; can auto-publish if you opt in | a check fee + CRE compute |
+| `"trust-cache"` | allows, returns `novel: true` | no on-chain call |
+| `"deny-novel"` | blocks unconditionally | no on-chain call |
 
-Override per-call via `check(tx, ctx, { policy: "deny-novel" })`.
+Override per call via `check(tx, ctx, { policy: "deny-novel" })`.
+
+### `unverifiedAntibodyPolicy`
+
+Type: `"ignore" | "escalate" | "block" | "corroborate"`.
+
+How the agent treats an **advisory** match (an antibody that is not yet hard-block-eligible). This governs the protective action, not whether a fee is charged.
+
+| Value | Behavior on an advisory match |
+|---|---|
+| `ignore` | take no protective action (allow), still settle any fee |
+| `escalate` | surface to `onEscalate` for an operator decision |
+| `block` | act on advisories as if hard-block |
+| `corroborate` | re-verify through CRE and, if confirmed, publish a corroborating antibody |
+
+See [Two-speed enforcement](/concepts/two-speed-enforcement/).
 
 ### `confidenceThresholds`
 
 Type: `{ block?: number; escalate?: number }`. Default: `{ block: 85, escalate: 60 }`.
 
-TEE verdict thresholds (0..100). Behavior at each threshold:
-
-- `confidence >= block`, automatic block.
-- `escalate <= confidence < block`, invokes `onEscalate` handler. If no handler is configured, throws `EscalationError`.
-- `confidence < escalate`, automatic allow.
-
-```ts
-confidenceThresholds: { block: 90, escalate: 70 }
-```
-
-Tighter thresholds (higher block, higher escalate) = fewer false positives, more pass-throughs. Looser = the opposite.
+Verdict thresholds (0..100). `confidence >= block` auto-blocks a MALICIOUS verdict; `confidence >= escalate` triggers `onEscalate`; below that, allow.
 
 ### `onEscalate`
 
 Type: `(ctx: EscalationContext) => Promise<boolean>`. Default: undefined.
 
-Async handler invoked when a SUSPICIOUS verdict falls in the escalate band. Return `true` to allow, `false` to block.
-
-```ts
-onEscalate: async ({ reason, confidence, matched }) => {
-  return await promptOperator(reason, matched);
-}
-```
-
-See [Operator in the loop](/guides/operator-in-the-loop/) for patterns.
+Async handler invoked when a SUSPICIOUS verdict lands in the escalate band. Return `true` to allow, `false` to block. `EscalationContext` is `{ reason, confidence, matched: { keccakId, immId }[] }`. See [Operator in the loop](/guides/operator-in-the-loop/).
 
 ### `escalationTimeout`
 
-Type: `number` (seconds). Default: `300`.
-
-How long the SDK waits for `onEscalate` to resolve. After the timeout, `onTimeout` decides.
+Type: `number` (seconds). How long to wait for `onEscalate` before `onTimeout` decides.
 
 ### `onTimeout`
 
-Type: `"deny" | "allow"`. Default: `"deny"`.
+Type: `"deny" | "allow"`. Decision when the escalate handler times out. `"deny"` is the safe default.
 
-Decision when the escalate handler times out. `"deny"` is the safe default.
+## Tier-3 verification
 
-## Custom verifier
+### `verifier`
 
-### `teeVerifier`
+Type: `NovelVerifier`. Default: built-in CRE verifier.
 
-Type: `TeeVerifyFn`. Default: built from 0G Compute broker.
+The Tier-3 novel-input verifier. On Base Sepolia the SDK builds the CRE-backed verifier from the network config automatically. Inject your own for tests, a custom backend, or offline development. When no verifier is available, the `verify` path fails **closed**.
 
-Pluggable backend for TEE verification. The default uses 0G Compute's qwen-2.5-7b-instruct provider. Override to inject:
-- An Anthropic-backed shim during testnet flakes.
-- A local model gateway for offline development.
-- A deterministic stub for tests.
-
-The function signature:
-
-```ts
-type TeeVerifyFn = (
-  tx: ProposedTx | null,
-  ctx: CheckContext
-) => Promise<TeeVerifyOutcome | null>;
-```
-
-Returning `null` means "TEE not available, fall through to policy".
-
-## Cache and gossip
-
-### `denyKeccakIds`
-
-Type: `readonly string[]`. Default: `[]`.
-
-Local-only mute list. When a Tier 1 cache hit or Tier 2 lookup hit comes back with a keccak in this set, check-flow treats it as a miss and continues. Used to mute a known-bad auto-mint locally when the on-chain `slash()` is not reachable.
-
-```ts
-denyKeccakIds: ["0xBADANTIBODYIDIPUBLISHEDBYACCIDENT..."]
-```
-
-### `semanticAutoMint`
+### `autoPublishConfirmedThreats`
 
 Type: `boolean`. Default: `false`.
 
-Opt in to TEE-driven SEMANTIC auto-publishes. When `false`, the SDK still detects SEMANTIC threats but does not auto-mint a new antibody from a TEE-supplied marker substring. Set to `true` if you have validated your TEE provider's marker quality.
+When a Tier-3 verify or corroborate confirms a threat during `check()`, automatically publish or corroborate an antibody on chain. The protective decision and re-verification always happen regardless; this gates only the bond-spending write, and only when the wallet is registered and funded. The detached write is surfaced as `CheckResult.pendingWrite`.
+
+## Cache
+
+### `denyKeccakIds`
+
+Type: `ReadonlyArray<0x string>`. Default: `[]`.
+
+Local-only mute list. A Tier-1 or Tier-2 hit whose `keccakId` is in this set is treated as a miss. Use it to mute an antibody locally while you address it on chain.
 
 ### `bootstrapCacheOnStart`
 
 Type: `boolean`. Default: `true`.
 
-Whether to hydrate the cache from the chain at `start()`. Useful to disable in tests or in agents that genuinely want a cold cache for first-block timing measurements.
+Hydrate the local cache from the Registry at `start()`. Set `false` for one-shot scripts.
 
-## Funding thresholds
+### `bootstrap`
 
-### `minLedgerOg`
+Type: `{ concurrency?: number; limit?: number; fetchRetries?: number }`.
 
-Type: `number`. Default: `0.1`.
-
-Minimum 0G Compute ledger balance (in OG) before `start()` warns. Set to 0 to skip the check (e.g., when using a `teeVerifier` shim that does not need 0G Compute).
-
-### `minProviderOg`
-
-Type: `number`. Default: `0.05`.
-
-Minimum 0G Compute provider sub-account balance (in OG) before `start()` warns.
+Tuning for the bootstrap step: `concurrency` (default 4), `limit` (default none), `fetchRetries` (default 3).
 
 ## Full example
 
@@ -211,20 +128,19 @@ import { Wallet } from "ethers";
 
 const immunity = new Immunity({
   wallet: new Wallet(process.env.WALLET_PRIVATE_KEY!),
-  network: "testnet",
-  axlUrl: "http://localhost:9002",
-  axlIdentityPath: "/var/lib/agent/axl.pem",
+  network: "base-sepolia",
   novelThreatPolicy: "verify",
+  unverifiedAntibodyPolicy: "escalate",
   confidenceThresholds: { block: 85, escalate: 60 },
   onEscalate: async ({ reason }) => promptOperator(reason),
   escalationTimeout: 120,
   onTimeout: "deny",
-  semanticAutoMint: false,
+  autoPublishConfirmedThreats: false,
 });
 ```
 
 ## See also
 
 - **[Immunity class](/reference/immunity-class/)**, the methods you call after construction.
-- **[CheckResult](/reference/checkresult/)**, the shape of `check()`'s return.
+- **[Network presets](/reference/network-presets/)**, the `NetworkConfig` shape.
 - **[Errors](/reference/errors/)**, full taxonomy.

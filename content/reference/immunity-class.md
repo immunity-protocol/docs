@@ -1,12 +1,12 @@
 ---
 title: "Immunity class"
 order: 1
-description: "Every public method on the Immunity facade. Construction, lifecycle, the hot path, settlement, and admin."
+description: "Every public method on the Immunity facade: construction, lifecycle, the hot path, publishing, the challenge game, identity, and money."
 ---
 
 # `Immunity` class
 
-The facade. One instance per agent. Construction is non-mutating; lifecycle starts on `start()`. All public methods are async unless noted.
+The facade. One instance per agent. Construction is non-mutating; lifecycle starts on `start()`. All methods below are async unless noted.
 
 ## `new Immunity(config)`
 
@@ -15,28 +15,32 @@ import { Immunity } from "@immunity-protocol/sdk";
 
 const immunity = new Immunity({
   wallet,
-  network: "testnet",
-  axlUrl: "http://localhost:9002",
+  network: "base-sepolia",
   novelThreatPolicy: "verify",
 });
 ```
 
-Throws `MissingConfigError` if `wallet` or `axlUrl` is missing. No network calls during construction. See [`ImmunityConfig`](/reference/immunityconfig/) for every option.
+Throws `MissingConfigError` if `wallet` is missing. No network calls during construction. `network` defaults to `"base-sepolia"`. See [`ImmunityConfig`](/reference/immunityconfig/) for every option.
 
 ## Lifecycle
 
 ### `start(): Promise<void>`
 
-Connects the signer to a provider, instantiates the Registry and USDC clients, attaches the five matchers, opens the AXL gossip subscription. Idempotent: a second call is a no-op.
-
-Throws on:
-- Missing wallet provider (must be ethers v6 `Signer`).
-- AXL daemon unreachable at `axlUrl`.
-- Registry contract not found at the configured network address.
+Resolves the signer to the network RPC, binds the Base core contracts, constructs the storage client and (unless you injected one) the CRE verifier, builds the five matchers and the enforcement pipeline, and, when `bootstrapCacheOnStart` is true, hydrates the local cache from the Registry. Idempotent: a second call is a no-op.
 
 ### `stop(): Promise<void>`
 
-Closes the gossip subscription, drains AXL polling. Idempotent. Always call on shutdown to avoid leaking file handles.
+Marks the instance stopped. Idempotent. Call on shutdown.
+
+## Accessors
+
+| Getter | Returns | Notes |
+|---|---|---|
+| `network` | `NetworkConfig` | the resolved network config |
+| `wallet` | `Address` | the connected address; throws `NotStartedError` before `start()` |
+| `contracts` | `CoreContracts` | live read/write bindings to the deployed Base contracts; throws `NotStartedError` before `start()` |
+
+Use `contracts.registry` with `decodeAntibody` (a re-exported helper) to read antibodies directly when you need raw on-chain data.
 
 ## The hot path
 
@@ -50,104 +54,80 @@ const result = await immunity.check(tx, ctx);
 
 Arguments:
 
-- `tx: ProposedTx | null`, EVM action `{ to, value?, data?, chainId? }` or `null` for non-EVM agent actions.
-- `context: CheckContext`, conversation, tools, sources, counterparty, metadata. All optional.
-- `options.policy?: NovelThreatPolicy`, override the configured `novelThreatPolicy` for this call.
+- `tx: ProposedTx | null`, an EVM action `{ to, value?, data?, chainId? }`, or `null` for non-EVM agent actions.
+- `context: CheckContext`, conversation, tool trace, sources, counterparty, metadata. All fields optional.
+- `options?: CheckOptions`, currently `{ policy? }` to override `novelThreatPolicy` for this call.
 
-Returns a [`CheckResult`](/reference/checkresult/). Walks the [three tiers](/concepts/three-tier-lookup/) in order; first hit wins.
+Returns a [`CheckResult`](/reference/checkresult/). Walks the [three tiers](/concepts/three-tier-lookup/), then applies the enforcement and policy decision.
 
 Errors:
-- `NotStartedError` if called before `start()`.
-- `InsufficientBalanceError` if prepaid balance is below the 0.002 USDC fee.
-- `EscalationError` family if a SUSPICIOUS verdict timed out or was denied by the operator.
-- `BlockError` is **not** thrown for ordinary blocks; check `result.allowed` instead. `BlockError` is reserved for hard policy violations (e.g., `deny-novel` block where the SDK refuses to even round-trip).
 
-## Publishing
+- `NotStartedError` if called before `start()`.
+- `InsufficientBalanceError` if the prepaid balance cannot cover a settled fee.
+- `EscalationError` family if a SUSPICIOUS verdict timed out or was denied by the operator.
+- Ordinary blocks are **not** thrown; check `result.allowed`.
+
+## Publishing and the immune response
 
 ### `publish(input): Promise<PublishResult>`
 
 ```ts
 const result = await immunity.publish({
-  seed: { abType: "ADDRESS", chainId: 16602, target: "0xBAD..." },
+  seed: { abType: "ADDRESS", chainId: 84532, target: "0xBAD..." },
   verdict: "MALICIOUS",
   confidence: 95,
   severity: 90,
+  reasonSummary: "Known drainer contract",
 });
 ```
 
-Locks 1 USDC of stake for 72 hours. Returns:
+Uploads the evidence envelope to storage, then locks a bond sized by severity and target prominence. Returns:
 
 ```ts
-{
-  keccakId: Hex32;
-  immSeq: number;
-  immId: string;
-  txHash: Hex32;
-  stakeAmount: bigint;
-}
+{ keccakId, immSeq, immId, evidenceCid, contextHash?, txHash }
 ```
 
-Errors: `DuplicateAntibodyError` if the matcher already exists, `InsufficientBalanceError` if the prepaid balance is below stake + gas.
+Requires a registered publisher (`registerPublisher` first) and a balance that covers the bond. Errors: `NotRegisteredError`, `DuplicateAntibodyError` (with the existing `keccakId`), `InsufficientBalanceError`. See [Publish an antibody](/guides/publish-an-antibody/).
 
-See [Publish an antibody](/guides/publish-an-antibody/) for the full pattern.
+### `corroborate(input): Promise<PublishResult>`
 
-### `getAntibody(idOrSeq): Promise<Antibody>`
+Same input and output as `publish()`. Publishes a second antibody under your identity against the same matcher, incrementing the distinct-publisher count toward hard-block. See [Corroboration and maturation](/concepts/corroboration-and-maturation/).
 
-Read an antibody by `keccakId` or `immSeq`. The SDK routes the right contract call:
+### `challenge(antibodyId): Promise<{ bond, txHash }>`
 
-- `Hex32` resolves via `getAntibody(keccakId)`.
-- `number` resolves via `getAntibodyByImmSeq(seq)`.
+Posts a challenge bond and moves the antibody to `CHALLENGED`. A probationary antibody drops to advisory; a matured one keeps enforcing.
 
-Throws `AntibodyNotFoundError` if the id does not exist.
+### `mature(antibodyId): Promise<{ txHash }>`
+
+Permissionless poke that promotes a probation antibody to `ACTIVE` once its maturation rule is satisfied (corroboration reaches `K`, or undisputed volume over time).
+
+## Identity
+
+### `registerPublisher(label): Promise<{ txHash, bond }>`
+
+Mints the contract-owned `label.immunity.eth` subname, locks the registration bond, and initializes reputation to zero. Required before `publish()`. Errors: `AlreadyRegisteredError`.
+
+### `deregister(): Promise<{ txHash }>`
+
+Releases the registration and refunds the bond.
+
+### `isRegistered(): Promise<boolean>`
+
+True if the connected wallet is a registered publisher.
 
 ## Money
 
-### `balance(): Promise<bigint>`
+### `balanceOf(): Promise<bigint>`
 
-Current prepaid USDC balance held by the Registry on your behalf. 6-decimal base units (multiply by `10^-6` for human USDC).
+Current prepaid USDC balance held by the Registry for your wallet, in 6-decimal base units.
 
-### `deposit(amount, approveMode?): Promise<Hex32>`
+### `deposit(amount): Promise<{ txHash }>`
 
-Top up the prepaid balance. Auto-approves the allowance:
-- `"exact"` (default), approves exactly `amount`. Fewer approvals to fund subsequent deposits.
-- `"max"`, approves `MaxUint256`. One-time setup; subsequent deposits skip approval.
+Top up the prepaid balance. `amount` is in USDC base units; use `parseUsdc("1.5")`.
 
-```ts
-await immunity.deposit(parseUsdc("1.5"));
-```
+### `withdraw(amount): Promise<{ txHash }>`
 
-### `withdraw(amount): Promise<Hex32>`
-
-Pull USDC out of the Registry back to the wallet. Subject to stake-lock if `amount` overlaps locked stake.
-
-Throws `StakeLockedError` if the requested amount overlaps locked stake.
-
-### `mintTestUsdc(amount): Promise<Hex32>`
-
-**Testnet only.** Calls MockUSDC's public `mint(to, amount)`. Throws on real-USDC contracts.
-
-```ts
-await immunity.mintTestUsdc(parseUsdc("1"));
-```
-
-## Stats and admin
-
-### `publisherStats(): Promise<PublisherStats>`
-
-```ts
-const stats = await immunity.publisherStats();
-// { totalStaked, totalEarned, publishedCount, slashedCount }
-```
-
-All amounts are in USDC base units (6 decimals).
-
-### `dropFromCache(keccakId): boolean`
-
-Local-only operation. Removes an antibody from the in-memory cache without touching the chain. Useful for muting a known-bad antibody locally when the on-chain `slash()` is not reachable. Returns `true` if the entry was present.
-
-### `sweep(): Promise<SweepResult>`
-
-Standalone call to opportunistically release any expired stakes you own. The same sweep runs implicitly inside `check()`, so most users never need this. The reward is paid in USDC and is small (`SWEEP_BOUNTY` per release, ~$0.0001).
+Pull USDC back to the wallet. Throws `StakeLockedError` if the amount overlaps a locked bond.
 
 ## See also
 

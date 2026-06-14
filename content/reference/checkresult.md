@@ -6,7 +6,7 @@ description: "Every field on the object returned by immunity.check(). What popul
 
 # `CheckResult`
 
-What `immunity.check()` returns. The shape:
+What `immunity.check()` returns.
 
 ```ts
 interface CheckResult {
@@ -19,6 +19,7 @@ interface CheckResult {
   checkId: Hex32 | null;
   novel: boolean;
   txFacts: TxFacts;
+  pendingWrite?: Promise<PublishResult | null>;
 }
 ```
 
@@ -26,107 +27,68 @@ interface CheckResult {
 
 ### `allowed`
 
-Type: `boolean`.
-
-The only field your control flow needs. `true`, the agent should proceed. `false`, the agent should not.
-
-Branches like `if (!result.allowed) return;` are the canonical pattern.
+Type: `boolean`. The only field your control flow needs. `true`, proceed; `false`, do not. `if (!result.allowed) return;` is the canonical pattern.
 
 ### `decision`
 
 Type: `"allow" | "block" | "escalate"`.
 
-The semantic decision. Mapped from the verdict-driven control flow:
-
-- `"allow"`, no matched antibody met the block threshold, and (in `verify` mode) the TEE returned an allow verdict.
-- `"block"`, at least one matched antibody hit the block threshold, OR the TEE returned a block verdict.
-- `"escalate"`, a SUSPICIOUS verdict landed in the escalate band, the `onEscalate` handler was invoked, and either returned `false` or timed out with `onTimeout: "deny"`.
+- `"allow"`, no enforcing antibody matched and any verifier verdict was benign.
+- `"block"`, a hard-block match fired, or the verifier returned a block verdict, or an advisory match under `block` policy.
+- `"escalate"`, a SUSPICIOUS verdict in the escalate band, where `onEscalate` returned `false` or timed out with `onTimeout: "deny"`.
 
 `allowed === (decision === "allow")` is invariant.
 
 ### `source`
 
-Type: `"cache" | "registry" | "tee" | "policy"`.
-
-Which tier resolved the check. See [Three-tier lookup](/concepts/three-tier-lookup/) for the full semantics.
+Type: `"cache" | "registry" | "tee" | "policy"`. Which tier resolved the check.
 
 | `source` | Tier | Meaning |
 |---|---|---|
-| `"cache"` | Tier 1 | matched in local in-memory cache |
+| `"cache"` | Tier 1 | matched in the local cache |
 | `"registry"` | Tier 2 | cache miss + on-chain matcher hit |
-| `"tee"` | Tier 3 | cache + chain miss, TEE inference fired |
-| `"policy"` | none | no tier matched, `trust-cache` or `deny-novel` decided |
+| `"tee"` | Tier 3 | cache + chain miss, CRE verdict fired |
+| `"policy"` | none | no match; `trust-cache` or `deny-novel` decided |
+
+See [Three-tier lookup](/concepts/three-tier-lookup/).
 
 ### `confidence`
 
-Type: `number`, range 0..100.
-
-Highest confidence among matched antibodies, or the TEE-returned confidence if Tier 3 fired. Drives the `decision` mapping via `confidenceThresholds`.
-
-For `source: "policy"` results, `confidence` is 0.
+Type: `number`, 0..100. Highest confidence among matched antibodies, or the CRE-returned confidence when Tier 3 fired. `0` for `source: "policy"`.
 
 ### `antibodies`
 
-Type: `Antibody[]`.
-
-Matched antibodies. Multiple matches are possible (e.g., one ADDRESS + one CALL_PATTERN both fire on the same tx). Empty for `decision: "allow"`.
-
-The first element is the **primary** match (highest severity, then highest confidence as tiebreak). Most agents only need `result.antibodies[0]`.
-
-See [Antibody](/reference/antibody/) for the per-antibody shape.
+Type: `Antibody[]`. Matched antibodies; multiple are possible (an ADDRESS and a CALL_PATTERN can both fire). Empty for an allow. The first element is the primary match. See [Antibody](/reference/antibody/).
 
 ### `reason`
 
-Type: `string`.
-
-Human-readable summary. Formats vary by source:
-
-- `"cache"` / `"registry"`, joined description from the matched antibodies.
-- `"tee"`, the TEE-returned reasoning string (kept under 200 chars).
-- `"policy"`, a static string explaining the policy choice.
-
-**Do not branch on this field.** Branch on `allowed`, `decision`, or `source`. `reason` is for logs and operator UI.
+Type: `string`. Human-readable summary. **Do not branch on it**, branch on `allowed`, `decision`, or `source`. For logs and operator UI.
 
 ### `checkId`
 
-Type: `Hex32 | null`.
-
-The on-chain settlement transaction hash. The Registry's `CheckSettled` event log carries the canonical record.
-
-`null` when:
-
-- `source: "policy"` shortcircuit (the SDK skipped settlement entirely).
-- TEE inference failed and the SDK degraded to policy.
-- `deny-novel` blocks where no candidate matcher was constructible.
-
-`null` is **not** a bug. It signals "we did not need the chain to make this decision."
+Type: `Hex32 | null`. The on-chain settlement transaction hash, or `null` when the SDK made no on-chain call (a `trust-cache`/`deny-novel` policy decision, or a degraded path). `null` is not a bug; it signals the chain was not needed.
 
 ### `novel`
 
-Type: `boolean`.
-
-`true` only when:
-- `decision: "allow"`, AND
-- `source: "policy"`, AND
-- `novelThreatPolicy: "trust-cache"` decided.
-
-In other words, "the network has not seen this before, but we let it through anyway because the configured policy says so." Useful for downstream agents that want to flag novel-but-allowed actions for batch review.
+Type: `boolean`. `true` only when the result is an `allow` from a cache miss with no verification, i.e. `decision: "allow"`, `source: "policy"`, under `trust-cache`. Useful for queuing novel-but-allowed actions for batch review.
 
 ### `txFacts`
 
-Type: `TxFacts`.
-
-The SDK's extracted view of the proposed tx that got submitted to the chain via `Registry.check()` for indexing:
+Type: `TxFacts`. The SDK's extracted view of the proposed tx, submitted on chain for the indexer's value-at-risk pricing:
 
 ```ts
 interface TxFacts {
-  tokenAddress: Hex32;     // 0x0...0 if no token detected
-  tokenAmount: bigint;     // 0 if no amount
-  originChainId: bigint;   // 0 if not derivable
+  tokenAddress: Address;   // 0x0...0 if none detected
+  tokenAmount: bigint;     // 0 if none
+  originChainId: number;   // 0 if not derivable
 }
 ```
 
-All-zero is a legitimate state (e.g., a non-EVM action with `tx: null`). The indexer uses `txFacts` for the value-protected math; missing facts mean the indexer cannot price the action.
+All-zero is legitimate (a `null` tx, or unrecognized calldata). Read-only; operators cannot override it.
+
+### `pendingWrite`
+
+Type: `Promise<PublishResult | null>` (optional). Present **only** when the auto-publish seam fired: `autoPublishConfirmedThreats` is on, the wallet is registered, and a Tier-3 verdict confirmed a threat. It resolves to the `PublishResult`, or `null` if skipped (not registered / balance short) or if it failed (the failure is logged and never affects the decision). A one-shot agent can `await result.pendingWrite` before exiting; long-lived agents ignore it.
 
 ## Example uses
 
@@ -143,28 +105,20 @@ log.info({
 }, "immunity.check");
 ```
 
-### Operator notification
-
-```ts
-if (!result.allowed) {
-  notifySlack({
-    title: `Blocked: ${result.antibodies[0]?.immId ?? "unknown"}`,
-    color: "danger",
-    fields: [
-      { title: "Decision", value: result.decision },
-      { title: "Source", value: result.source },
-      { title: "Reason", value: result.reason },
-    ],
-  });
-}
-```
-
 ### Treating "novel" specially
 
 ```ts
 if (result.allowed && result.novel) {
   await batchReviewQueue.enqueue({ tx, txFacts: result.txFacts });
 }
+```
+
+### Awaiting an auto-published antibody
+
+```ts
+const result = await immunity.check(tx, ctx);
+const published = await result.pendingWrite;   // PublishResult | null | undefined
+if (published) console.log(`auto-published ${published.immId}`);
 ```
 
 ## See also
